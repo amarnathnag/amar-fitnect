@@ -1,6 +1,7 @@
 
 import React from 'react';
 import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,10 +46,10 @@ const Contact = () => {
                 For general inquiries and support
               </p>
               <a 
-                href="mailto:support@amarhealthyhealth.com" 
+                href="mailto:support@smartdocai.com" 
                 className="mt-2 inline-block text-health-primary hover:text-health-accent font-medium"
               >
-                support@amarhealthyhealth.com
+                support@smartdocai.com
               </a>
             </CardContent>
           </Card>
@@ -205,6 +206,8 @@ const Contact = () => {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

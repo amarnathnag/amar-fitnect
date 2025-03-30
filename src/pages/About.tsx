@@ -1,6 +1,7 @@
 
 import React from 'react';
 import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Award, Heart, Shield, Users } from 'lucide-react';
 
@@ -12,7 +13,7 @@ const About = () => {
       <div className="container-custom py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            About Amar Healthy Health
+            About SmartDoc AI
           </h1>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             We're on a mission to make healthcare accessible, personalized, and effective for everyone.
@@ -23,7 +24,7 @@ const About = () => {
           <div>
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Our Story</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Amar Healthy Health was founded in 2023 with a simple but powerful vision: to revolutionize healthcare by combining cutting-edge technology with personalized medical expertise.
+              SmartDoc AI was founded in 2023 with a simple but powerful vision: to revolutionize healthcare by combining cutting-edge technology with personalized medical expertise.
             </p>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               Our founder, Dr. Amar Singh, experienced firsthand the challenges many people face when trying to access quality healthcare. Inspired by his own journey and the stories of countless patients, he assembled a team of healthcare professionals, AI experts, and tech innovators to create a platform that bridges the gap between traditional medicine and modern technology.
@@ -36,7 +37,7 @@ const About = () => {
           <div className="rounded-lg overflow-hidden h-80 bg-gradient-to-r from-health-primary to-health-accent flex items-center justify-center">
             <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center">
               <div className="w-20 h-20 rounded-full bg-gradient-to-r from-health-primary to-health-accent flex items-center justify-center text-white font-bold text-4xl">
-                AH
+                SD
               </div>
             </div>
           </div>
@@ -161,10 +162,12 @@ const About = () => {
           <Award className="h-12 w-12 mx-auto mb-4 text-health-primary" />
           <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Our Commitment to You</h2>
           <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            At Amar Healthy Health, we're committed to empowering you with the tools, knowledge, and support you need to live your healthiest life. Whether through our AI-powered health assistant, our network of expert doctors, or our supportive community, we're here to guide you on your health journey every step of the way.
+            At SmartDoc AI, we're committed to empowering you with the tools, knowledge, and support you need to live your healthiest life. Whether through our AI-powered health assistant, our network of expert doctors, or our supportive community, we're here to guide you on your health journey every step of the way.
           </p>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

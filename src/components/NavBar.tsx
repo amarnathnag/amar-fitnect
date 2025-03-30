@@ -48,10 +48,10 @@ const NavBar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 rounded-full bg-gradient-to-r from-health-primary to-health-accent flex items-center justify-center text-white font-bold text-lg">
-              AH
+              SD
             </div>
             <span className="text-xl font-semibold bg-gradient-to-r from-health-primary to-health-accent bg-clip-text text-transparent">
-              Amar Healthy Health
+              SmartDoc AI
             </span>
           </Link>
 
