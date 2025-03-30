@@ -10,6 +10,7 @@ import BmiCalculator from "./pages/BmiCalculator";
 import DietPlans from "./pages/DietPlans";
 import Workouts from "./pages/Workouts";
 import DiseaseManagement from "./pages/DiseaseManagement";
+import DiseaseDetail from "./pages/DiseaseDetail";
 import NotFound from "./pages/NotFound";
 
 // Create a client
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/diet-plans" element={<DietPlans />} />
             <Route path="/workouts" element={<Workouts />} />
             <Route path="/disease-management" element={<DiseaseManagement />} />
+            <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

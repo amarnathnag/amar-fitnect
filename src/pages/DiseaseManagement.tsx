@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -103,7 +102,9 @@ const DiseaseManagement = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="border-t bg-gray-50 dark:bg-gray-800/50 p-4 flex justify-between">
-                    <Button variant="outline" className="flex-1 mr-2">View Diet Plan</Button>
+                    <Button variant="outline" className="flex-1 mr-2" asChild>
+                      <Link to="/diet-plans">View Diet Plan</Link>
+                    </Button>
                     <Button className="flex-1 ml-2 btn-primary" asChild>
                       <Link to={`/disease-management/${disease.id}`}>
                         Management <ArrowRight className="ml-1 h-4 w-4" />
