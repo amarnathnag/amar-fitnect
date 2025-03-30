@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,6 @@ const Community = () => {
   const [activeTab, setActiveTab] = useState("feed");
   const [postContent, setPostContent] = useState("");
 
-  // Mock data for community posts
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -215,7 +213,6 @@ const Community = () => {
     });
   };
 
-  // Mock data for trending topics
   const trendingTopics = [
     {
       topic: "Mediterranean Diet",
@@ -244,7 +241,6 @@ const Community = () => {
     }
   ];
 
-  // Mock data for active groups
   const activeGroups = [
     {
       name: "Weight Loss Support",
@@ -282,7 +278,6 @@ const Community = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Sidebar - Mobile Tabs */}
             <div className="lg:hidden col-span-12">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid grid-cols-3 w-full">
@@ -293,7 +288,6 @@ const Community = () => {
               </Tabs>
             </div>
 
-            {/* Left Sidebar - Desktop */}
             <div className="hidden lg:block lg:col-span-3 space-y-6">
               <Card>
                 <CardHeader className="pb-3">
@@ -365,9 +359,7 @@ const Community = () => {
               </Card>
             </div>
 
-            {/* Main Content */}
             <div className="lg:col-span-6 space-y-6">
-              {/* Mobile Tabs Content */}
               <Tabs value={activeTab} className="lg:hidden">
                 <TabsContent value="trending" className="mt-0 space-y-6">
                   <Card>
@@ -416,7 +408,6 @@ const Community = () => {
                 </TabsContent>
               </Tabs>
 
-              {/* Create Post */}
               <Card className={activeTab === "feed" ? "block" : "hidden lg:block"}>
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-4">
@@ -451,7 +442,6 @@ const Community = () => {
                 </CardContent>
               </Card>
 
-              {/* Feed */}
               {(activeTab === "feed" || activeTab === "trending" || activeTab === "groups") && (
                 <div className="space-y-6">
                   {posts.map(post => (
@@ -549,19 +539,26 @@ const Community = () => {
                               <Input 
                                 placeholder="Add a comment..." 
                                 className="pr-10"
-                                onKeyPress={(e) => {
+                                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
                                   if (e.key === 'Enter') {
-                                    handleAddComment(post.id, e.target.value);
-                                    e.target.value = '';
+                                    const target = e.target as HTMLInputElement;
+                                    handleAddComment(post.id, target.value);
+                                    target.value = '';
                                   }
                                 }}
                               />
                               <button 
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-health-primary"
-                                onClick={(e) => {
-                                  const input = e.target.closest('.relative').querySelector('input');
-                                  handleAddComment(post.id, input.value);
-                                  input.value = '';
+                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                  const button = e.target as HTMLElement;
+                                  const inputContainer = button.closest('.relative') as HTMLElement;
+                                  if (inputContainer) {
+                                    const input = inputContainer.querySelector('input') as HTMLInputElement;
+                                    if (input) {
+                                      handleAddComment(post.id, input.value);
+                                      input.value = '';
+                                    }
+                                  }
                                 }}
                               >
                                 <Send className="h-4 w-4" />
@@ -576,7 +573,6 @@ const Community = () => {
               )}
             </div>
 
-            {/* Right Sidebar */}
             <div className="hidden lg:block lg:col-span-3 space-y-6">
               <Card>
                 <CardHeader className="pb-3">
