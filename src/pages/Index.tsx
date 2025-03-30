@@ -37,11 +37,12 @@ const Index = () => {
                 </div>
               </div>
               <div className="hidden md:block relative">
-                <div className="aspect-square bg-white dark:bg-card rounded-full p-10 shadow-xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-health-primary/10 to-health-accent/10 rounded-full"></div>
-                  <div className="relative h-full w-full flex items-center justify-center">
-                    <div className="text-8xl font-bold text-health-primary animate-pulse-slow">AH</div>
-                  </div>
+                <div className="aspect-square bg-white dark:bg-card rounded-lg p-2 shadow-xl relative overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2153&q=80" 
+                    alt="Healthy food and fitness" 
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                   <div className="absolute -right-6 bottom-20 bg-white dark:bg-card p-4 rounded-xl shadow-lg animate-fade-in">
                     <div className="flex items-center gap-2">
                       <div className="h-3 w-3 rounded-full bg-health-primary"></div>

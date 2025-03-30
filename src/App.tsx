@@ -11,6 +11,9 @@ import DietPlans from "./pages/DietPlans";
 import Workouts from "./pages/Workouts";
 import DiseaseManagement from "./pages/DiseaseManagement";
 import DiseaseDetail from "./pages/DiseaseDetail";
+import DailyRoutine from "./pages/DailyRoutine";
+import Profile from "./pages/Profile";
+import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 // Create a client
@@ -30,6 +33,9 @@ const App = () => (
             <Route path="/workouts" element={<Workouts />} />
             <Route path="/disease-management" element={<DiseaseManagement />} />
             <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
+            <Route path="/daily-routine" element={<DailyRoutine />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/community" element={<Community />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
