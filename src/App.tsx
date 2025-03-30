@@ -14,6 +14,8 @@ import DiseaseDetail from "./pages/DiseaseDetail";
 import DailyRoutine from "./pages/DailyRoutine";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
+import DoctorConsultation from "./pages/DoctorConsultation";
+import PremiumAi from "./pages/PremiumAi";
 import NotFound from "./pages/NotFound";
 
 // Create a client
@@ -34,6 +36,8 @@ const App = () => (
             <Route path="/disease-management" element={<DiseaseManagement />} />
             <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
             <Route path="/daily-routine" element={<DailyRoutine />} />
+            <Route path="/doctor-consultation" element={<DoctorConsultation />} />
+            <Route path="/premium-ai" element={<PremiumAi />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/community" element={<Community />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
