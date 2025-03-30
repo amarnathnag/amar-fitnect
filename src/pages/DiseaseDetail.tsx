@@ -3,7 +3,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Utensils, Heart, X, Check, Info, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Utensils, Heart, X, Check, Info, AlertCircle, Dumbbell, Droplet } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 
