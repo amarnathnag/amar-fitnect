@@ -79,8 +79,16 @@ const Footer = () => {
           <div className="col-span-1">
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-              <li>Email: info@smartdocai.com</li>
-              <li>Phone: +1 (555) 123-4567</li>
+              <li>
+                <a href="mailto:amarnathnag0609@gmail.com" className="hover:text-health-primary transition-colors">
+                  Email: amarnathnag0609@gmail.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:+919883810559" className="hover:text-health-primary transition-colors">
+                  Phone: +91 9883810559
+                </a>
+              </li>
               <li>Address: 123 Health Street</li>
               <li>City, State 12345</li>
             </ul>

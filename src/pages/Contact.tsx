@@ -46,10 +46,10 @@ const Contact = () => {
                 For general inquiries and support
               </p>
               <a 
-                href="mailto:support@smartdocai.com" 
+                href="mailto:amarnathnag0609@gmail.com" 
                 className="mt-2 inline-block text-health-primary hover:text-health-accent font-medium"
               >
-                support@smartdocai.com
+                amarnathnag0609@gmail.com
               </a>
             </CardContent>
           </Card>
@@ -64,10 +64,10 @@ const Contact = () => {
                 Available Monday-Friday, 9am-6pm
               </p>
               <a 
-                href="tel:+918001234567" 
+                href="tel:+919883810559" 
                 className="mt-2 inline-block text-health-primary hover:text-health-accent font-medium"
               >
-                +91 800 123 4567
+                +91 9883810559
               </a>
             </CardContent>
           </Card>

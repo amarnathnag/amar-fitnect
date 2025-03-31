@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Salad, UtensilsCrossed, Apple, Beef, Sandwich, Coffee, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface MealPlan {
   id: string;
@@ -120,6 +121,54 @@ const DietPlans = () => {
         },
       ],
     },
+    {
+      id: 'non-veg-3',
+      type: 'non-vegetarian',
+      title: 'Weight Gain Plan',
+      description: 'A calorie-dense diet plan designed to support healthy weight gain and muscle building.',
+      calories: 3000,
+      protein: 180,
+      carbs: 300,
+      fat: 100,
+      meals: [
+        {
+          time: '7:00 AM',
+          name: 'Breakfast',
+          description: 'Protein pancakes (3) with banana, eggs, and oats, topped with 2 tbsp peanut butter and maple syrup',
+          icon: <Coffee className="h-5 w-5" />,
+        },
+        {
+          time: '10:00 AM',
+          name: 'Mid-morning Snack',
+          description: 'Protein smoothie with 2 scoops whey protein, banana, milk, oats, and 1 tbsp almond butter',
+          icon: <Apple className="h-5 w-5" />,
+        },
+        {
+          time: '1:00 PM',
+          name: 'Lunch',
+          description: 'Chicken burrito bowl with rice (1 cup), chicken (150g), black beans, avocado, cheese, and sour cream',
+          icon: <Sandwich className="h-5 w-5" />,
+        },
+        {
+          time: '4:00 PM',
+          name: 'Afternoon Snack',
+          description: 'Tuna sandwich with 1 can tuna, mayo, 2 slices whole grain bread, and a handful of almonds (30g)',
+          icon: <Apple className="h-5 w-5" />,
+        },
+        {
+          time: '7:00 PM',
+          name: 'Dinner',
+          description: 'Steak (200g) with baked potato, sour cream, cheese, and steamed vegetables with olive oil',
+          icon: <UtensilsCrossed className="h-5 w-5" />,
+        },
+        {
+          time: '9:30 PM',
+          name: 'Before Bed',
+          description: 'Casein protein shake with milk and 1 tbsp peanut butter',
+          icon: <Apple className="h-5 w-5" />,
+        },
+      ],
+    },
     
     // Vegetarian meal plans
     {
@@ -206,6 +255,54 @@ const DietPlans = () => {
         },
       ],
     },
+    {
+      id: 'veg-3',
+      type: 'vegetarian',
+      title: 'Vegetarian Weight Gain',
+      description: 'A calorie-surplus vegetarian diet to support healthy weight gain and muscle building.',
+      calories: 2800,
+      protein: 120,
+      carbs: 350,
+      fat: 90,
+      meals: [
+        {
+          time: '7:00 AM',
+          name: 'Breakfast',
+          description: 'Protein-packed oatmeal with 1 cup oats, milk, 2 tbsp peanut butter, banana, and honey',
+          icon: <Coffee className="h-5 w-5" />,
+        },
+        {
+          time: '10:00 AM',
+          name: 'Mid-morning Snack',
+          description: 'Smoothie with yogurt, milk, banana, berries, protein powder, and 2 tbsp almond butter',
+          icon: <Apple className="h-5 w-5" />,
+        },
+        {
+          time: '1:00 PM',
+          name: 'Lunch',
+          description: 'Bean and cheese burrito with avocado, rice, sour cream, and a side of tortilla chips with guacamole',
+          icon: <Sandwich className="h-5 w-5" />,
+        },
+        {
+          time: '4:00 PM',
+          name: 'Afternoon Snack',
+          description: 'Trail mix (1/2 cup) with nuts, seeds, dried fruit, and dark chocolate pieces',
+          icon: <Apple className="h-5 w-5" />,
+        },
+        {
+          time: '7:00 PM',
+          name: 'Dinner',
+          description: 'Vegetable lasagna with ricotta, mozzarella, and a side of garlic bread with olive oil',
+          icon: <UtensilsCrossed className="h-5 w-5" />,
+        },
+        {
+          time: '9:30 PM',
+          name: 'Before Bed',
+          description: 'Greek yogurt (1 cup) with granola and honey',
+          icon: <Apple className="h-5 w-5" />,
+        },
+      ],
+    },
     
     // Vegan meal plans
     {
@@ -289,6 +386,54 @@ const DietPlans = () => {
           name: 'Dinner',
           description: 'Stir-fried tofu with vegetables and brown rice (1/2 cup)',
           icon: <UtensilsCrossed className="h-5 w-5" />,
+        },
+      ],
+    },
+    {
+      id: 'vegan-3',
+      type: 'vegan',
+      title: 'Vegan Weight Gain',
+      description: 'A calorie-dense vegan diet designed for healthy weight gain and muscle building.',
+      calories: 2900,
+      protein: 110,
+      carbs: 380,
+      fat: 95,
+      meals: [
+        {
+          time: '7:00 AM',
+          name: 'Breakfast',
+          description: 'Protein-packed smoothie bowl with plant protein, frozen banana, berries, almond milk, topped with granola, nuts, and seeds',
+          icon: <Coffee className="h-5 w-5" />,
+        },
+        {
+          time: '10:00 AM',
+          name: 'Mid-morning Snack',
+          description: 'Avocado toast (2 slices) with nutritional yeast, hemp seeds, and olive oil',
+          icon: <Apple className="h-5 w-5" />,
+        },
+        {
+          time: '1:00 PM',
+          name: 'Lunch',
+          description: 'Chickpea pasta (1.5 cups) with cashew cream sauce, nutritional yeast, and sautéed vegetables',
+          icon: <Sandwich className="h-5 w-5" />,
+        },
+        {
+          time: '4:00 PM',
+          name: 'Afternoon Snack',
+          description: 'Trail mix (1/2 cup) with nuts, seeds, and dried fruits, plus a banana with 2 tbsp almond butter',
+          icon: <Apple className="h-5 w-5" />,
+        },
+        {
+          time: '7:00 PM',
+          name: 'Dinner',
+          description: 'Tempeh and vegetable stir-fry with coconut oil, served over brown rice (1 cup) with tahini sauce',
+          icon: <UtensilsCrossed className="h-5 w-5" />,
+        },
+        {
+          time: '9:30 PM',
+          name: 'Before Bed',
+          description: 'Plant-based protein shake with almond milk, 1 tbsp nut butter, and 1 tbsp coconut oil',
+          icon: <Apple className="h-5 w-5" />,
         },
       ],
     },
@@ -411,7 +556,9 @@ const DietPlans = () => {
                           )}
                         </CardContent>
                         <CardFooter className="border-t bg-gray-50 dark:bg-gray-800/50 p-4">
-                          <Button className="w-full btn-primary">Get Full Meal Plan</Button>
+                          <Link to="/daily-routine" className="w-full">
+                            <Button className="w-full btn-primary">Get Full Meal Plan</Button>
+                          </Link>
                         </CardFooter>
                       </Card>
                     ))}
@@ -493,7 +640,9 @@ const DietPlans = () => {
                           )}
                         </CardContent>
                         <CardFooter className="border-t bg-gray-50 dark:bg-gray-800/50 p-4">
-                          <Button className="w-full btn-primary">Get Full Meal Plan</Button>
+                          <Link to="/daily-routine" className="w-full">
+                            <Button className="w-full btn-primary">Get Full Meal Plan</Button>
+                          </Link>
                         </CardFooter>
                       </Card>
                     ))}
@@ -575,7 +724,9 @@ const DietPlans = () => {
                           )}
                         </CardContent>
                         <CardFooter className="border-t bg-gray-50 dark:bg-gray-800/50 p-4">
-                          <Button className="w-full btn-primary">Get Full Meal Plan</Button>
+                          <Link to="/daily-routine" className="w-full">
+                            <Button className="w-full btn-primary">Get Full Meal Plan</Button>
+                          </Link>
                         </CardFooter>
                       </Card>
                     ))}
