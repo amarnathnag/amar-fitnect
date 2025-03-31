@@ -19,6 +19,7 @@ import PremiumAi from "./pages/PremiumAi";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import WomensHealth from "./pages/WomensHealth";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/workouts" element={<Workouts />} />
             <Route path="/disease-management" element={<DiseaseManagement />} />
             <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
+            <Route path="/womens-health" element={<WomensHealth />} />
             <Route path="/daily-routine" element={<DailyRoutine />} />
             <Route path="/doctor-consultation" element={<DoctorConsultation />} />
             <Route path="/premium-ai" element={<PremiumAi />} />

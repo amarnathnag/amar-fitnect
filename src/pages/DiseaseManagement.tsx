@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Activity, Heart, Droplet, Dumbbell, Brain } from 'lucide-react';
+import { ArrowRight, Activity, Heart, Droplet, Dumbbell, Brain, Flower } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -57,6 +58,14 @@ const DiseaseManagement = () => {
       icon: <Dumbbell className="h-10 w-10" />,
       color: 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
     },
+    {
+      id: 'womens-health',
+      title: 'Women\'s Health',
+      description: 'Specialized care for women\'s unique health needs including hormonal disorders, pregnancy, menstrual health and more.',
+      symptoms: ['Menstrual irregularities', 'Pregnancy concerns', 'Hormonal imbalances', 'Breast health', 'Bone density issues', 'Reproductive health'],
+      icon: <Flower className="h-10 w-10" />,
+      color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
+    },
   ];
 
   return (
@@ -106,9 +115,15 @@ const DiseaseManagement = () => {
                       <Link to="/diet-plans">View Diet Plan</Link>
                     </Button>
                     <Button className="flex-1 ml-2 btn-primary" asChild>
-                      <Link to={`/disease-management/${disease.id}`}>
-                        Management <ArrowRight className="ml-1 h-4 w-4" />
-                      </Link>
+                      {disease.id === 'womens-health' ? (
+                        <Link to="/womens-health">
+                          Management <ArrowRight className="ml-1 h-4 w-4" />
+                        </Link>
+                      ) : (
+                        <Link to={`/disease-management/${disease.id}`}>
+                          Management <ArrowRight className="ml-1 h-4 w-4" />
+                        </Link>
+                      )}
                     </Button>
                   </CardFooter>
                 </Card>
