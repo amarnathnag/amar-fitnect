@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Salad, UtensilsCrossed, Apple, Beef, Sandwich, Coffee, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import DietIngredientsSection from '@/components/diet-plans/DietIngredientsSection';
 
 interface MealPlan {
   id: string;
@@ -735,6 +735,9 @@ const DietPlans = () => {
             </Tabs>
           </div>
         </section>
+
+        {/* Diet Ingredients & Cost Estimation Section */}
+        <DietIngredientsSection />
       </main>
 
       <Footer />
