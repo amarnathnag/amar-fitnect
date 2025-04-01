@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,20 +9,22 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, User, Settings, BarChart, FileText, Save, Heart, Activity, Weight, Calendar } from 'lucide-react';
+import { ArrowRight, User, Settings, BarChart, FileText, Save, Heart, Activity, Weight, Calendar, LogOut } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
 
 const Profile = () => {
   const { toast } = useToast();
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("personal");
   
   // Mock user data - in a real app this would come from an API or state management
   const [userData, setUserData] = useState({
     personal: {
-      name: "Alex Johnson",
-      email: "alex.johnson@example.com",
+      name: user?.name || "",
+      email: user?.email || "",
       age: 28,
       gender: "male",
       height: 175,
@@ -45,6 +47,20 @@ const Profile = () => {
       streakDays: 14,
     }
   });
+
+  // Update user data when auth user changes
+  useEffect(() => {
+    if (user) {
+      setUserData(prevData => ({
+        ...prevData,
+        personal: {
+          ...prevData.personal,
+          name: user.name || prevData.personal.name,
+          email: user.email
+        }
+      }));
+    }
+  }, [user]);
 
   const handlePersonalChange = (e) => {
     const { name, value } = e.target;
@@ -80,9 +96,22 @@ const Profile = () => {
 
   const saveChanges = () => {
     // In a real app, this would send data to an API
+    // For now, we'll just update localStorage with the name
+    if (userData.personal.name) {
+      localStorage.setItem("userName", userData.personal.name);
+    }
+    
     toast({
       title: "Changes saved!",
       description: "Your profile has been updated successfully.",
+    });
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
     });
   };
 
@@ -132,6 +161,14 @@ const Profile = () => {
                       onClick={() => setActiveTab("progress")}
                     >
                       <BarChart className="mr-2 h-4 w-4" /> Progress
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50 mt-4" 
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" /> Logout
                     </Button>
                   </div>
                 </CardContent>

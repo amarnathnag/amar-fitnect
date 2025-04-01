@@ -20,9 +20,41 @@ import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import WomensHealth from "./pages/WomensHealth";
+import Auth from "./pages/Auth";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Create a client
 const queryClient = new QueryClient();
+
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/" element={<Index />} />
+    <Route path="/auth" element={<Auth />} />
+    <Route path="/bmi-calculator" element={<BmiCalculator />} />
+    <Route path="/diet-plans" element={<DietPlans />} />
+    <Route path="/workouts" element={<Workouts />} />
+    <Route path="/disease-management" element={<DiseaseManagement />} />
+    <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
+    <Route path="/womens-health" element={<WomensHealth />} />
+    <Route path="/daily-routine" element={<DailyRoutine />} />
+    <Route path="/doctor-consultation" element={<DoctorConsultation />} />
+    <Route path="/premium-ai" element={<PremiumAi />} />
+    <Route 
+      path="/profile" 
+      element={
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+      } 
+    />
+    <Route path="/community" element={<Community />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/contact" element={<Contact />} />
+    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
 
 const App = () => (
   <React.StrictMode>
@@ -31,24 +63,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/bmi-calculator" element={<BmiCalculator />} />
-            <Route path="/diet-plans" element={<DietPlans />} />
-            <Route path="/workouts" element={<Workouts />} />
-            <Route path="/disease-management" element={<DiseaseManagement />} />
-            <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
-            <Route path="/womens-health" element={<WomensHealth />} />
-            <Route path="/daily-routine" element={<DailyRoutine />} />
-            <Route path="/doctor-consultation" element={<DoctorConsultation />} />
-            <Route path="/premium-ai" element={<PremiumAi />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
