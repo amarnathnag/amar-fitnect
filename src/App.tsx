@@ -20,7 +20,6 @@ import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import WomensHealth from "./pages/WomensHealth";
-import Auth from "./pages/Auth";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -30,7 +29,6 @@ const queryClient = new QueryClient();
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Index />} />
-    <Route path="/auth" element={<Auth />} />
     <Route path="/bmi-calculator" element={<BmiCalculator />} />
     <Route path="/diet-plans" element={<DietPlans />} />
     <Route path="/workouts" element={<Workouts />} />
