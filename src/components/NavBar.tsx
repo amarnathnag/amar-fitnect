@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, UserCircle, LogIn } from 'lucide-react';
+import { Menu, X, UserCircle, LogIn, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginModal from './auth/LoginModal';
 
@@ -69,6 +69,14 @@ const NavBar = () => {
                 `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
               }>
                 Women's Health
+              </NavLink>
+              <NavLink to="/chat" className={({ isActive }) => 
+                `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+              }>
+                <div className="flex items-center">
+                  <MessageSquare className="h-4 w-4 mr-1" />
+                  Chat
+                </div>
               </NavLink>
               
               {/* Auth buttons */}
@@ -149,6 +157,14 @@ const NavBar = () => {
                   `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
                 } onClick={closeMenu}>
                   Women's Health
+                </NavLink>
+                <NavLink to="/chat" className={({ isActive }) => 
+                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                } onClick={closeMenu}>
+                  <div className="flex items-center">
+                    <MessageSquare className="h-4 w-4 mr-1" />
+                    Chat
+                  </div>
                 </NavLink>
               </div>
             </div>

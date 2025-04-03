@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import WomensHealth from "./pages/WomensHealth";
+import Chat from "./pages/Chat";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -38,6 +39,7 @@ const AppRoutes = () => (
     <Route path="/daily-routine" element={<DailyRoutine />} />
     <Route path="/doctor-consultation" element={<DoctorConsultation />} />
     <Route path="/premium-ai" element={<PremiumAi />} />
+    <Route path="/chat" element={<Chat />} />
     <Route 
       path="/profile" 
       element={
