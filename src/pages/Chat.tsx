@@ -3,8 +3,14 @@ import React from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ChatInterface from '@/components/chat/ChatInterface';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const Chat = () => {
+  // Check if we're in development and API key is missing
+  const isDevelopment = import.meta.env.MODE === 'development';
+  const apiKeyMissing = !import.meta.env.VITE_DEEPSEEK_API_KEY;
+  
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
@@ -18,6 +24,16 @@ const Chat = () => {
               Get personalized guidance for your wellness journey.
             </p>
           </div>
+          
+          {isDevelopment && apiKeyMissing && (
+            <Alert variant="destructive" className="max-w-3xl mx-auto mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Developer Notice:</strong> DeepSeek API key not configured. 
+                Please create a <code>.env</code> file with <code>VITE_DEEPSEEK_API_KEY=your_api_key</code> to enable chat functionality.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <div className="max-w-3xl mx-auto">
             <ChatInterface />

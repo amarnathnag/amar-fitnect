@@ -18,6 +18,13 @@ interface DeepSeekMessage {
 export const getChatbotResponse = async (userInput: string, messageHistory: ChatMessage[]): Promise<string> => {
   console.log('Sending request to DeepSeek API with input:', userInput);
   
+  // Check if API key exists
+  const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    console.error('DeepSeek API key is not configured');
+    throw new Error('API key not configured. Please add your DeepSeek API key to the .env file.');
+  }
+  
   try {
     // Convert message history to the format expected by DeepSeek API
     const messages: DeepSeekMessage[] = [
@@ -41,9 +48,7 @@ export const getChatbotResponse = async (userInput: string, messageHistory: Chat
       }
     ];
 
-    // For demo purposes only! 
-    // In a real app, this API call should be made from a backend service
-    console.log('Creating request with API key:', import.meta.env.VITE_DEEPSEEK_API_KEY ? 'API key exists' : 'API key missing');
+    console.log('Creating request with API key:', apiKey ? 'API key exists' : 'API key missing');
     
     const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
       method: "POST",
@@ -51,7 +56,7 @@ export const getChatbotResponse = async (userInput: string, messageHistory: Chat
         "Content-Type": "application/json",
         // IMPORTANT: In production, NEVER include API keys directly in frontend code
         // This is only for demonstration purposes
-        "Authorization": `Bearer ${import.meta.env.VITE_DEEPSEEK_API_KEY || ""}`
+        "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: "deepseek-chat", // Update with correct model if needed
@@ -63,9 +68,21 @@ export const getChatbotResponse = async (userInput: string, messageHistory: Chat
     console.log('API Response status:', response.status);
     
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('DeepSeek API Error:', errorData);
-      throw new Error(errorData.message || 'Failed to get chatbot response');
+      const errorText = await response.text();
+      let errorMessage = 'Failed to get chatbot response';
+      
+      try {
+        // Try to parse as JSON, but handle case where it's not JSON
+        const errorData = JSON.parse(errorText);
+        console.error('DeepSeek API Error:', errorData);
+        errorMessage = errorData.message || errorMessage;
+      } catch (e) {
+        // Not JSON, use as plain text error
+        console.error('DeepSeek API Error (non-JSON):', errorText);
+        errorMessage = errorText || errorMessage;
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -75,7 +92,7 @@ export const getChatbotResponse = async (userInput: string, messageHistory: Chat
     console.error("Chatbot API Error:", error);
     // Provide a more specific error message
     if (error.toString().includes('API key')) {
-      return "I'm unable to respond right now due to an authentication issue. Please ensure the API key is correctly configured.";
+      return "I'm unable to respond right now due to an authentication issue. Please ensure the API key is correctly configured in the .env file.";
     } else if (error.toString().includes('network')) {
       return "I'm having trouble connecting to my knowledge database. Please check your internet connection and try again.";
     } else {

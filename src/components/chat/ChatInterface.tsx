@@ -1,12 +1,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { SendHorizontal, Mic, MicOff, Volume2, VolumeX, AlertCircle } from 'lucide-react';
+import { SendHorizontal, Mic, MicOff, Volume2, VolumeX, AlertCircle, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { getChatbotResponse, detectMedicalUrgency, detectLanguage } from '@/services/chatbotService';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ChatMessage {
   id: string;
@@ -72,14 +72,20 @@ const ChatInterface = () => {
 
   // Check if API key is configured
   useEffect(() => {
-    if (!import.meta.env.VITE_DEEPSEEK_API_KEY) {
-      setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
-      toast({
-        title: "Configuration Error",
-        description: "DeepSeek API key is missing. Please check the setup instructions.",
-        variant: "destructive"
-      });
-    }
+    const checkApiKey = async () => {
+      if (!import.meta.env.VITE_DEEPSEEK_API_KEY) {
+        setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
+        toast({
+          title: "Configuration Error",
+          description: "DeepSeek API key is missing. Please check the setup instructions.",
+          variant: "destructive"
+        });
+      } else {
+        setErrorMessage(null);
+      }
+    };
+    
+    checkApiKey();
   }, [toast]);
 
   // Auto-scroll to bottom when new messages arrive
@@ -141,6 +147,25 @@ const ChatInterface = () => {
     }
   };
 
+  const retryConfigConnection = () => {
+    // Force re-check of API configuration
+    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+    if (apiKey) {
+      setErrorMessage(null);
+      toast({
+        title: "Configuration Check",
+        description: "API key is now configured. You can start chatting!",
+      });
+    } else {
+      setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
+      toast({
+        title: "Configuration Error",
+        description: "DeepSeek API key is still missing. Please check the setup instructions.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
     
@@ -183,10 +208,16 @@ const ChatInterface = () => {
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error getting chatbot response:', error);
-      setErrorMessage("Failed to get a response. Please try again.");
+      
+      if (error.message && error.message.includes('API key')) {
+        setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
+      } else {
+        setErrorMessage("Failed to get a response. Please try again.");
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to get a response. Please try again.",
+        description: error.message || "Failed to get a response. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -213,7 +244,19 @@ const ChatInterface = () => {
       {errorMessage && (
         <Alert variant="destructive" className="m-2">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{errorMessage}</AlertDescription>
+          <AlertTitle>Configuration Error</AlertTitle>
+          <AlertDescription className="flex items-center justify-between">
+            <span>{errorMessage}</span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={retryConfigConnection} 
+              className="ml-2"
+            >
+              <RefreshCcw className="h-4 w-4 mr-1" />
+              Retry
+            </Button>
+          </AlertDescription>
         </Alert>
       )}
       
@@ -275,6 +318,7 @@ const ChatInterface = () => {
             size="icon"
             onClick={toggleSpeechRecognition}
             className={isListening ? 'bg-health-primary text-white' : ''}
+            disabled={!!errorMessage}
           >
             {isListening ? <MicOff size={18} /> : <Mic size={18} />}
           </Button>
@@ -285,12 +329,12 @@ const ChatInterface = () => {
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             className="resize-none min-h-10"
-            disabled={isLoading}
+            disabled={isLoading || !!errorMessage}
           />
           
           <Button 
             onClick={handleSendMessage} 
-            disabled={!inputMessage.trim() || isLoading}
+            disabled={!inputMessage.trim() || isLoading || !!errorMessage}
             variant="default"
           >
             <SendHorizontal size={18} />
