@@ -1,11 +1,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { SendHorizontal, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { SendHorizontal, Mic, MicOff, Volume2, VolumeX, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { getChatbotResponse } from '@/services/chatbotService';
+import { getChatbotResponse, detectMedicalUrgency, detectLanguage } from '@/services/chatbotService';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ChatMessage {
   id: string;
@@ -18,7 +19,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      content: 'Hello! I\'m your health assistant. How can I help you today?',
+      content: 'Hello! I\'m AmarHealth\'s AI assistant. How can I help with your health and wellness needs today?',
       role: 'assistant',
       timestamp: new Date()
     }
@@ -27,6 +28,7 @@ const ChatInterface = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
@@ -64,16 +66,26 @@ const ChatInterface = () => {
       if (recognition.current) {
         recognition.current.abort();
       }
+      stopSpeaking();
     };
+  }, [toast]);
+
+  // Check if API key is configured
+  useEffect(() => {
+    if (!import.meta.env.VITE_DEEPSEEK_API_KEY) {
+      setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
+      toast({
+        title: "Configuration Error",
+        description: "DeepSeek API key is missing. Please check the setup instructions.",
+        variant: "destructive"
+      });
+    }
   }, [toast]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -98,9 +110,20 @@ const ChatInterface = () => {
 
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      stopSpeaking();
+      
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        toast({
+          title: "Speech Error",
+          description: "Failed to speak the text. Please try again.",
+          variant: "destructive"
+        });
+      };
       speechSynthesis.speak(utterance);
     } else {
       toast({
@@ -131,6 +154,21 @@ const ChatInterface = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setErrorMessage(null);
+    
+    // Check if the message suggests medical urgency
+    const isUrgent = detectMedicalUrgency(inputMessage);
+    if (isUrgent) {
+      toast({
+        title: "Medical Concern Detected",
+        description: "Based on your message, you may need immediate medical attention. Please consider consulting a doctor.",
+        variant: "destructive"
+      });
+    }
+
+    // Detect language
+    const detectedLanguage = detectLanguage(inputMessage);
+    console.log(`Detected language: ${detectedLanguage}`);
     
     try {
       const response = await getChatbotResponse(inputMessage, messages);
@@ -145,6 +183,7 @@ const ChatInterface = () => {
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error getting chatbot response:', error);
+      setErrorMessage("Failed to get a response. Please try again.");
       toast({
         title: "Error",
         description: "Failed to get a response. Please try again.",
@@ -166,9 +205,17 @@ const ChatInterface = () => {
     <div className="flex flex-col h-[600px] border rounded-lg overflow-hidden bg-white shadow-md">
       {/* Chat header */}
       <div className="p-4 border-b bg-health-primary text-white">
-        <h2 className="font-semibold">Health Assistant</h2>
+        <h2 className="font-semibold">AmarHealth Assistant</h2>
         <p className="text-xs opacity-80">Ask me anything about health, diet, or wellness</p>
       </div>
+      
+      {/* API Key Error */}
+      {errorMessage && (
+        <Alert variant="destructive" className="m-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
       
       {/* Chat messages */}
       <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>

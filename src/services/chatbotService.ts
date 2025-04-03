@@ -16,11 +16,9 @@ interface DeepSeekMessage {
 // This is a frontend service to handle API communication
 // In a production environment, this should be handled by a backend service
 export const getChatbotResponse = async (userInput: string, messageHistory: ChatMessage[]): Promise<string> => {
+  console.log('Sending request to DeepSeek API with input:', userInput);
+  
   try {
-    // In a real implementation, you would call your backend API here
-    // For demo purposes, we're calling the DeepSeek API directly from the frontend
-    // This is NOT recommended for production as it exposes your API key
-    
     // Convert message history to the format expected by DeepSeek API
     const messages: DeepSeekMessage[] = [
       // System message to provide context to the AI
@@ -45,6 +43,8 @@ export const getChatbotResponse = async (userInput: string, messageHistory: Chat
 
     // For demo purposes only! 
     // In a real app, this API call should be made from a backend service
+    console.log('Creating request with API key:', import.meta.env.VITE_DEEPSEEK_API_KEY ? 'API key exists' : 'API key missing');
+    
     const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -60,16 +60,27 @@ export const getChatbotResponse = async (userInput: string, messageHistory: Chat
       })
     });
 
+    console.log('API Response status:', response.status);
+    
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to get chatbot response');
+      const errorData = await response.json();
+      console.error('DeepSeek API Error:', errorData);
+      throw new Error(errorData.message || 'Failed to get chatbot response');
     }
 
     const data = await response.json();
+    console.log('API Response data:', data);
     return data.choices[0].message.content;
   } catch (error) {
     console.error("Chatbot API Error:", error);
-    return "I'm sorry, I encountered an error. Please try again or contact support if the issue persists.";
+    // Provide a more specific error message
+    if (error.toString().includes('API key')) {
+      return "I'm unable to respond right now due to an authentication issue. Please ensure the API key is correctly configured.";
+    } else if (error.toString().includes('network')) {
+      return "I'm having trouble connecting to my knowledge database. Please check your internet connection and try again.";
+    } else {
+      return "I apologize, but I'm experiencing technical difficulties at the moment. Our team has been notified and is working on a solution.";
+    }
   }
 };
 
@@ -83,4 +94,18 @@ export const detectMedicalUrgency = (message: string): boolean => {
   return urgentTerms.some(term => 
     message.toLowerCase().includes(term.toLowerCase())
   );
+};
+
+// Function to detect language in user message
+export const detectLanguage = (message: string): 'english' | 'hindi' | 'bengali' | 'unknown' => {
+  // Simplified language detection based on common words/characters
+  // In a production app, use a proper language detection library
+  const hindiPattern = /[\u0900-\u097F]/;  // Hindi Unicode range
+  const bengaliPattern = /[\u0980-\u09FF]/; // Bengali Unicode range
+  
+  if (hindiPattern.test(message)) return 'hindi';
+  if (bengaliPattern.test(message)) return 'bengali';
+  
+  // Default to English if no specific patterns detected
+  return 'english';
 };

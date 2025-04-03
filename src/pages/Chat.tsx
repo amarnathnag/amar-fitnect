@@ -12,7 +12,7 @@ const Chat = () => {
       <main className="flex-grow py-8">
         <div className="container-custom mx-auto">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-health-primary mb-2">Health Assistant</h1>
+            <h1 className="text-3xl font-bold text-health-primary mb-2">AmarHealth AI Assistant</h1>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Ask our AI-powered health assistant about diet plans, workout routines, general health questions, and more.
               Get personalized guidance for your wellness journey.

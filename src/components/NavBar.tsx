@@ -34,8 +34,8 @@ const NavBar = () => {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <NavLink to="/" className="text-xl font-bold text-health-primary flex items-center">
-              <span className="hidden md:inline">WellnessGuide</span>
-              <span className="md:hidden">WG</span>
+              <span className="hidden md:inline">AmarHealth</span>
+              <span className="md:hidden">AH</span>
             </NavLink>
 
             {/* Desktop Menu */}
