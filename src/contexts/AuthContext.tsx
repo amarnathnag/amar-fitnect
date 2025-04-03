@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,7 +23,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     const email = localStorage.getItem('userEmail');
     const name = localStorage.getItem('userName');
@@ -43,10 +41,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      // For now, simulate authentication
-      // In a real app, this would be an API call
-      // await authService.login(email, password)
-      
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userEmail', email);
 
@@ -67,10 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (name: string, email: string, password: string) => {
     try {
       setIsLoading(true);
-      // For now, simulate authentication
-      // In a real app, this would be an API call
-      // await authService.signup(name, email, password)
-      
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userName', name);
       localStorage.setItem('userEmail', email);
@@ -95,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
     setUser(null);
-    navigate('/auth');
+    navigate('/');
   };
 
   return (
