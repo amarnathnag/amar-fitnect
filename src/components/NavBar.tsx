@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -151,7 +152,7 @@ const NavBar = () => {
                 </NavLink>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </nav>
 
