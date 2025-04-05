@@ -1,3 +1,4 @@
+
 import { toast } from '@/hooks/use-toast';
 
 export type Language = 'english' | 'hindi' | 'bengali';
@@ -33,6 +34,21 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
     hindi: "होम",
     bengali: "হোম"
   },
+  "about": {
+    english: "About",
+    hindi: "हमारे बारे में",
+    bengali: "আমাদের সম্পর্কে"
+  },
+  "contact": {
+    english: "Contact",
+    hindi: "संपर्क",
+    bengali: "যোগাযোগ"
+  },
+  "chat": {
+    english: "Chat",
+    hindi: "चैट",
+    bengali: "চ্যাট"
+  },
   "workouts": {
     english: "Workouts",
     hindi: "व्यायाम",
@@ -57,7 +73,7 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
   },
   "workout_description": {
     english: "Discover effective exercise programs tailored to your fitness goals, whether you're looking to lose weight, build muscle, or maintain your current fitness level.",
-    hindi: "अपने फिटनेस लक्ष्यों के अनुरूप प्रभावी व्यायाम कार्यक्रम खोजें, चाहे आप वजन कम करना चाहते हों, मांसपेशियां बनाना चाहते हों, या अपने वर्तમાન फिटनेस स्तर को बनाए रखना चाहते हों।",
+    hindi: "अपने फिटनेस लक्ष्यों के अनुरूप प्रभावी व्यायाम कार्यक्रम खोजें, चाहे आप वजन कम करना चाहते हों, मांसपेशियां बनाना चाहते हों, या अपने वर्तमান फिटनेस स्तर को बनाए रखना चाहते हों।",
     bengali: "আপনার ফিটনেস লক্ষ্য অনুযায়ী কার্যকর ব্যায়াম প্রোগ্রাম আবিষ্কার করুন, আপনি ওজন কমাতে চান, পেশী তৈরি করতে চান বা আপনার বর্তমান ফিটনেস স্তর বজায় রাখতে চান।"
   },
   "weight_loss": {
@@ -102,7 +118,7 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
   },
   "custom_workout_routine": {
     english: "Get a custom workout routine designed specifically for your fitness level, goals, and preferences.",
-    hindi: "अपने फिटनेस स्तर, लक्ष्यों और प्राथমिकताओं के लिए विशेष रूप से डिज़ाइन की गई कस্টম ओয়ার্কআउট रूটीन प्राप्त करें।",
+    hindi: "अपने फिटनेस स्तर, लक्ष्यों और प्राथमिकताओं के लिए विशेष रूप से डिज़ाइन की गई कस्टम ओय়ार्कआउट रूटीन प्राप्त करें।",
     bengali: "আপনার ফিটনেস লেভেল, লক্ষ্য এবং পছন্দের জন্য বিশেষভাবে ডিজাইন করা একটি কাস্টম ওয়ার্কআউট রুটিন পান।"
   },
   "check_bmi_first": {
@@ -138,6 +154,77 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
     bengali: "ভাষা বাংলায় পরিবর্তন করা হয়েছে"
   },
   
+  // Authentication
+  "login": {
+    english: "Login",
+    hindi: "लॉगिन",
+    bengali: "লগইন"
+  },
+  "signup": {
+    english: "Sign Up",
+    hindi: "साइन अप",
+    bengali: "সাইন আপ"
+  },
+  "logout": {
+    english: "Logout",
+    hindi: "लॉगआउट",
+    bengali: "লগআউট"
+  },
+  "profile": {
+    english: "Profile",
+    hindi: "प्रोफाइल",
+    bengali: "প্রোফাইল"
+  },
+  
+  // Messages
+  "welcomeMessage": {
+    english: "Welcome to AmarHealth",
+    hindi: "अमर हेल्थ में आपका स्वागत है",
+    bengali: "অমর হেলথে আপনাকে স্বাগতম"
+  },
+  "aboutTitle": {
+    english: "About Us",
+    hindi: "हमारे बारे में",
+    bengali: "আমাদের সম্পর্কে"
+  },
+  "contactTitle": {
+    english: "Contact Us",
+    hindi: "संपर्क करें",
+    bengali: "যোগাযোগ করুন"
+  },
+  
+  // Error Messages
+  "errorTitle": {
+    english: "Error",
+    hindi: "त्रुटि",
+    bengali: "ত্রুটি"
+  },
+  "errorMessage": {
+    english: "Something went wrong",
+    hindi: "कुछ गलत हो गया",
+    bengali: "কিছু ভুল হয়েছে"
+  },
+  "retry": {
+    english: "Retry",
+    hindi: "पुनः प्रयास करें",
+    bengali: "আবার চেষ্টা করুন"
+  },
+  "apiKeyMissing": {
+    english: "API key is missing",
+    hindi: "API कुंजी अनुपलब्ध है",
+    bengali: "API কী অনুপস্থিত"
+  },
+  "apiKeyInvalid": {
+    english: "API key is invalid",
+    hindi: "API कुंजी अमान्य है",
+    bengali: "API কী অবৈধ"
+  },
+  "networkError": {
+    english: "Network error",
+    hindi: "नेटवर्क त्रुटि",
+    bengali: "নেটওয়ার্ক ত্রুটি"
+  },
+  
   // Exercise page translations
   "exerciseDetailTitle": {
     english: 'Exercise Details & Tutorials',
@@ -146,7 +233,7 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
   },
   "exerciseDetailDescription": {
     english: 'Explore detailed exercise guides with step-by-step instructions for strength training, cardio workouts, and flexibility exercises.',
-    hindi: 'शक्ति प्रशिक्षण, कार्डियो वर्कआउट और लचीलापन व्यायाम के लिए चरण-দर-चरण निर्देशों के साथ विस्तृत व्यायाम गाइड का अन्वेषण करें।',
+    hindi: 'शक्ति प्रशिक्षण, कार्डियो वर्कआउट और लचीलापन व्यायाम के लिए चरण-दर-चरण निर्देशों के साथ विस्तृत व्यायाम गाइड का अन्वेषण करें।',
     bengali: 'শক্তি প্রশিক্ষণ, কার্ডিও ওয়ার্কআউট এবং নমনীয়তা ব্যায়ামের জন্য ধাপে ধাপে নির্দেশাবলী সহ বিস্তারিত ব্যায়াম গাইড অন্বেষণ করুন।'
   },
   "duration": {
@@ -171,7 +258,7 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
   },
   "advanced": {
     english: 'Advanced',
-    hindi: 'उन্নत',
+    hindi: 'उन्नत',
     bengali: 'উন্নত'
   },
   "calories": {
