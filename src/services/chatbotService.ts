@@ -50,49 +50,66 @@ export const getChatbotResponse = async (userInput: string, messageHistory: Chat
 
     console.log('Creating request with API key:', apiKey ? 'API key exists' : 'API key missing');
     
-    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // IMPORTANT: In production, NEVER include API keys directly in frontend code
-        // This is only for demonstration purposes
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat", // Update with correct model if needed
-        messages,
-        max_tokens: 500
-      })
-    });
+    // For testing, try a temporary solution with a fallback response if API fails
+    // In production, this should be properly handled on the backend
+    try {
+      const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "deepseek-chat", // Update with correct model if needed
+          messages,
+          max_tokens: 500
+        })
+      });
 
-    console.log('API Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage = 'Failed to get chatbot response';
+      console.log('API Response status:', response.status);
       
-      try {
-        // Try to parse as JSON, but handle case where it's not JSON
-        const errorData = JSON.parse(errorText);
-        console.error('DeepSeek API Error:', errorData);
-        errorMessage = errorData.message || errorMessage;
-      } catch (e) {
-        // Not JSON, use as plain text error
-        console.error('DeepSeek API Error (non-JSON):', errorText);
-        errorMessage = errorText || errorMessage;
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = 'Failed to get chatbot response';
+        
+        try {
+          // Try to parse as JSON, but handle case where it's not JSON
+          const errorData = JSON.parse(errorText);
+          console.error('DeepSeek API Error:', errorData);
+          errorMessage = errorData.error?.message || errorMessage;
+        } catch (e) {
+          // Not JSON, use as plain text error
+          console.error('DeepSeek API Error (non-JSON):', errorText);
+          errorMessage = errorText || errorMessage;
+        }
+        
+        // If authentication error, provide more specific message
+        if (response.status === 401) {
+          throw new Error("Authentication failed. Please check your API key and try again.");
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log('API Response data:', data);
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error("Chatbot API Error:", error);
+      
+      // For a better user experience in development, provide a fallback response
+      if (import.meta.env.MODE === 'development') {
+        console.log("Using fallback response for development");
+        return `I apologize, but I'm unable to connect to my knowledge base right now due to a technical issue: ${error.message}. In a production environment, you would receive a helpful response to your query about "${userInput}".`;
       }
       
-      throw new Error(errorMessage);
+      throw error; // Re-throw to be handled by the caller
     }
-
-    const data = await response.json();
-    console.log('API Response data:', data);
-    return data.choices[0].message.content;
   } catch (error) {
     console.error("Chatbot API Error:", error);
     // Provide a more specific error message
     if (error.toString().includes('API key')) {
-      return "I'm unable to respond right now due to an authentication issue. Please ensure the API key is correctly configured in the .env file.";
+      return "I'm unable to respond right now due to an authentication issue. Please ensure the API key is correctly configured.";
     } else if (error.toString().includes('network')) {
       return "I'm having trouble connecting to my knowledge database. Please check your internet connection and try again.";
     } else {

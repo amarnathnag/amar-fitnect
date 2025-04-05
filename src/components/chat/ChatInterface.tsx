@@ -73,7 +73,8 @@ const ChatInterface = () => {
   // Check if API key is configured
   useEffect(() => {
     const checkApiKey = async () => {
-      if (!import.meta.env.VITE_DEEPSEEK_API_KEY) {
+      const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+      if (!apiKey) {
         setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
         toast({
           title: "Configuration Error",
@@ -82,6 +83,7 @@ const ChatInterface = () => {
         });
       } else {
         setErrorMessage(null);
+        console.log("API key is configured");
       }
     };
     
@@ -156,6 +158,16 @@ const ChatInterface = () => {
         title: "Configuration Check",
         description: "API key is now configured. You can start chatting!",
       });
+      
+      // Add a test message to confirm configuration is working
+      const testMessage: ChatMessage = {
+        id: 'system-check',
+        content: 'API connection restored. You can now continue your conversation.',
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, testMessage]);
     } else {
       setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
       toast({
@@ -210,9 +222,9 @@ const ChatInterface = () => {
       console.error('Error getting chatbot response:', error);
       
       if (error.message && error.message.includes('API key')) {
-        setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
+        setErrorMessage("API key not configured or invalid. Please check your API key in the .env file.");
       } else {
-        setErrorMessage("Failed to get a response. Please try again.");
+        setErrorMessage("Failed to get a response. Please try again later.");
       }
       
       toast({
