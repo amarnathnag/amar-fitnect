@@ -11,7 +11,11 @@ type TranslationKey =
   'apiKeyMissing' | 'apiKeyInvalid' | 'networkError' |
   'duration' | 'difficulty' | 'calories' | 'targets' |
   'steps' | 'tips' | 'beginner' | 'intermediate' | 'advanced' |
-  'exerciseDetailTitle' | 'exerciseDetailDescription';
+  'exerciseDetailTitle' | 'exerciseDetailDescription' |
+  'workouts' | 'diet_plans' | 'bmi_calculator' | 'workout_routines' | 'workout_description' |
+  'weight_loss' | 'muscle_gain' | 'maintenance' | 'exercises' | 'sets' |
+  'more_exercises' | 'start_workout' | 'personalized_workout_plan' |
+  'custom_workout_routine' | 'check_bmi_first' | 'language_changed';
 
 interface Translations {
   [key: string]: {
@@ -53,7 +57,7 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
   },
   "workout_description": {
     english: "Discover effective exercise programs tailored to your fitness goals, whether you're looking to lose weight, build muscle, or maintain your current fitness level.",
-    hindi: "अपने फिटनेस लक्ष्यों के अनुरूप प्रभावी व्यायाम कार्यक्रम खोजें, चाहे आप वजन कम करना चाहते हों, मांसपेशियां बनाना चाहते हों, या अपने वर्तমান फिटनेस स्तर को बनाए रखना चाहते हों।",
+    hindi: "अपने फिटनेस लक्ष्यों के अनुरूप प्रभावी व्यायाम कार्यक्रम खोजें, चाहे आप वजन कम करना चाहते हों, मांसपेशियां बनाना चाहते हों, या अपने वर्तમાન फिटनेस स्तर को बनाए रखना चाहते हों।",
     bengali: "আপনার ফিটনেস লক্ষ্য অনুযায়ী কার্যকর ব্যায়াম প্রোগ্রাম আবিষ্কার করুন, আপনি ওজন কমাতে চান, পেশী তৈরি করতে চান বা আপনার বর্তমান ফিটনেস স্তর বজায় রাখতে চান।"
   },
   "weight_loss": {
@@ -142,7 +146,7 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
   },
   "exerciseDetailDescription": {
     english: 'Explore detailed exercise guides with step-by-step instructions for strength training, cardio workouts, and flexibility exercises.',
-    hindi: 'शक्ति प्रशिक्षण, कार्डियो वर्कआउट और लचीলापन व्यायाम के लिए चरण-দर-चरण निर्देशों के साथ विस्तृत व्यायाम गाइड का अन्वेषण करें।',
+    hindi: 'शक्ति प्रशिक्षण, कार्डियो वर्कआउट और लचीलापन व्यायाम के लिए चरण-দर-चरण निर्देशों के साथ विस्तृत व्यायाम गाइड का अन्वेषण करें।',
     bengali: 'শক্তি প্রশিক্ষণ, কার্ডিও ওয়ার্কআউট এবং নমনীয়তা ব্যায়ামের জন্য ধাপে ধাপে নির্দেশাবলী সহ বিস্তারিত ব্যায়াম গাইড অন্বেষণ করুন।'
   },
   "duration": {
@@ -153,7 +157,7 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
   "difficulty": {
     english: 'Difficulty',
     hindi: 'कठिनाई',
-    bengali: 'কঠি��তা'
+    bengali: 'কঠিতা'
   },
   "beginner": {
     english: 'Beginner',
