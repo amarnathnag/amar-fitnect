@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Language, Translate } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const LanguageSwitcher = () => {
@@ -25,7 +25,7 @@ const LanguageSwitcher = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="flex items-center gap-1">
-          <Translate className="h-4 w-4" />
+          <Globe className="h-4 w-4" />
           {!isMobile && <span>{translateText("language", language)}</span>}
         </Button>
       </DropdownMenuTrigger>
