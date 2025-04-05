@@ -1,75 +1,78 @@
 
-import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import BmiCalculator from "./pages/BmiCalculator";
-import DietPlans from "./pages/DietPlans";
-import Workouts from "./pages/Workouts";
-import DiseaseManagement from "./pages/DiseaseManagement";
-import DiseaseDetail from "./pages/DiseaseDetail";
-import DailyRoutine from "./pages/DailyRoutine";
-import Profile from "./pages/Profile";
-import Community from "./pages/Community";
-import DoctorConsultation from "./pages/DoctorConsultation";
-import PremiumAi from "./pages/PremiumAi";
-import NotFound from "./pages/NotFound";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import WomensHealth from "./pages/WomensHealth";
-import Chat from "./pages/Chat";
-import { AuthProvider } from "./contexts/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from 'next-themes';
+import { Toaster } from '@/components/ui/toaster';
 
-// Create a client
+// Pages
+import Index from '@/pages/Index';
+import About from '@/pages/About';
+import Contact from '@/pages/Contact';
+import Auth from '@/pages/Auth';
+import BmiCalculator from '@/pages/BmiCalculator';
+import DietPlans from '@/pages/DietPlans';
+import DiseaseManagement from '@/pages/DiseaseManagement';
+import DiseaseDetail from '@/pages/DiseaseDetail';
+import Workouts from '@/pages/Workouts';
+import WomensHealth from '@/pages/WomensHealth';
+import DailyRoutine from '@/pages/DailyRoutine';
+import Community from '@/pages/Community';
+import DoctorConsultation from '@/pages/DoctorConsultation';
+import Chat from '@/pages/Chat';
+import PremiumAi from '@/pages/PremiumAi';
+import Profile from '@/pages/Profile';
+import NotFound from '@/pages/NotFound';
+import { AuthProvider } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
+
+// Language Context
+import { LanguageProvider } from '@/contexts/LanguageContext';
+
+import './App.css';
+
 const queryClient = new QueryClient();
 
-const AppRoutes = () => (
-  <Routes>
-    <Route path="/" element={<Index />} />
-    <Route path="/bmi-calculator" element={<BmiCalculator />} />
-    <Route path="/diet-plans" element={<DietPlans />} />
-    <Route path="/workouts" element={<Workouts />} />
-    <Route path="/disease-management" element={<DiseaseManagement />} />
-    <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
-    <Route path="/womens-health" element={<WomensHealth />} />
-    <Route path="/daily-routine" element={<DailyRoutine />} />
-    <Route path="/doctor-consultation" element={<DoctorConsultation />} />
-    <Route path="/premium-ai" element={<PremiumAi />} />
-    <Route path="/chat" element={<Chat />} />
-    <Route 
-      path="/profile" 
-      element={
-        <ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>
-      } 
-    />
-    <Route path="/community" element={<Community />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/contact" element={<Contact />} />
-    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-);
-
-const App = () => (
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+function App() {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="light">
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
           <AuthProvider>
-            <AppRoutes />
+            <Router>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/bmi-calculator" element={<BmiCalculator />} />
+                <Route path="/diet-plans" element={<DietPlans />} />
+                <Route path="/disease-management" element={<DiseaseManagement />} />
+                <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
+                <Route path="/workouts" element={<Workouts />} />
+                <Route path="/womens-health" element={<WomensHealth />} />
+                <Route path="/daily-routine" element={<DailyRoutine />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/doctor-consultation" element={<DoctorConsultation />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/premium-ai" element={<PremiumAi />} />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+            </Router>
           </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </React.StrictMode>
-);
+        </LanguageProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+}
 
 export default App;
