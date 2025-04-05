@@ -25,6 +25,7 @@ import Profile from '@/pages/Profile';
 import NotFound from '@/pages/NotFound';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import ExerciseDetails from '@/pages/ExerciseDetails';
 
 // Language Context
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/disease-management" element={<DiseaseManagement />} />
                 <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
                 <Route path="/workouts" element={<Workouts />} />
+                <Route path="/exercise-details" element={<ExerciseDetails />} />
                 <Route path="/womens-health" element={<WomensHealth />} />
                 <Route path="/daily-routine" element={<DailyRoutine />} />
                 <Route path="/community" element={<Community />} />

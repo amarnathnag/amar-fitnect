@@ -167,7 +167,7 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="flex flex-col h-[600px] border rounded-lg overflow-hidden bg-white shadow-md">
+    <div className="flex flex-col h-[600px] md:h-[600px] border rounded-lg overflow-hidden bg-white shadow-md">
       <ChatHeader />
       
       <ErrorDisplay 
