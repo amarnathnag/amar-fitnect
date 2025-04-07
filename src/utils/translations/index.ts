@@ -7,12 +7,12 @@ import { dietTranslations } from './diet';
 import { exerciseTranslations } from './exercise';
 
 // Combine all translations
-export const translations: Record<TranslationKey, Record<Language, string>> = {
+export const translations = {
   ...commonTranslations,
   ...workoutTranslations,
   ...dietTranslations,
   ...exerciseTranslations
-};
+} as Record<TranslationKey, Record<Language, string>>;
 
 // Use 'export type' syntax for types when isolatedModules is enabled
 export type { Language, TranslationKey } from './types';
