@@ -62,7 +62,7 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
       </CardContent>
       <CardFooter className="border-t bg-gray-50 dark:bg-gray-800/50 p-4">
         <Button asChild className="w-full btn-primary flex items-center justify-center gap-2">
-          <Link to={`/exercise-details?id=${workout.id}`}>
+          <Link to={`/workout-detail?id=${workout.id}`}>
             <Play className="h-4 w-4" /> {translateText("start_workout", language)}
           </Link>
         </Button>
