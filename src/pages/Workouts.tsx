@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Dumbbell, Heart, Weight, Timer, Play } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { translateText } from '@/utils/translations';
 
 interface WorkoutPlan {
   id: string;
@@ -26,6 +27,8 @@ interface WorkoutPlan {
 }
 
 const Workouts = () => {
+  const { language } = useLanguage();
+  
   const workouts: WorkoutPlan[] = [
     // Weight Loss Workouts
     {
@@ -145,9 +148,9 @@ const Workouts = () => {
         <section className="bg-gradient-to-r from-health-light to-blue-50 dark:from-health-dark/30 dark:to-blue-900/30 py-12">
           <div className="container-custom">
             <div className="text-center">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">Workout Routines</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">{translateText("workout_routines", language)}</h1>
               <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
-                Discover effective exercise programs tailored to your fitness goals, whether you're looking to lose weight, build muscle, or maintain your current fitness level.
+                {translateText("workout_description", language)}
               </p>
             </div>
           </div>
@@ -161,15 +164,15 @@ const Workouts = () => {
                 <TabsList className="grid grid-cols-3 w-full max-w-xl">
                   <TabsTrigger value="weight-loss" className="flex items-center gap-2">
                     <Heart className="h-4 w-4" />
-                    <span>Weight Loss</span>
+                    <span>{translateText("weight_loss", language)}</span>
                   </TabsTrigger>
                   <TabsTrigger value="muscle-gain" className="flex items-center gap-2">
                     <Dumbbell className="h-4 w-4" />
-                    <span>Muscle Gain</span>
+                    <span>{translateText("muscle_gain", language)}</span>
                   </TabsTrigger>
                   <TabsTrigger value="maintenance" className="flex items-center gap-2">
                     <Weight className="h-4 w-4" />
-                    <span>Maintenance</span>
+                    <span>{translateText("maintenance", language)}</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -208,26 +211,26 @@ const Workouts = () => {
                             </div>
                           </div>
 
-                          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Exercises:</h3>
+                          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{translateText("exercises", language)}</h3>
                           <ul className="space-y-2">
                             {workout.exercises.slice(0, 3).map((exercise, index) => (
                               <li key={index} className="text-sm flex justify-between">
                                 <span>{exercise.name}</span>
                                 <span className="text-gray-500 dark:text-gray-400">
-                                  {exercise.sets} sets × {exercise.reps}
+                                  {exercise.sets} {translateText("sets", language)} × {exercise.reps}
                                 </span>
                               </li>
                             ))}
                             {workout.exercises.length > 3 && (
                               <li className="text-sm text-health-primary font-medium">
-                                +{workout.exercises.length - 3} more exercises
+                                +{workout.exercises.length - 3} {translateText("more_exercises", language)}
                               </li>
                             )}
                           </ul>
                         </CardContent>
                         <CardFooter className="border-t bg-gray-50 dark:bg-gray-800/50 p-4">
                           <Button className="w-full btn-primary flex items-center justify-center gap-2">
-                            <Play className="h-4 w-4" /> Start Workout
+                            <Play className="h-4 w-4" /> {translateText("start_workout", language)}
                           </Button>
                         </CardFooter>
                       </Card>
@@ -269,26 +272,26 @@ const Workouts = () => {
                             </div>
                           </div>
 
-                          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Exercises:</h3>
+                          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{translateText("exercises", language)}</h3>
                           <ul className="space-y-2">
                             {workout.exercises.slice(0, 3).map((exercise, index) => (
                               <li key={index} className="text-sm flex justify-between">
                                 <span>{exercise.name}</span>
                                 <span className="text-gray-500 dark:text-gray-400">
-                                  {exercise.sets} sets × {exercise.reps}
+                                  {exercise.sets} {translateText("sets", language)} × {exercise.reps}
                                 </span>
                               </li>
                             ))}
                             {workout.exercises.length > 3 && (
                               <li className="text-sm text-health-primary font-medium">
-                                +{workout.exercises.length - 3} more exercises
+                                +{workout.exercises.length - 3} {translateText("more_exercises", language)}
                               </li>
                             )}
                           </ul>
                         </CardContent>
                         <CardFooter className="border-t bg-gray-50 dark:bg-gray-800/50 p-4">
                           <Button className="w-full btn-primary flex items-center justify-center gap-2">
-                            <Play className="h-4 w-4" /> Start Workout
+                            <Play className="h-4 w-4" /> {translateText("start_workout", language)}
                           </Button>
                         </CardFooter>
                       </Card>
@@ -330,26 +333,26 @@ const Workouts = () => {
                             </div>
                           </div>
 
-                          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Exercises:</h3>
+                          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{translateText("exercises", language)}</h3>
                           <ul className="space-y-2">
                             {workout.exercises.slice(0, 3).map((exercise, index) => (
                               <li key={index} className="text-sm flex justify-between">
                                 <span>{exercise.name}</span>
                                 <span className="text-gray-500 dark:text-gray-400">
-                                  {exercise.sets} sets × {exercise.reps}
+                                  {exercise.sets} {translateText("sets", language)} × {exercise.reps}
                                 </span>
                               </li>
                             ))}
                             {workout.exercises.length > 3 && (
                               <li className="text-sm text-health-primary font-medium">
-                                +{workout.exercises.length - 3} more exercises
+                                +{workout.exercises.length - 3} {translateText("more_exercises", language)}
                               </li>
                             )}
                           </ul>
                         </CardContent>
                         <CardFooter className="border-t bg-gray-50 dark:bg-gray-800/50 p-4">
                           <Button className="w-full btn-primary flex items-center justify-center gap-2">
-                            <Play className="h-4 w-4" /> Start Workout
+                            <Play className="h-4 w-4" /> {translateText("start_workout", language)}
                           </Button>
                         </CardFooter>
                       </Card>
@@ -364,13 +367,13 @@ const Workouts = () => {
         <section className="bg-gradient-to-r from-health-primary to-health-accent text-white py-16">
           <div className="container-custom">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Need a Personalized Workout Plan?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">{translateText("personalized_workout_plan", language)}</h2>
               <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90">
-                Get a custom workout routine designed specifically for your fitness level, goals, and preferences.
+                {translateText("custom_workout_routine", language)}
               </p>
               <Button className="bg-white text-health-primary hover:bg-gray-100 hover:text-health-dark" size="lg" asChild>
                 <Link to="/bmi-calculator">
-                  Check Your BMI First <ArrowRight className="ml-2 h-4 w-4" />
+                  {translateText("check_bmi_first", language)} <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
