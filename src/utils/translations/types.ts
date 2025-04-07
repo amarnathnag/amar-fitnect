@@ -15,7 +15,11 @@ export type WorkoutTranslationKey =
   'start_workout' | 'personalized_workout_plan' |
   'custom_workout_routine' | 'check_bmi_first' |
   'workout_routines' | 'workout_description' |
-  'weight_loss' | 'muscle_gain' | 'maintenance';
+  'weight_loss' | 'muscle_gain' | 'maintenance' |
+  'beginner_full_body' | 'pcos_friendly' | 'fat_loss' |
+  'senior_friendly' | 'kids_fitness' | 'motivational_tagline' |
+  'step_by_step' | 'targeted_muscles' | 'health_benefits' |
+  'calories_burned';
 
 export type DietTranslationKey = 
   'diet_plans' | 'bmi_calculator';
