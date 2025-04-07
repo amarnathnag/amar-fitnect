@@ -1,6 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dumbbell, Heart, Star, Users, Weight } from 'lucide-react';
+import { Dumbbell, Heart, Star, Users, Weight, Flame } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translateText } from '@/utils/translations';
 import { WorkoutPlan } from "@/types/workout";
@@ -17,31 +17,54 @@ const WorkoutTabs = ({ workouts }: WorkoutTabsProps) => {
   return (
     <Tabs defaultValue="weight-loss" className="w-full">
       <div className="flex justify-center mb-8">
-        <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full max-w-4xl">
-          <TabsTrigger value="weight-loss" className="flex items-center gap-2">
-            <Heart className="h-4 w-4" />
-            <span>{translateText("weight_loss", language)}</span>
+        <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full max-w-4xl bg-muted/50 p-1 rounded-xl">
+          <TabsTrigger 
+            value="weight-loss" 
+            className="flex flex-col items-center gap-2 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-health-primary data-[state=active]:to-health-primary/80 data-[state=active]:text-white transition-all duration-300"
+          >
+            <Heart className="h-5 w-5" />
+            <span className="text-xs md:text-sm font-medium">{translateText("weight_loss", language)}</span>
           </TabsTrigger>
-          <TabsTrigger value="muscle-gain" className="flex items-center gap-2">
-            <Dumbbell className="h-4 w-4" />
-            <span>{translateText("muscle_gain", language)}</span>
+          
+          <TabsTrigger 
+            value="muscle-gain"
+            className="flex flex-col items-center gap-2 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-health-primary data-[state=active]:to-health-primary/80 data-[state=active]:text-white transition-all duration-300"
+          >
+            <Dumbbell className="h-5 w-5" />
+            <span className="text-xs md:text-sm font-medium">{translateText("muscle_gain", language)}</span>
           </TabsTrigger>
-          <TabsTrigger value="maintenance" className="flex items-center gap-2">
-            <Weight className="h-4 w-4" />
-            <span>{translateText("maintenance", language)}</span>
+          
+          <TabsTrigger 
+            value="maintenance" 
+            className="flex flex-col items-center gap-2 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-health-primary data-[state=active]:to-health-primary/80 data-[state=active]:text-white transition-all duration-300"
+          >
+            <Weight className="h-5 w-5" />
+            <span className="text-xs md:text-sm font-medium">{translateText("maintenance", language)}</span>
           </TabsTrigger>
-          <TabsTrigger value="beginner-full-body" className="flex items-center gap-2">
-            <Star className="h-4 w-4" />
-            <span>{translateText("beginner_full_body", language)}</span>
+          
+          <TabsTrigger 
+            value="beginner-full-body" 
+            className="flex flex-col items-center gap-2 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-health-primary data-[state=active]:to-health-primary/80 data-[state=active]:text-white transition-all duration-300"
+          >
+            <Star className="h-5 w-5" />
+            <span className="text-xs md:text-sm font-medium">{translateText("beginner_full_body", language)}</span>
           </TabsTrigger>
-          <TabsTrigger value="pcos-friendly" className="flex items-center gap-2">
-            <Heart className="h-4 w-4 text-pink-500" />
-            <span>{translateText("pcos_friendly", language)}</span>
+          
+          <TabsTrigger 
+            value="pcos-friendly" 
+            className="flex flex-col items-center gap-2 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-health-primary data-[state=active]:to-health-primary/80 data-[state=active]:text-white transition-all duration-300"
+          >
+            <Heart className="h-5 w-5 text-pink-500" />
+            <span className="text-xs md:text-sm font-medium">{translateText("pcos_friendly", language)}</span>
           </TabsTrigger>
-          <TabsTrigger value="senior-kids" className="flex items-center gap-2 relative">
-            <Users className="h-4 w-4" />
-            <span className="hidden md:inline">{translateText("senior_friendly", language)}/{translateText("kids_fitness", language)}</span>
-            <span className="md:hidden">More</span>
+          
+          <TabsTrigger 
+            value="senior-kids" 
+            className="flex flex-col items-center gap-2 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-health-primary data-[state=active]:to-health-primary/80 data-[state=active]:text-white transition-all duration-300"
+          >
+            <Users className="h-5 w-5" />
+            <span className="text-xs md:text-sm font-medium hidden md:inline">{translateText("senior_friendly", language)}/{translateText("kids_fitness", language)}</span>
+            <span className="text-xs md:text-sm font-medium md:hidden">More</span>
           </TabsTrigger>
         </TabsList>
       </div>
