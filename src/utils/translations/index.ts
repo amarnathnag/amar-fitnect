@@ -14,14 +14,15 @@ export const translations: Record<TranslationKey, Record<Language, string>> = {
   ...exerciseTranslations
 };
 
-export { Language, TranslationKey } from './types';
+// Use 'export type' syntax for types when isolatedModules is enabled
+export type { Language, TranslationKey } from './types';
 
 export const translateText = (key: string, language: Language): string => {
-  if (!translations[key]) {
+  if (!translations[key as TranslationKey]) {
     console.warn(`Translation missing for key: ${key}`);
     return key;
   }
-  return translations[key][language] || translations[key].english;
+  return translations[key as TranslationKey][language] || translations[key as TranslationKey].english;
 };
 
 export const notifyLanguageChange = (language: Language): void => {
