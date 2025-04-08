@@ -15,6 +15,7 @@ import DietPlans from '@/pages/DietPlans';
 import DiseaseManagement from '@/pages/DiseaseManagement';
 import DiseaseDetail from '@/pages/DiseaseDetail';
 import Workouts from '@/pages/Workouts';
+import WorkoutDetail from '@/pages/WorkoutDetail';
 import WomensHealth from '@/pages/WomensHealth';
 import DailyRoutine from '@/pages/DailyRoutine';
 import Community from '@/pages/Community';
@@ -51,6 +52,7 @@ function App() {
                 <Route path="/disease-management" element={<DiseaseManagement />} />
                 <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
                 <Route path="/workouts" element={<Workouts />} />
+                <Route path="/workout-detail" element={<WorkoutDetail />} />
                 <Route path="/exercise-details" element={<ExerciseDetails />} />
                 <Route path="/womens-health" element={<WomensHealth />} />
                 <Route path="/daily-routine" element={<DailyRoutine />} />
