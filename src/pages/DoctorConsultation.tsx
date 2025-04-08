@@ -1,407 +1,521 @@
 
 import React, { useState } from 'react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import NavBar from "@/components/NavBar";
-import { Search, Filter, Star, Video, Phone, MessageSquare, Calendar, Clock } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import NavBar from '@/components/NavBar';
+import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar } from '@/components/ui/calendar';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Calendar as CalendarIcon, 
+  Clock, 
+  Star, 
+  Video, 
+  Phone, 
+  MessageSquare, 
+  User, 
+  MapPin, 
+  Ban, 
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
-// Sample doctor data
+// Sample doctor data - would come from API in real implementation
 const doctors = [
   {
     id: 1,
-    name: "Dr. Rahul Sharma",
-    specialization: "Cardiologist",
-    experience: 15,
+    name: "Dr. Anjali Sharma",
+    specialty: "Nutritionist",
+    experience: "8 years",
+    languages: ["English", "Hindi"],
     rating: 4.8,
-    fees: 1200,
-    location: "Delhi",
-    availability: ["Mon", "Wed", "Fri"],
-    image: "https://randomuser.me/api/portraits/men/1.jpg",
-    about: "Dr. Sharma is a leading cardiologist with over 15 years of experience in treating heart-related issues. He specializes in preventive cardiology and heart failure management.",
+    reviewCount: 124,
+    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    bio: "Specializing in diabetes management and weight loss through dietary interventions.",
+    price: 899,
+    availableDays: ["Monday", "Tuesday", "Thursday", "Friday"],
+    nextAvailable: "Today"
   },
   {
     id: 2,
-    name: "Dr. Priya Patel",
-    specialization: "Endocrinologist",
-    experience: 12,
-    rating: 4.7,
-    fees: 1000,
-    location: "Mumbai",
-    availability: ["Tue", "Thu", "Sat"],
-    image: "https://randomuser.me/api/portraits/women/1.jpg",
-    about: "Dr. Patel specializes in diabetes management, thyroid disorders, and metabolic conditions. She has helped thousands of patients manage their endocrine disorders effectively.",
+    name: "Dr. Rahul Mehta",
+    specialty: "General Physician",
+    experience: "12 years",
+    languages: ["English", "Hindi", "Bengali"],
+    rating: 4.9,
+    reviewCount: 211,
+    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    bio: "Board-certified physician with expertise in preventive medicine and chronic disease management.",
+    price: 999,
+    availableDays: ["Monday", "Wednesday", "Saturday"],
+    nextAvailable: "Tomorrow"
   },
   {
     id: 3,
-    name: "Dr. Amit Kumar",
-    specialization: "Neurologist",
-    experience: 18,
-    rating: 4.9,
-    fees: 1500,
-    location: "Bangalore",
-    availability: ["Mon", "Tue", "Thu", "Sat"],
-    image: "https://randomuser.me/api/portraits/men/2.jpg",
-    about: "Dr. Kumar is a renowned neurologist specializing in stroke management, epilepsy, and headache disorders. He uses advanced diagnostic techniques for accurate diagnosis.",
+    name: "Dr. Priya Patel",
+    specialty: "Dietitian",
+    experience: "6 years",
+    languages: ["English", "Gujarati", "Hindi"],
+    rating: 4.7,
+    reviewCount: 98,
+    image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    bio: "Expert in developing personalized diet plans for various health conditions including PCOS and thyroid disorders.",
+    price: 799,
+    availableDays: ["Tuesday", "Thursday", "Friday", "Sunday"],
+    nextAvailable: "Today"
   },
   {
     id: 4,
-    name: "Dr. Meera Singh",
-    specialization: "Dermatologist",
-    experience: 10,
+    name: "Dr. Arjun Singh",
+    specialty: "Fitness Expert",
+    experience: "9 years",
+    languages: ["English", "Hindi", "Punjabi"],
     rating: 4.6,
-    fees: 900,
-    location: "Kolkata",
-    availability: ["Wed", "Fri", "Sat"],
-    image: "https://randomuser.me/api/portraits/women/2.jpg",
-    about: "Dr. Singh specializes in cosmetic dermatology, skin allergies, and acne treatment. She provides personalized skin care regimens based on patient needs.",
-  },
-  {
-    id: 5,
-    name: "Dr. Vijay Reddy",
-    specialization: "Orthopedic Surgeon",
-    experience: 20,
-    rating: 4.9,
-    fees: 1800,
-    location: "Chennai",
-    availability: ["Mon", "Wed", "Fri"],
-    image: "https://randomuser.me/api/portraits/men/3.jpg",
-    about: "Dr. Reddy is an experienced orthopedic surgeon specializing in joint replacements, sports injuries, and spine disorders. He uses minimally invasive techniques for faster recovery.",
-  },
-  {
-    id: 6,
-    name: "Dr. Kavita Joshi",
-    specialization: "Gynecologist",
-    experience: 14,
-    rating: 4.8,
-    fees: 1100,
-    location: "Hyderabad",
-    availability: ["Tue", "Thu", "Sat"],
-    image: "https://randomuser.me/api/portraits/women/3.jpg",
-    about: "Dr. Joshi specializes in women's health, obstetrics, and fertility issues. She provides compassionate care for women of all ages, from adolescence to menopause.",
-  },
+    reviewCount: 87,
+    image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    bio: "Specializing in sports nutrition and personalized fitness plans for all age groups.",
+    price: 849,
+    availableDays: ["Monday", "Wednesday", "Thursday", "Saturday"],
+    nextAvailable: "In 2 days"
+  }
 ];
 
-// Time slots
+// Time slots - typically would be dynamic based on doctor's schedule
 const timeSlots = [
-  "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", 
-  "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"
+  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", 
+  "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM"
 ];
-
-const specializations = [
-  "All Specializations", "Cardiologist", "Endocrinologist", "Neurologist", 
-  "Dermatologist", "Orthopedic Surgeon", "Gynecologist"
-];
-
-const locations = ["All Locations", "Delhi", "Mumbai", "Bangalore", "Kolkata", "Chennai", "Hyderabad"];
 
 const DoctorConsultation = () => {
+  const { user } = useAuth();
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSpecialization, setSelectedSpecialization] = useState("All Specializations");
-  const [selectedLocation, setSelectedLocation] = useState("All Locations");
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
-  const [consultationMode, setConsultationMode] = useState("video");
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [consultationSuccess, setConsultationSuccess] = useState(false);
 
-  // Filter doctors based on search term, specialization, and location
-  const filteredDoctors = doctors.filter((doctor) => {
-    const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSpecialization = selectedSpecialization === "All Specializations" || doctor.specialization === selectedSpecialization;
-    const matchesLocation = selectedLocation === "All Locations" || doctor.location === selectedLocation;
-    return matchesSearch && matchesSpecialization && matchesLocation;
-  });
-
-  const handleBookAppointment = (doctor: any) => {
-    setSelectedDoctor(doctor);
-    setShowBookingForm(true);
-  };
-
-  const handlePayAndBook = () => {
-    if (!selectedDate || !selectedTime) {
+  const handleBookConsultation = () => {
+    if (!user) {
       toast({
-        title: "Missing Information",
-        description: "Please select both date and time for your appointment.",
+        title: "Login Required",
+        description: "Please sign in to book a consultation",
         variant: "destructive",
       });
       return;
     }
-
-    // Simulate payment and booking success
+    
+    if (!date || !selectedTimeSlot) {
+      toast({
+        title: "Incomplete Booking",
+        description: "Please select both date and time for your consultation",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // In a real implementation, this would make an API call to book the appointment
     toast({
-      title: "Appointment Booked Successfully!",
-      description: `Your appointment with ${selectedDoctor.name} is confirmed for ${selectedDate} at ${selectedTime}.`,
+      title: "Consultation Booked!",
+      description: `Your appointment with ${selectedDoctor.name} is confirmed for ${date.toLocaleDateString()} at ${selectedTimeSlot}`,
     });
-
-    // Reset form
-    setSelectedDoctor(null);
-    setConsultationMode("video");
-    setSelectedDate("");
-    setSelectedTime("");
-    setShowBookingForm(false);
+    
+    setConsultationSuccess(true);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background">
+    <div className="min-h-screen flex flex-col">
       <NavBar />
       
-      <div className="container-custom py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Doctor Consultation
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Connect with top specialists for personalized healthcare. Search, filter, and book appointments with doctors based on your health needs.
-          </p>
-        </div>
-
-        {/* Search and Filter Section */}
-        <div className="bg-white dark:bg-card rounded-lg shadow-md p-4 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input 
-                placeholder="Search doctors by name..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={selectedSpecialization} onValueChange={setSelectedSpecialization}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Specialization" />
-              </SelectTrigger>
-              <SelectContent>
-                {specializations.map((spec) => (
-                  <SelectItem key={spec} value={spec}>
-                    {spec}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Location" />
-              </SelectTrigger>
-              <SelectContent>
-                {locations.map((loc) => (
-                  <SelectItem key={loc} value={loc}>
-                    {loc}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <main className="flex-grow py-12">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h1 className="text-3xl md:text-4xl font-bold mb-3">Expert Health Consultations</h1>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Connect with certified doctors and health experts for personalized guidance on your wellness journey.
+            </p>
           </div>
-        </div>
-
-        {showBookingForm ? (
-          <div className="bg-white dark:bg-card rounded-lg shadow-md overflow-hidden mb-8 transition-all">
-            <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-              <div className="flex items-start gap-6">
-                <img 
-                  src={selectedDoctor.image} 
-                  alt={selectedDoctor.name} 
-                  className="w-20 h-20 rounded-full object-cover"
-                />
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {selectedDoctor.name}
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {selectedDoctor.specialization} • {selectedDoctor.experience} years experience
-                  </p>
-                  <div className="flex items-center mt-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                    <span className="ml-1 text-sm text-gray-700 dark:text-gray-300">
-                      {selectedDoctor.rating} • ₹{selectedDoctor.fees} per consultation
-                    </span>
-                  </div>
-                </div>
-              </div>
+          
+          <Tabs defaultValue="all" className="mb-12">
+            <div className="flex justify-center mb-8">
+              <TabsList>
+                <TabsTrigger value="all">All Experts</TabsTrigger>
+                <TabsTrigger value="nutritionists">Nutritionists</TabsTrigger>
+                <TabsTrigger value="physicians">Physicians</TabsTrigger>
+                <TabsTrigger value="fitness">Fitness Experts</TabsTrigger>
+              </TabsList>
             </div>
-
-            <div className="p-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Book Your Appointment</h3>
-              
-              <div className="mb-6">
-                <Label htmlFor="consultation-mode" className="block mb-2">Consultation Mode</Label>
-                <Tabs value={consultationMode} onValueChange={setConsultationMode} className="w-full">
-                  <TabsList className="grid grid-cols-3 mb-2">
-                    <TabsTrigger value="video" className="flex items-center justify-center">
-                      <Video className="h-4 w-4 mr-2" />
-                      Video
-                    </TabsTrigger>
-                    <TabsTrigger value="audio" className="flex items-center justify-center">
-                      <Phone className="h-4 w-4 mr-2" />
-                      Audio
-                    </TabsTrigger>
-                    <TabsTrigger value="chat" className="flex items-center justify-center">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Chat
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <Label htmlFor="appointment-date" className="block mb-2">
-                    <Calendar className="h-4 w-4 inline mr-2" />
-                    Appointment Date
-                  </Label>
-                  <Input 
-                    id="appointment-date" 
-                    type="date" 
-                    value={selectedDate} 
-                    onChange={(e) => setSelectedDate(e.target.value)}
+            
+            <TabsContent value="all" className="mt-0">
+              <div className="grid md:grid-cols-2 gap-6">
+                {doctors.map(doctor => (
+                  <DoctorCard 
+                    key={doctor.id} 
+                    doctor={doctor} 
+                    onBookNow={() => setSelectedDoctor(doctor)} 
                   />
-                  <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Available days: {selectedDoctor.availability.join(", ")}
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="appointment-time" className="block mb-2">
-                    <Clock className="h-4 w-4 inline mr-2" />
-                    Appointment Time
-                  </Label>
-                  <Select value={selectedTime} onValueChange={setSelectedTime}>
-                    <SelectTrigger id="appointment-time">
-                      <SelectValue placeholder="Select Time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeSlots.map((slot) => (
-                        <SelectItem key={slot} value={slot}>
-                          {slot}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                ))}
               </div>
-
-              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-md mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-700 dark:text-gray-300">Consultation Fee</span>
-                  <span className="font-semibold">₹{selectedDoctor.fees}</span>
-                </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-700 dark:text-gray-300">Platform Fee</span>
-                  <span className="font-semibold">₹100</span>
-                </div>
-                <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-                  <span className="font-semibold text-gray-900 dark:text-white">Total Amount</span>
-                  <span className="font-bold text-health-primary">₹{selectedDoctor.fees + 100}</span>
-                </div>
+            </TabsContent>
+            
+            <TabsContent value="nutritionists" className="mt-0">
+              <div className="grid md:grid-cols-2 gap-6">
+                {doctors
+                  .filter(d => d.specialty === "Nutritionist" || d.specialty === "Dietitian")
+                  .map(doctor => (
+                    <DoctorCard 
+                      key={doctor.id} 
+                      doctor={doctor} 
+                      onBookNow={() => setSelectedDoctor(doctor)} 
+                    />
+                  ))}
               </div>
-
-              <div className="flex gap-4">
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={() => setShowBookingForm(false)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  className="flex-1 bg-health-primary hover:bg-health-dark"
-                  onClick={handlePayAndBook}
-                >
-                  Pay & Book Appointment
-                </Button>
+            </TabsContent>
+            
+            <TabsContent value="physicians" className="mt-0">
+              <div className="grid md:grid-cols-2 gap-6">
+                {doctors
+                  .filter(d => d.specialty === "General Physician")
+                  .map(doctor => (
+                    <DoctorCard 
+                      key={doctor.id} 
+                      doctor={doctor} 
+                      onBookNow={() => setSelectedDoctor(doctor)} 
+                    />
+                  ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="fitness" className="mt-0">
+              <div className="grid md:grid-cols-2 gap-6">
+                {doctors
+                  .filter(d => d.specialty === "Fitness Expert")
+                  .map(doctor => (
+                    <DoctorCard 
+                      key={doctor.id} 
+                      doctor={doctor} 
+                      onBookNow={() => setSelectedDoctor(doctor)} 
+                    />
+                  ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+          
+          <div className="bg-gray-50 dark:bg-gray-800/30 p-8 rounded-xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-3">How It Works</h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Our online consultation process is designed to be simple, secure, and effective.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-health-primary font-bold">1</span>
+                </div>
+                <h3 className="font-medium mb-2">Choose an Expert</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Select a doctor or specialist based on your health needs.
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-health-primary font-bold">2</span>
+                </div>
+                <h3 className="font-medium mb-2">Book a Slot</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Select a convenient date and time for your consultation.
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-health-primary font-bold">3</span>
+                </div>
+                <h3 className="font-medium mb-2">Pay Securely</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Complete your booking with our secure payment system.
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-health-primary font-bold">4</span>
+                </div>
+                <h3 className="font-medium mb-2">Connect Online</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Join the video call at your appointment time for your consultation.
+                </p>
               </div>
             </div>
           </div>
-        ) : (
-          // Doctor listing
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredDoctors.length > 0 ? (
-              filteredDoctors.map((doctor) => (
-                <Card key={doctor.id} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="p-6">
-                      <div className="flex items-start gap-4">
-                        <img 
-                          src={doctor.image} 
-                          alt={doctor.name} 
-                          className="w-16 h-16 rounded-full object-cover"
-                        />
-                        <div>
-                          <h2 className="font-bold text-gray-900 dark:text-white">
-                            {doctor.name}
-                          </h2>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {doctor.specialization} • {doctor.experience} years experience
-                          </p>
-                          <div className="flex items-center mt-1">
-                            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                            <span className="ml-1 text-sm text-gray-700 dark:text-gray-300">
-                              {doctor.rating} • {doctor.location}
-                            </span>
+          
+          {/* Doctor Selection Dialog */}
+          {selectedDoctor && (
+            <Dialog open={!!selectedDoctor} onOpenChange={(open) => {
+              if (!open) {
+                setSelectedDoctor(null);
+                setSelectedTimeSlot(null);
+                setConsultationSuccess(false);
+              }
+            }}>
+              <DialogContent className="sm:max-w-[425px] md:max-w-[700px]">
+                {!consultationSuccess ? (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle>Book Consultation</DialogTitle>
+                      <DialogDescription>
+                        Select a date and time for your appointment with {selectedDoctor.name}.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="grid gap-4 md:grid-cols-2 py-4">
+                      <div>
+                        <div className="flex items-center gap-4 mb-4">
+                          <img 
+                            src={selectedDoctor.image} 
+                            alt={selectedDoctor.name} 
+                            className="w-16 h-16 rounded-full object-cover"
+                          />
+                          <div>
+                            <h3 className="font-medium">{selectedDoctor.name}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{selectedDoctor.specialty}</p>
                           </div>
-                        </div>
-                      </div>
-                      
-                      <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                        {doctor.about}
-                      </p>
-                      
-                      <div className="mt-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium">Consultation Fee:</span>
-                          <span className="font-semibold text-health-primary">₹{doctor.fees}</span>
                         </div>
                         
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Available on:</span>
-                          <div className="flex gap-1">
-                            {doctor.availability.map((day) => (
-                              <Badge key={day} variant="outline" className="text-xs">
-                                {day}
-                              </Badge>
-                            ))}
+                        <div className="border rounded-md p-4 mb-4">
+                          <h4 className="font-medium mb-2">Consultation Details</h4>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-500 dark:text-gray-400">Duration</span>
+                              <span>30 minutes</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500 dark:text-gray-400">Fee</span>
+                              <span className="font-medium">₹{selectedDoctor.price}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-500 dark:text-gray-400">Platform</span>
+                              <span>Google Meet</span>
+                            </div>
                           </div>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium mb-2">Available Time Slots</h4>
+                          {date ? (
+                            <div className="grid grid-cols-3 gap-2">
+                              {timeSlots.map((time) => (
+                                <Button 
+                                  key={time} 
+                                  variant={selectedTimeSlot === time ? "default" : "outline"} 
+                                  size="sm"
+                                  className={selectedTimeSlot === time ? "bg-health-primary" : ""}
+                                  onClick={() => setSelectedTimeSlot(time)}
+                                >
+                                  {time}
+                                </Button>
+                              ))}
+                            </div>
+                          ) : (
+                            <Alert>
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>
+                                Please select a date first
+                              </AlertDescription>
+                            </Alert>
+                          )}
                         </div>
                       </div>
                       
-                      <div className="mt-6">
-                        <Button 
-                          className="w-full bg-health-primary hover:bg-health-dark"
-                          onClick={() => handleBookAppointment(doctor)}
-                        >
-                          Book Appointment
-                        </Button>
+                      <div>
+                        <h4 className="font-medium mb-2">Select Date</h4>
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          className="border rounded-md p-3"
+                          disabled={(date) => {
+                            // Disable past dates
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return date < today;
+                          }}
+                        />
+                        
+                        {user ? (
+                          <div className="mt-4">
+                            <h4 className="font-medium mb-2">Your Information</h4>
+                            <div className="space-y-2">
+                              <div>
+                                <Label htmlFor="name">Name</Label>
+                                <Input id="name" defaultValue={user.name || ""} readOnly={!!user.name} />
+                              </div>
+                              <div>
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" defaultValue={user.email} readOnly />
+                              </div>
+                              <div>
+                                <Label htmlFor="reason">Reason for visit</Label>
+                                <Select>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a reason" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="general">General Health Checkup</SelectItem>
+                                    <SelectItem value="nutrition">Nutrition Consultation</SelectItem>
+                                    <SelectItem value="fitness">Fitness Guidance</SelectItem>
+                                    <SelectItem value="condition">Specific Health Condition</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <Alert className="mt-4">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>
+                              Please <a href="/auth" className="text-health-primary font-medium">sign in</a> to book a consultation.
+                            </AlertDescription>
+                          </Alert>
+                        )}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="col-span-2 text-center p-8">
-                <div className="text-gray-500 dark:text-gray-400">
-                  No doctors found matching your criteria. Try changing your filters.
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+                    
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setSelectedDoctor(null)}>
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={handleBookConsultation} 
+                        disabled={!user || !date || !selectedTimeSlot}
+                        className="bg-health-primary hover:bg-health-dark"
+                      >
+                        Confirm & Pay
+                      </Button>
+                    </DialogFooter>
+                  </>
+                ) : (
+                  <div className="py-6 text-center">
+                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-500" />
+                    </div>
+                    <DialogTitle className="text-2xl mb-2">Booking Confirmed!</DialogTitle>
+                    <DialogDescription className="mb-6">
+                      Your appointment with {selectedDoctor.name} is scheduled for {date?.toLocaleDateString()} at {selectedTimeSlot}.
+                    </DialogDescription>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6 text-left">
+                      <h4 className="font-medium mb-2">Consultation Details</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 dark:text-gray-400">Doctor</span>
+                          <span>{selectedDoctor.name}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 dark:text-gray-400">Date</span>
+                          <span>{date?.toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 dark:text-gray-400">Time</span>
+                          <span>{selectedTimeSlot}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500 dark:text-gray-400">Fee</span>
+                          <span className="font-medium">₹{selectedDoctor.price}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                      You will receive an email with the consultation details and Google Meet link.
+                    </p>
+                    <div className="flex justify-center space-x-3">
+                      <Button onClick={() => setSelectedDoctor(null)}>
+                        Close
+                      </Button>
+                      <Button variant="outline">
+                        View in Profile
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+      </main>
+      
+      <Footer />
     </div>
+  );
+};
+
+// Doctor Card component
+const DoctorCard = ({ doctor, onBookNow }: { doctor: any, onBookNow: () => void }) => {
+  return (
+    <Card className="overflow-hidden hover:shadow-md transition-all duration-300">
+      <div className="flex items-start p-6">
+        <img 
+          src={doctor.image} 
+          alt={doctor.name} 
+          className="w-20 h-20 rounded-full object-cover mr-4 border-2 border-health-light" 
+        />
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-bold text-lg">{doctor.name}</h3>
+            <Badge variant="secondary" className="ml-2">{doctor.specialty}</Badge>
+          </div>
+          <div className="flex items-center gap-1 mb-2">
+            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+            <span className="text-sm font-medium">{doctor.rating}</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">({doctor.reviewCount} reviews)</span>
+          </div>
+          <div className="flex flex-wrap gap-2 text-sm mb-3">
+            <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+              <User className="h-3.5 w-3.5" /> {doctor.experience} exp
+            </span>
+            <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+              <MapPin className="h-3.5 w-3.5" /> Online
+            </span>
+            <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+              <Clock className="h-3.5 w-3.5" /> Available {doctor.nextAvailable}
+            </span>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            {doctor.bio}
+          </p>
+          <div className="flex flex-wrap gap-1 mb-2">
+            {doctor.languages.map((lang: string) => (
+              <Badge key={lang} variant="outline" className="text-xs bg-gray-50 dark:bg-gray-800">
+                {lang}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </div>
+      <CardFooter className="flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 p-4 border-t">
+        <div>
+          <p className="font-bold text-lg">₹{doctor.price}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Per consultation</p>
+        </div>
+        <div className="space-x-2">
+          <Button variant="outline" size="sm" className="gap-1">
+            <MessageSquare className="h-4 w-4" /> Chat
+          </Button>
+          <Button size="sm" onClick={onBookNow} className="gap-1 bg-health-primary hover:bg-health-dark">
+            <Video className="h-4 w-4" /> Book Now
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
   );
 };
 

@@ -1,388 +1,402 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import NavBar from "@/components/NavBar";
-import { Send, Bot, Crown, Zap, AlertCircle, CheckCircle, Clock, Download, Brain, HeartPulse, Activity } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import NavBar from '@/components/NavBar';
+import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, Bot, Brain, Star, Sparkles, CheckCircle, Crown, Calendar, FileText } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const PremiumAi = () => {
-  const { toast } = useToast();
-  const [message, setMessage] = useState("");
-  const [chatHistory, setChatHistory] = useState<{role: string, content: string}[]>([
-    {
-      role: "assistant",
-      content: "Hello! I'm your AI Health Assistant. How can I help you today? You can ask me about symptoms, health conditions, or general wellness advice."
-    }
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [activeTab, setActiveTab] = useState("chat");
-  const [isPremium, setIsPremium] = useState(false);
-
-  // Sample responses for demo
-  const sampleResponses: Record<string, string> = {
-    headache: "Based on your description, you might be experiencing a tension headache. These are often caused by stress, dehydration, or poor posture. I recommend drinking water, taking a short break from screens, and considering over-the-counter pain relievers if needed. If your headache is severe, sudden, or accompanied by fever, vision changes, or neck stiffness, please consult a doctor immediately.",
-    diet: "A balanced diet should include vegetables, fruits, whole grains, lean proteins, and healthy fats. For weight management, focus on portion control and minimize processed foods. Consider consulting with a nutritionist for a personalized plan based on your specific health needs and goals.",
-    sleep: "For better sleep, maintain a consistent schedule, create a relaxing bedtime routine, limit screen time before bed, ensure your bedroom is cool and dark, and avoid caffeine and heavy meals close to bedtime. If you consistently have trouble sleeping, consider speaking with a healthcare provider about possible sleep disorders.",
-    stress: "To manage stress, try deep breathing exercises, regular physical activity, adequate sleep, mindfulness meditation, limiting caffeine and alcohol, and connecting with supportive people. If stress becomes overwhelming, consider speaking with a mental health professional.",
-    exercise: "For general fitness, aim for at least 150 minutes of moderate aerobic activity or 75 minutes of vigorous activity weekly, plus strength training twice a week. Start gradually and choose activities you enjoy. Always warm up, cool down, and listen to your body to prevent injury.",
-  };
-
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
-    
-    // Add user message to chat
-    const newChatHistory = [...chatHistory, { role: "user", content: message }];
-    setChatHistory(newChatHistory);
-    setMessage("");
-    setIsTyping(true);
-    
-    // Simulate AI response
-    setTimeout(() => {
-      let response = "I'm not sure I understand your query. Could you please provide more details or rephrase your question?";
-      
-      // Check for keywords in the message
-      const lowerMessage = message.toLowerCase();
-      for (const [key, value] of Object.entries(sampleResponses)) {
-        if (lowerMessage.includes(key)) {
-          response = value;
-          break;
-        }
-      }
-      
-      // Check if user is asking about symptoms that might need doctor consultation
-      if (
-        lowerMessage.includes("chest pain") || 
-        lowerMessage.includes("difficulty breathing") || 
-        lowerMessage.includes("severe") || 
-        lowerMessage.includes("emergency")
-      ) {
-        response = "The symptoms you're describing may require immediate medical attention. Please consult with a healthcare professional as soon as possible or visit your nearest emergency room if you feel it's urgent.";
-      }
-      
-      setChatHistory([...newChatHistory, { role: "assistant", content: response }]);
-      setIsTyping(false);
-    }, 1500);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const handlePremiumSubscription = () => {
-    toast({
-      title: "Premium Subscription Activated!",
-      description: "You now have access to all premium AI health features.",
-    });
-    setIsPremium(true);
-  };
-
-  const handleGenerateReport = () => {
-    if (!isPremium) {
-      toast({
-        title: "Premium Feature",
-        description: "Please subscribe to our premium plan to access detailed health reports.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    toast({
-      title: "Health Report Generated",
-      description: "Your comprehensive health report is ready for download.",
-    });
-  };
-
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // This is a placeholder for checking premium status
+  // In a real implementation, this would verify the user's subscription status
+  const isPremium = false;
+  
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background">
+    <div className="min-h-screen flex flex-col">
       <NavBar />
       
-      <div className="container-custom py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            AI Health Assistant <span className="inline-block"><Crown className="h-6 w-6 text-yellow-500 inline ml-2" /></span>
+      <main className="flex-grow">
+        {!isPremium ? (
+          <PremiumUpsell />
+        ) : (
+          <PremiumDashboard />
+        )}
+      </main>
+      
+      <Footer />
+    </div>
+  );
+};
+
+const PremiumUpsell = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <div className="py-12">
+      <div className="container-custom">
+        <div className="text-center mb-12">
+          <Badge variant="outline" className="mb-2 px-3 py-1">
+            <Crown className="mr-2 h-4 w-4 text-yellow-500" /> Premium Features
+          </Badge>
+          <h1 className="text-4xl font-bold mb-4">
+            Unlock Advanced AI Health Tools
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Get instant health guidance, symptom analysis, and personalized advice from our advanced AI system.
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Get personalized health recommendations, exclusive workout routines, and tailored meal plans powered by our advanced AI algorithms.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-2 mb-6">
-                <TabsTrigger value="chat" className="flex items-center justify-center gap-2">
-                  <Bot className="h-4 w-4" />
-                  Chat Assistant
-                </TabsTrigger>
-                <TabsTrigger value="reports" className="flex items-center justify-center gap-2">
-                  <Activity className="h-4 w-4" />
-                  Health Reports
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="chat">
-                <Card className="mb-4">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-center">
-                      <Bot className="h-5 w-5 mr-2 text-health-primary" />
-                      AI Health Chat
-                      {isPremium && <Badge className="ml-2 bg-yellow-500 text-white">Premium</Badge>}
-                    </CardTitle>
-                    <CardDescription>
-                      Ask about symptoms, nutrition advice, exercise recommendations, or general health questions.
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <div className="h-[400px] overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900 rounded-md mb-4">
-                      {chatHistory.map((msg, index) => (
-                        <div 
-                          key={index} 
-                          className={`mb-4 ${msg.role === "user" ? "text-right" : "text-left"}`}
-                        >
-                          <div 
-                            className={`inline-block max-w-[80%] rounded-lg px-4 py-2 ${
-                              msg.role === "user" 
-                                ? "bg-health-primary text-white" 
-                                : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow"
-                            }`}
-                          >
-                            {msg.content}
-                          </div>
-                        </div>
-                      ))}
-                      {isTyping && (
-                        <div className="text-left mb-4">
-                          <div className="inline-block max-w-[80%] rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow">
-                            <div className="flex space-x-1">
-                              <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
-                              <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                              <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Textarea 
-                        placeholder="Type your health question here..." 
-                        className="flex-1 resize-none"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                      />
-                      <Button 
-                        className="bg-health-primary hover:bg-health-dark"
-                        onClick={handleSendMessage}
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="reports">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center">
-                      <Activity className="h-5 w-5 mr-2 text-health-primary" />
-                      Health Reports
-                      {isPremium && <Badge className="ml-2 bg-yellow-500 text-white">Premium</Badge>}
-                    </CardTitle>
-                    <CardDescription>
-                      Get comprehensive AI-generated health reports based on your conversations and data.
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <div className="space-y-4">
-                      <Card className="bg-gray-50 dark:bg-gray-900">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base flex items-center">
-                            <HeartPulse className="h-4 w-4 mr-2 text-health-primary" />
-                            Comprehensive Health Analysis
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <p className="text-sm mb-3">
-                            {isPremium 
-                              ? "Based on your conversations, we'll generate a detailed health analysis with personalized recommendations."
-                              : "Upgrade to Premium to access detailed health analysis reports."
-                            }
-                          </p>
-                          <Button 
-                            className="w-full bg-health-primary hover:bg-health-dark"
-                            onClick={handleGenerateReport}
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Generate Report
-                          </Button>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="bg-gray-50 dark:bg-gray-900">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base flex items-center">
-                            <Brain className="h-4 w-4 mr-2 text-health-primary" />
-                            Mental Health Assessment
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <p className="text-sm mb-3">
-                            {isPremium 
-                              ? "Receive a professional-grade mental wellness assessment with stress management techniques."
-                              : "Upgrade to Premium to access mental health assessment reports."
-                            }
-                          </p>
-                          <Button 
-                            className="w-full bg-health-primary hover:bg-health-dark"
-                            onClick={handleGenerateReport}
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Generate Report
-                          </Button>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="bg-gray-50 dark:bg-gray-900">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base flex items-center">
-                            <Activity className="h-4 w-4 mr-2 text-health-primary" />
-                            Lifestyle & Nutrition Plan
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <p className="text-sm mb-3">
-                            {isPremium 
-                              ? "Get a customized nutrition and lifestyle plan based on your health goals and preferences."
-                              : "Upgrade to Premium to access personalized lifestyle and nutrition plans."
-                            }
-                          </p>
-                          <Button 
-                            className="w-full bg-health-primary hover:bg-health-dark"
-                            onClick={handleGenerateReport}
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Generate Report
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+        <div className="grid md:grid-cols-2 gap-10 items-center mb-16">
+          <div className="bg-gradient-to-r from-health-light to-blue-50 dark:from-health-dark/30 dark:to-blue-900/30 p-8 rounded-xl">
+            <h2 className="text-2xl font-bold mb-4">AI-Powered Health Features</h2>
+            <ul className="space-y-4">
+              <PremiumFeature 
+                title="Personalized Diet Generator" 
+                description="Get meal plans tailored to your health conditions, preferences, and goals."
+              />
+              <PremiumFeature 
+                title="Advanced Fitness Analysis" 
+                description="Receive workout recommendations based on your physical attributes and progress."
+              />
+              <PremiumFeature 
+                title="Health Condition Management" 
+                description="Detailed guidance for managing specific health conditions like PCOS, Diabetes, and Thyroid issues."
+              />
+              <PremiumFeature 
+                title="Natural Language Health Queries" 
+                description="Ask complex health questions and receive evidence-based responses."
+              />
+            </ul>
+            <Button 
+              className="mt-8 w-full bg-health-primary hover:bg-health-dark"
+              onClick={() => navigate('/subscription')}
+            >
+              Upgrade to Premium <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
           
-          <div className="lg:col-span-4 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Premium Features</CardTitle>
-                <CardDescription>
-                  Upgrade to unlock advanced AI health capabilities
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Zap className="h-5 w-5 text-yellow-500 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium">Detailed Health Reports</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Comprehensive analysis of your health based on your conversations
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium">Personalized Recommendations</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Custom diet, exercise, and lifestyle advice tailored for you
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-3">
-                  <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium">Symptom Analysis</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Advanced AI-powered symptom checking and risk assessment
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-3">
-                  <Clock className="h-5 w-5 text-blue-500 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium">Unlimited Consultations</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      No limits on chat interactions with our advanced AI
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                {isPremium ? (
-                  <Button className="w-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200" disabled>
-                    <Crown className="h-4 w-4 mr-2 text-yellow-500" />
-                    Premium Activated
-                  </Button>
-                ) : (
-                  <Button 
-                    className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white"
-                    onClick={handlePremiumSubscription}
-                  >
-                    <Crown className="h-4 w-4 mr-2" />
-                    Upgrade to Premium
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Health Tips</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-md border border-green-100 dark:border-green-900/30">
-                  <h4 className="font-medium text-green-800 dark:text-green-300 mb-1">Stay Hydrated</h4>
-                  <p className="text-sm text-green-700 dark:text-green-400">
-                    Aim to drink at least 8 glasses of water daily for optimal health.
-                  </p>
-                </div>
-                
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-100 dark:border-blue-900/30">
-                  <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-1">Regular Exercise</h4>
-                  <p className="text-sm text-blue-700 dark:text-blue-400">
-                    30 minutes of moderate activity 5 days a week can significantly improve your health.
-                  </p>
-                </div>
-                
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md border border-purple-100 dark:border-purple-900/30">
-                  <h4 className="font-medium text-purple-800 dark:text-purple-300 mb-1">Quality Sleep</h4>
-                  <p className="text-sm text-purple-700 dark:text-purple-400">
-                    Adults should aim for 7-9 hours of quality sleep each night for mental and physical well-being.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="relative bg-white dark:bg-gray-800 p-1 rounded-xl shadow-xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-health-primary/5 to-health-accent/5 rounded-xl"></div>
+            <img 
+              src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+              alt="AI Health Assistant" 
+              className="w-full h-full object-cover rounded-lg"
+            />
+            <div className="absolute top-4 left-4 bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-md flex items-center">
+              <Star className="text-yellow-500 h-4 w-4 mr-1" />
+              <span className="text-sm font-medium">Premium Experience</span>
+            </div>
           </div>
+        </div>
+        
+        <div className="bg-gray-50 dark:bg-gray-800/50 p-8 rounded-xl mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-center">Compare Plans</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="px-4 py-3 text-left w-1/3">Features</th>
+                  <th className="px-4 py-3 text-center">Free</th>
+                  <th className="px-4 py-3 text-center bg-health-light dark:bg-health-primary/10 rounded-t-lg">Premium</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ComparisonRow 
+                  feature="Basic Workouts" 
+                  free={true} 
+                  premium={true} 
+                />
+                <ComparisonRow 
+                  feature="General Health Information" 
+                  free={true} 
+                  premium={true} 
+                />
+                <ComparisonRow 
+                  feature="Progress Tracking" 
+                  free="Limited" 
+                  premium={true} 
+                />
+                <ComparisonRow 
+                  feature="Advanced AI Diet Plans" 
+                  free={false} 
+                  premium={true} 
+                  highlight={true}
+                />
+                <ComparisonRow 
+                  feature="Condition-Specific Routines" 
+                  free={false} 
+                  premium={true} 
+                  highlight={true}
+                />
+                <ComparisonRow 
+                  feature="Monthly Health Reports" 
+                  free={false} 
+                  premium={true} 
+                />
+                <ComparisonRow 
+                  feature="Priority Chat Support" 
+                  free={false} 
+                  premium={true} 
+                />
+                <ComparisonRow 
+                  feature="Doctor Consultation Discounts" 
+                  free={false} 
+                  premium="10-20%" 
+                />
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td className="px-4 py-4"></td>
+                  <td className="px-4 py-4 text-center">
+                    <Button variant="outline" disabled>Current Plan</Button>
+                  </td>
+                  <td className="px-4 py-4 text-center bg-health-light dark:bg-health-primary/10 rounded-b-lg">
+                    <Button 
+                      className="bg-health-primary hover:bg-health-dark"
+                      onClick={() => navigate('/subscription')}
+                    >
+                      Subscribe Now
+                    </Button>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Ready to transform your health journey?</h2>
+          <p className="mb-6 text-gray-600 dark:text-gray-300">
+            Join thousands of users who have achieved their health goals with our premium tools.
+          </p>
+          <Button 
+            size="lg" 
+            className="bg-gradient-to-r from-health-primary to-health-accent hover:from-health-dark hover:to-health-accent/90"
+            onClick={() => navigate('/subscription')}
+          >
+            <Crown className="mr-2 h-5 w-5" /> Get Premium Access
+          </Button>
         </div>
       </div>
     </div>
   );
 };
+
+const PremiumDashboard = () => {
+  return (
+    <div className="py-12">
+      <div className="container-custom">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <Badge variant="default" className="mb-2 bg-yellow-500">
+              <Crown className="mr-2 h-4 w-4" /> Premium Active
+            </Badge>
+            <h1 className="text-3xl font-bold">Your Premium Dashboard</h1>
+          </div>
+          <Button variant="outline" className="gap-2">
+            <Calendar className="h-4 w-4" /> Manage Subscription
+          </Button>
+        </div>
+        
+        <Tabs defaultValue="ai-tools">
+          <TabsList className="w-full max-w-2xl mx-auto grid grid-cols-3 mb-8">
+            <TabsTrigger value="ai-tools" className="text-center py-3">
+              <Brain className="h-4 w-4 mr-2" /> AI Tools
+            </TabsTrigger>
+            <TabsTrigger value="premium-content" className="text-center py-3">
+              <FileText className="h-4 w-4 mr-2" /> Premium Content
+            </TabsTrigger>
+            <TabsTrigger value="health-reports" className="text-center py-3">
+              <CheckCircle className="h-4 w-4 mr-2" /> My Reports
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="ai-tools" className="mt-0">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <PremiumToolCard 
+                title="AI Diet Generator" 
+                description="Create personalized meal plans based on your health profile"
+                icon={<Utensils className="h-5 w-5" />}
+                action={() => {}}
+              />
+              <PremiumToolCard 
+                title="Workout Builder" 
+                description="Generate custom workout routines tailored to your fitness level"
+                icon={<Dumbbell className="h-5 w-5" />}
+                action={() => {}}
+              />
+              <PremiumToolCard 
+                title="Health Assistant" 
+                description="Get answers to complex health questions from our advanced AI"
+                icon={<Bot className="h-5 w-5" />}
+                action={() => {}}
+              />
+              <PremiumToolCard 
+                title="Condition Manager" 
+                description="Receive guidance for managing specific health conditions"
+                icon={<Activity className="h-5 w-5" />}
+                action={() => {}}
+              />
+              <PremiumToolCard 
+                title="Sleep Optimizer" 
+                description="Analyze your sleep patterns and get personalized recommendations"
+                icon={<Moon className="h-5 w-5" />}
+                action={() => {}}
+              />
+              <PremiumToolCard 
+                title="Stress Tracker" 
+                description="Monitor stress levels and learn personalized coping techniques"
+                icon={<Heart className="h-5 w-5" />}
+                action={() => {}}
+              />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="premium-content" className="mt-0">
+            <p className="text-center text-lg mb-8">
+              Access exclusive health articles, research, and educational resources.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Placeholder for premium content - would be dynamically generated */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <Badge className="w-fit mb-2">New</Badge>
+                  <CardTitle className="text-lg">Advanced HIIT Protocols for Fat Loss</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Learn the science-backed high-intensity interval training methods for optimal fat loss.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">Read Article</Button>
+                </CardFooter>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <Badge className="w-fit mb-2" variant="outline">Research</Badge>
+                  <CardTitle className="text-lg">Nutrition Strategies for Hormonal Balance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Discover dietary approaches to support optimal hormonal health for both men and women.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">Read Article</Button>
+                </CardFooter>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <Badge className="w-fit mb-2" variant="secondary">Guide</Badge>
+                  <CardTitle className="text-lg">Sleep Optimization Blueprint</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    A comprehensive guide to improving sleep quality for better health and recovery.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">Read Article</Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="health-reports" className="mt-0">
+            <div className="bg-gray-50 dark:bg-gray-800/50 p-8 rounded-xl text-center">
+              <FileText className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+              <h3 className="text-xl font-medium mb-2">No Reports Generated Yet</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Start using our premium tools to generate personalized health reports and insights.
+              </p>
+              <Button>Generate Your First Report</Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
+
+// Helper Components
+const PremiumFeature = ({ title, description }: { title: string; description: string }) => (
+  <li className="flex">
+    <Sparkles className="h-5 w-5 text-health-primary mr-3 flex-shrink-0 mt-1" />
+    <div>
+      <h3 className="font-medium">{title}</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+    </div>
+  </li>
+);
+
+const ComparisonRow = ({ 
+  feature, 
+  free, 
+  premium, 
+  highlight = false 
+}: { 
+  feature: string; 
+  free: boolean | string; 
+  premium: boolean | string;
+  highlight?: boolean;
+}) => (
+  <tr className="border-b border-gray-200 dark:border-gray-700">
+    <td className="px-4 py-3">{feature}</td>
+    <td className="px-4 py-3 text-center">
+      {typeof free === 'boolean' ? (
+        free ? <CheckCircle className="h-5 w-5 text-green-500 mx-auto" /> : <X className="h-5 w-5 text-gray-300 mx-auto" />
+      ) : (
+        <span className="text-sm">{free}</span>
+      )}
+    </td>
+    <td className={`px-4 py-3 text-center ${highlight ? 'bg-health-light dark:bg-health-primary/10' : ''}`}>
+      {typeof premium === 'boolean' ? (
+        premium ? <CheckCircle className="h-5 w-5 text-green-500 mx-auto" /> : <X className="h-5 w-5 text-gray-300 mx-auto" />
+      ) : (
+        <span className="text-sm font-medium">{premium}</span>
+      )}
+    </td>
+  </tr>
+);
+
+const PremiumToolCard = ({ 
+  title, 
+  description, 
+  icon, 
+  action 
+}: { 
+  title: string; 
+  description: string; 
+  icon: React.ReactNode; 
+  action: () => void;
+}) => (
+  <Card className="hover:shadow-md transition-all duration-300">
+    <CardHeader>
+      <div className="bg-health-light dark:bg-health-primary/10 w-10 h-10 rounded-full flex items-center justify-center mb-3 text-health-primary">
+        {icon}
+      </div>
+      <CardTitle>{title}</CardTitle>
+      <CardDescription>{description}</CardDescription>
+    </CardHeader>
+    <CardFooter>
+      <Button variant="outline" className="w-full" onClick={action}>
+        Launch Tool
+      </Button>
+    </CardFooter>
+  </Card>
+);
+
+// Missing imports
+import { X, Utensils, Dumbbell, Activity, Moon } from 'lucide-react';
 
 export default PremiumAi;

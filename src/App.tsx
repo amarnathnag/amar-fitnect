@@ -16,17 +16,18 @@ import DiseaseManagement from '@/pages/DiseaseManagement';
 import DiseaseDetail from '@/pages/DiseaseDetail';
 import Workouts from '@/pages/Workouts';
 import WorkoutDetail from '@/pages/WorkoutDetail';
+import ExerciseDetails from '@/pages/ExerciseDetails';
 import WomensHealth from '@/pages/WomensHealth';
 import DailyRoutine from '@/pages/DailyRoutine';
 import Community from '@/pages/Community';
 import DoctorConsultation from '@/pages/DoctorConsultation';
 import Chat from '@/pages/Chat';
 import PremiumAi from '@/pages/PremiumAi';
+import Subscription from '@/pages/Subscription';
 import Profile from '@/pages/Profile';
 import NotFound from '@/pages/NotFound';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import ExerciseDetails from '@/pages/ExerciseDetails';
 
 // Language Context
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -60,6 +61,7 @@ function App() {
                 <Route path="/doctor-consultation" element={<DoctorConsultation />} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/premium-ai" element={<PremiumAi />} />
+                <Route path="/subscription" element={<Subscription />} />
                 <Route 
                   path="/profile" 
                   element={
