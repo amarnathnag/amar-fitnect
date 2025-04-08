@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -10,12 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Bot, Brain, Star, Sparkles, CheckCircle, Crown, Calendar, FileText } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
+import { X, Utensils, Dumbbell, Activity, Moon, Heart } from 'lucide-react';
+
 const PremiumAi = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  // This is a placeholder for checking premium status
-  // In a real implementation, this would verify the user's subscription status
   const isPremium = false;
   
   return (
@@ -264,7 +263,6 @@ const PremiumDashboard = () => {
               Access exclusive health articles, research, and educational resources.
             </p>
             <div className="grid md:grid-cols-3 gap-6">
-              {/* Placeholder for premium content - would be dynamically generated */}
               <Card>
                 <CardHeader className="pb-2">
                   <Badge className="w-fit mb-2">New</Badge>
@@ -328,7 +326,6 @@ const PremiumDashboard = () => {
   );
 };
 
-// Helper Components
 const PremiumFeature = ({ title, description }: { title: string; description: string }) => (
   <li className="flex">
     <Sparkles className="h-5 w-5 text-health-primary mr-3 flex-shrink-0 mt-1" />
@@ -395,8 +392,5 @@ const PremiumToolCard = ({
     </CardFooter>
   </Card>
 );
-
-// Missing imports
-import { X, Utensils, Dumbbell, Activity, Moon } from 'lucide-react';
 
 export default PremiumAi;
