@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -15,7 +14,6 @@ const Subscription = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // This would be replaced with a real Stripe checkout function
   const handleSubscribe = (plan: 'monthly' | 'annual') => {
     if (!user) {
       toast({
@@ -27,14 +25,7 @@ const Subscription = () => {
       return;
     }
     
-    // Placeholder for Stripe checkout
-    toast({
-      title: "Subscription Demo",
-      description: `In a real implementation, this would redirect to Stripe for ${plan} payment`,
-    });
-    
-    // For demo purposes, we'll just redirect to the premium AI page
-    navigate('/premium-ai');
+    navigate('/premium-payment');
   };
 
   return (
@@ -54,7 +45,6 @@ const Subscription = () => {
           </div>
           
           <div className="grid md:grid-cols-2 gap-8 mx-auto max-w-4xl">
-            {/* Monthly Plan */}
             <Card className="border-2 hover:border-health-primary hover:shadow-lg transition-all duration-300">
               <CardHeader className="pb-4">
                 <CardTitle className="text-2xl">Monthly Premium</CardTitle>
@@ -84,7 +74,6 @@ const Subscription = () => {
               </CardFooter>
             </Card>
             
-            {/* Annual Plan */}
             <Card className="border-2 border-health-primary relative shadow-lg">
               <div className="absolute -top-4 right-4">
                 <Badge className="bg-health-accent text-white px-3 py-1 flex items-center">
@@ -171,7 +160,6 @@ const Subscription = () => {
   );
 };
 
-// Helper components
 const FeatureItem = ({ children, included = false }: { children: React.ReactNode; included?: boolean }) => (
   <li className="flex items-start">
     <span className="mr-2 mt-1 flex-shrink-0">
@@ -218,7 +206,6 @@ const BenefitCard = ({ title, description, icon }: { title: string; description:
   );
 };
 
-// Missing imports
 import { Dumbbell, Utensils, Users, BarChart2, BookOpen, Heart } from 'lucide-react';
 
 export default Subscription;

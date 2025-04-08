@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -75,7 +76,7 @@ const PremiumUpsell = () => {
             </ul>
             <Button 
               className="mt-8 w-full bg-health-primary hover:bg-health-dark"
-              onClick={() => navigate('/subscription')}
+              onClick={() => navigate('/premium-payment')}
             >
               Upgrade to Premium <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -178,7 +179,7 @@ const PremiumUpsell = () => {
           <Button 
             size="lg" 
             className="bg-gradient-to-r from-health-primary to-health-accent hover:from-health-dark hover:to-health-accent/90"
-            onClick={() => navigate('/subscription')}
+            onClick={() => navigate('/premium-payment')}
           >
             <Crown className="mr-2 h-5 w-5" /> Get Premium Access
           </Button>
