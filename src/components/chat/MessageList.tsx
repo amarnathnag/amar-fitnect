@@ -1,14 +1,7 @@
-
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import MessageBubble from './MessageBubble';
-
-interface ChatMessage {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-}
+import { ChatMessage } from '@/types/chat';
 
 interface MessageListProps {
   messages: ChatMessage[];

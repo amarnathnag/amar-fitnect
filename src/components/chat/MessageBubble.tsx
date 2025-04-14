@@ -1,15 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-interface ChatMessage {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-}
+import { ChatMessage } from '@/types/chat';
 
 interface MessageBubbleProps {
   message: ChatMessage;
