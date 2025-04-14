@@ -12,10 +12,10 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-health-primary to-health-accent flex items-center justify-center text-white font-bold text-lg">
-                SD
+                AH
               </div>
               <span className="text-xl font-semibold bg-gradient-to-r from-health-primary to-health-accent bg-clip-text text-transparent">
-                SmartDoc AI
+                AmarHealth
               </span>
             </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -97,7 +97,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-8 text-center">
           <p className="text-gray-600 dark:text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} SmartDoc AI. All rights reserved.
+            &copy; {new Date().getFullYear()} AmarHealth. All rights reserved.
           </p>
         </div>
       </div>

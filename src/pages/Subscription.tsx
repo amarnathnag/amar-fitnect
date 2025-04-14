@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -5,7 +6,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Zap } from 'lucide-react';
+import { Check, X, Zap, ShieldCheck, BadgeCheck, CreditCard, Gift } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,7 +26,18 @@ const Subscription = () => {
       return;
     }
     
-    navigate('/premium-payment');
+    // Track plan selection for analytics (could be implemented later)
+    const selectedPlan = plan === 'monthly' ? 'Monthly Premium' : 'Annual Premium';
+    console.log(`Selected plan: ${selectedPlan}`);
+    
+    // Redirect to payment page
+    navigate('/premium-payment', { 
+      state: { 
+        plan: plan, 
+        price: plan === 'monthly' ? 99 : 999,
+        discount: plan === 'annual' ? 189 : 0
+      } 
+    });
   };
 
   return (
@@ -69,7 +81,7 @@ const Subscription = () => {
                   onClick={() => handleSubscribe('monthly')} 
                   className="w-full py-6 text-lg bg-health-primary hover:bg-health-dark"
                 >
-                  Subscribe Monthly
+                  <CreditCard className="mr-2 h-5 w-5" /> Subscribe Monthly
                 </Button>
               </CardFooter>
             </Card>
@@ -104,14 +116,14 @@ const Subscription = () => {
                   onClick={() => handleSubscribe('annual')} 
                   className="w-full py-6 text-lg bg-gradient-to-r from-health-primary to-health-accent hover:from-health-dark hover:to-health-accent/90 text-white"
                 >
-                  Subscribe Yearly
+                  <Gift className="mr-2 h-5 w-5" /> Subscribe Yearly
                 </Button>
               </CardFooter>
             </Card>
           </div>
           
           <div className="mt-16 bg-gray-50 dark:bg-gray-800/50 p-8 rounded-xl max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4 text-center">Premium Benefits Include</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Premium Benefits Include</h2>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
               <BenefitCard 
                 title="Advanced Workouts" 
@@ -143,6 +155,34 @@ const Subscription = () => {
                 description="Join exclusive groups with others on similar health journeys."
                 icon="Heart"
               />
+            </div>
+          </div>
+          
+          {/* Premium Guarantees Section - New */}
+          <div className="mt-12 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold mb-6 text-center">Our Premium Guarantees</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex flex-col items-center text-center p-4">
+                <ShieldCheck className="h-12 w-12 text-health-primary mb-4" />
+                <h3 className="text-lg font-semibold mb-2">30-Day Money Back</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  If you're not satisfied with our premium features, get a full refund within 30 days.
+                </p>
+              </div>
+              <div className="flex flex-col items-center text-center p-4">
+                <BadgeCheck className="h-12 w-12 text-health-primary mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Expert-Verified Content</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  All health information and recommendations are verified by medical professionals.
+                </p>
+              </div>
+              <div className="flex flex-col items-center text-center p-4">
+                <Zap className="h-12 w-12 text-health-primary mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Continuous Updates</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Regular updates with new features, content, and improvements based on user feedback.
+                </p>
+              </div>
             </div>
           </div>
           
