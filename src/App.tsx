@@ -26,6 +26,7 @@ import PremiumAi from '@/pages/PremiumAi';
 import Subscription from '@/pages/Subscription';
 import PremiumPayment from '@/pages/PremiumPayment';
 import PremiumUnlocked from '@/pages/PremiumUnlocked';
+import Blog from '@/pages/Blog';
 import Profile from '@/pages/Profile';
 import NotFound from '@/pages/NotFound';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -66,6 +67,8 @@ function App() {
                 <Route path="/subscription" element={<Subscription />} />
                 <Route path="/premium-payment" element={<PremiumPayment />} />
                 <Route path="/premium-unlocked" element={<PremiumUnlocked />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:postId" element={<Blog />} />
                 <Route 
                   path="/profile" 
                   element={

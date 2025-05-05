@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import FeaturedBlogSection from '@/components/blog/FeaturedBlogSection';
 import { ArrowRight, ActivitySquare, Utensils, Dumbbell, Calendar, PieChart, Activity, Sparkles, Crown } from 'lucide-react';
 
 const Index = () => {
@@ -83,94 +83,15 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Feature 1 */}
-              <div className="health-card p-6">
-                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-lg flex items-center justify-center mb-4">
-                  <Utensils className="text-health-primary h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Personalized Meal Plans</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Customized nutrition plans for vegetarian, non-vegetarian, and vegan diets designed to meet your specific health goals.
-                </p>
-                <Link to="/diet-plans" className="text-health-primary hover:text-health-dark font-medium inline-flex items-center">
-                  View Diet Plans <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="health-card p-6">
-                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-lg flex items-center justify-center mb-4">
-                  <Dumbbell className="text-health-primary h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Workout Routines</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Effective exercise programs tailored to your fitness level, goals, and preferences with step-by-step instructions.
-                </p>
-                <Link to="/workouts" className="text-health-primary hover:text-health-dark font-medium inline-flex items-center">
-                  Explore Workouts <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="health-card p-6">
-                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-lg flex items-center justify-center mb-4">
-                  <Calendar className="text-health-primary h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Daily Routine</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Structured daily schedules with optimal meal timing, exercise slots, and hydration reminders for maximum results.
-                </p>
-                <Link to="/daily-routine" className="text-health-primary hover:text-health-dark font-medium inline-flex items-center">
-                  See Routines <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </div>
-
-              {/* Feature 4 */}
-              <div className="health-card p-6">
-                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-lg flex items-center justify-center mb-4">
-                  <PieChart className="text-health-primary h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">BMI Calculator</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Calculate your Body Mass Index and get personalized recommendations based on your health metrics.
-                </p>
-                <Link to="/bmi-calculator" className="text-health-primary hover:text-health-dark font-medium inline-flex items-center">
-                  Calculate BMI <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </div>
-
-              {/* Feature 5 */}
-              <div className="health-card p-6">
-                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-lg flex items-center justify-center mb-4">
-                  <Activity className="text-health-primary h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Disease Management</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Specialized plans for managing health conditions like diabetes, hypertension, thyroid disorders, and more.
-                </p>
-                <Link to="/disease-management" className="text-health-primary hover:text-health-dark font-medium inline-flex items-center">
-                  Learn More <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </div>
-
-              {/* Feature 6 */}
-              <div className="health-card p-6">
-                <div className="w-12 h-12 bg-health-light dark:bg-health-dark/20 rounded-lg flex items-center justify-center mb-4">
-                  <ActivitySquare className="text-health-primary h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Community Support</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Connect with like-minded individuals, share success stories, and get motivation from our supportive community.
-                </p>
-                <Link to="/community" className="text-health-primary hover:text-health-dark font-medium inline-flex items-center">
-                  Join Community <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </div>
+              {/* Feature 1-6 ... keep existing code */}
             </div>
           </div>
         </section>
 
-        {/* Premium Features Section - NEW */}
+        {/* Blog Section - NEW */}
+        <FeaturedBlogSection />
+
+        {/* Premium Features Section */}
         <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-900/50 dark:to-blue-900/30">
           <div className="container-custom">
             <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
