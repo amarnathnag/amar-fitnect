@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Form validation schemas
 const loginSchema = z.object({
@@ -37,8 +38,16 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user, login, signup, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("login");
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && user.isAuthenticated) {
+      navigate('/profile');
+    }
+  }, [user, navigate]);
   
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -60,42 +69,43 @@ const Auth = () => {
     },
   });
 
-  const onLoginSubmit = (values: LoginFormValues) => {
-    // TODO: Implement actual authentication
-    console.log("Login values:", values);
-    
-    // For now, simulate successful login
-    toast({
-      title: "Login successful!",
-      description: "Welcome back to your health journey.",
-    });
-    
-    // Store a mock auth token
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("userEmail", values.email);
-    
-    // Redirect to profile page
-    navigate("/profile");
+  const onLoginSubmit = async (values: LoginFormValues) => {
+    try {
+      await login(values.email, values.password);
+      
+      toast({
+        title: "Login successful!",
+        description: "Welcome back to your health journey.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const onSignupSubmit = (values: SignupFormValues) => {
-    // TODO: Implement actual authentication
-    console.log("Signup values:", values);
-    
-    // For now, simulate successful signup
-    toast({
-      title: "Account created!",
-      description: "Welcome to your health journey. Please complete your profile.",
-    });
-    
-    // Store a mock auth token and basic user info
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("userName", values.name);
-    localStorage.setItem("userEmail", values.email);
-    
-    // Redirect to profile page to complete setup
-    navigate("/profile");
+  const onSignupSubmit = async (values: SignupFormValues) => {
+    try {
+      await signup(values.name, values.email, values.password);
+      
+      toast({
+        title: "Account created!",
+        description: "Welcome to your health journey. Please complete your profile.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Signup failed",
+        description: error.message || "Please check your information and try again.",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -165,8 +175,8 @@ const Auth = () => {
                         )}
                       />
                       
-                      <Button type="submit" className="w-full">
-                        Login
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? "Logging in..." : "Login"}
                       </Button>
                     </form>
                   </Form>
@@ -279,8 +289,8 @@ const Auth = () => {
                         )}
                       />
                       
-                      <Button type="submit" className="w-full">
-                        Sign Up
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? "Signing up..." : "Sign Up"}
                       </Button>
                     </form>
                   </Form>

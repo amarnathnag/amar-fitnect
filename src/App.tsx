@@ -28,6 +28,7 @@ import PremiumPayment from '@/pages/PremiumPayment';
 import PremiumUnlocked from '@/pages/PremiumUnlocked';
 import Blog from '@/pages/Blog';
 import Profile from '@/pages/Profile';
+import ProfileSetup from '@/pages/ProfileSetup';
 import NotFound from '@/pages/NotFound';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -69,6 +70,14 @@ function App() {
                 <Route path="/premium-unlocked" element={<PremiumUnlocked />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:postId" element={<Blog />} />
+                <Route 
+                  path="/profile-setup" 
+                  element={
+                    <ProtectedRoute>
+                      <ProfileSetup />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route 
                   path="/profile" 
                   element={
