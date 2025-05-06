@@ -3,7 +3,7 @@ import React from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Settings, ChartLineUp, Calendar } from 'lucide-react';
+import { User, Settings, LineChart, Calendar } from 'lucide-react';
 
 interface ProfileLayoutProps {
   children: React.ReactNode;
@@ -40,7 +40,7 @@ const ProfileLayout: React.FC<ProfileLayoutProps> = ({ children, activeTab, setA
                     <span className="md:hidden">Prefs</span>
                   </TabsTrigger>
                   <TabsTrigger value="progress" className="flex items-center gap-1">
-                    <ChartLineUp className="h-4 w-4" />
+                    <LineChart className="h-4 w-4" />
                     <span className="hidden md:inline">Progress</span>
                     <span className="md:hidden">Prog</span>
                   </TabsTrigger>

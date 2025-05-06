@@ -1,0 +1,30 @@
+
+export interface User {
+  name?: string;
+  email: string;
+  isAuthenticated: boolean;
+}
+
+export interface ProfileData {
+  id: string;
+  full_name: string | null;
+  date_of_birth: string | null;
+  gender: 'male' | 'female' | 'other' | null;
+  height: number | null;
+  weight: number | null;
+  fitness_goal: 'weight_loss' | 'weight_gain' | 'muscle_gain' | 'maintain_fitness' | null;
+  food_preference: 'vegetarian' | 'non_vegetarian' | null;
+  health_issues: string | null;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => void;
+  isLoading: boolean;
+  profileData: ProfileData | null;
+  isProfileComplete: boolean;
+  updateProfile: (data: Partial<ProfileData>) => Promise<void>;
+  fetchProfile: () => Promise<void>;
+}
