@@ -8,6 +8,7 @@ import ProfileLayout from '@/components/profile/ProfileLayout';
 import PersonalInfoTab from '@/components/profile/PersonalInfoTab';
 import PreferencesTab from '@/components/profile/PreferencesTab';
 import ProgressTab from '@/components/profile/ProgressTab';
+import UserAppointments from '@/components/doctor/UserAppointments';
 
 const Profile = () => {
   const { toast } = useToast();
@@ -125,6 +126,12 @@ const Profile = () => {
           handleProgressChange={handleProgressChange} 
           saveChanges={saveChanges} 
         />
+      )}
+
+      {activeTab === "appointments" && (
+        <div className="space-y-6">
+          <UserAppointments />
+        </div>
       )}
     </ProfileLayout>
   );

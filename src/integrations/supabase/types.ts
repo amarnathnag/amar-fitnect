@@ -9,6 +9,116 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          created_at: string | null
+          date: string
+          doctor_id: string
+          id: string
+          reason: string | null
+          status: string
+          time_slot: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          doctor_id: string
+          id?: string
+          reason?: string | null
+          status?: string
+          time_slot: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          doctor_id?: string
+          id?: string
+          reason?: string | null
+          status?: string
+          time_slot?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doctor: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
+      doctors: {
+        Row: {
+          available_days: string[]
+          bio: string | null
+          created_at: string | null
+          experience: string
+          id: string
+          image_url: string | null
+          languages: string[]
+          name: string
+          next_available: string | null
+          price: number
+          rating: number
+          review_count: number
+          specialty: string
+          updated_at: string | null
+        }
+        Insert: {
+          available_days: string[]
+          bio?: string | null
+          created_at?: string | null
+          experience: string
+          id?: string
+          image_url?: string | null
+          languages?: string[]
+          name: string
+          next_available?: string | null
+          price: number
+          rating?: number
+          review_count?: number
+          specialty: string
+          updated_at?: string | null
+        }
+        Update: {
+          available_days?: string[]
+          bio?: string | null
+          created_at?: string | null
+          experience?: string
+          id?: string
+          image_url?: string | null
+          languages?: string[]
+          name?: string
+          next_available?: string | null
+          price?: number
+          rating?: number
+          review_count?: number
+          specialty?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           created_at: string | null
