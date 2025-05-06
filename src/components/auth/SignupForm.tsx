@@ -29,7 +29,7 @@ interface SignupFormProps {
 
 const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
   const { toast } = useToast();
-  const { signup } = useAuth();
+  const { signup, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   
   // Signup form
@@ -48,13 +48,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
       await signup(values.name, values.email, values.password);
       toast({
         title: "Account created!",
-        description: "Welcome to your health journey.",
+        description: "Welcome to your health journey. Please complete your profile.",
       });
       if (onSuccess) onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Signup failed",
-        description: "An error occurred while creating your account.",
+        description: error.message || "Please check your information and try again.",
         variant: "destructive",
       });
     }
@@ -145,8 +145,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
           )}
         />
         
-        <Button type="submit" className="w-full">
-          Sign Up
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Signing up..." : "Sign Up"}
         </Button>
       </form>
     </Form>

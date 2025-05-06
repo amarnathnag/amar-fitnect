@@ -24,7 +24,7 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   
   // Login form
@@ -44,10 +44,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         description: "Welcome back to your health journey.",
       });
       if (onSuccess) onSuccess();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: error.message || "Please check your credentials and try again.",
         variant: "destructive",
       });
     }
@@ -100,8 +100,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
           )}
         />
         
-        <Button type="submit" className="w-full">
-          Login
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
         </Button>
       </form>
     </Form>
