@@ -12,6 +12,7 @@ interface AppointmentWithDoctor {
   date: string;
   time_slot: string;
   status: string;
+  reason: string | null;
   doctors: {
     name: string;
     specialty: string;
@@ -70,6 +71,17 @@ const UserAppointments: React.FC = () => {
     );
   }
 
+  // Helper function to format date for display
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -102,13 +114,19 @@ const UserAppointments: React.FC = () => {
             <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
               <span className="flex items-center gap-1">
                 <Calendar className="h-4 w-4 text-health-primary" />
-                {new Date(appointment.date).toLocaleDateString()}
+                {formatDate(appointment.date)}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-4 w-4 text-health-primary" />
                 {appointment.time_slot}
               </span>
             </div>
+            
+            {appointment.reason && (
+              <div className="mt-2 text-sm">
+                <p className="text-gray-600"><strong>Reason:</strong> {appointment.reason}</p>
+              </div>
+            )}
             
             <div className="mt-3 flex justify-end">
               <Button 

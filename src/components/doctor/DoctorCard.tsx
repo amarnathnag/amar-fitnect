@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, User, MapPin, Clock, Video, MessageSquare } from 'lucide-react';
+import { Star, User, MapPin, Clock, Video, MessageSquare, Calendar } from 'lucide-react';
 import { Doctor } from '@/services/doctorService';
 
 interface DoctorCardProps {
@@ -44,10 +44,20 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, onBookNow }) => {
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
             {doctor.bio || "Experienced healthcare professional providing quality consultation services."}
           </p>
-          <div className="flex flex-wrap gap-1 mb-2">
+          <div className="flex flex-wrap gap-2 mb-2">
             {doctor.languages && doctor.languages.map((lang: string) => (
               <Badge key={lang} variant="outline" className="text-xs bg-gray-50 dark:bg-gray-800">
                 {lang}
+              </Badge>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2 mb-2">
+            <span className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+              <Calendar className="h-3.5 w-3.5 mr-1" /> Available days: 
+            </span>
+            {doctor.available_days && doctor.available_days.map((day: string) => (
+              <Badge key={day} variant="outline" className="text-xs bg-gray-50 dark:bg-gray-800">
+                {day}
               </Badge>
             ))}
           </div>

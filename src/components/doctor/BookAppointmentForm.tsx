@@ -73,24 +73,18 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
       <div>
         <DoctorInfoCard doctor={doctor} />
         
-        <div>
-          <h4 className="font-medium mb-2">Available Time Slots</h4>
-          {date ? (
-            <div className="grid grid-cols-3 gap-2">
-              {selectedTimeSlot ? (
-                <Button 
-                  variant="default" 
-                  size="sm"
-                  className="bg-health-primary"
-                  onClick={() => setSelectedTimeSlot(null)}
-                >
-                  {selectedTimeSlot}
-                </Button>
-              ) : (
-                <div className="text-sm text-gray-500">Select a time slot below</div>
-              )}
+        <div className="mt-4">
+          <h4 className="font-medium mb-2">Selected Time</h4>
+          {date && selectedTimeSlot ? (
+            <div className="border rounded-md p-3 text-sm">
+              <p><strong>Date:</strong> {date.toLocaleDateString()}</p>
+              <p><strong>Time:</strong> {selectedTimeSlot}</p>
             </div>
-          ) : null}
+          ) : (
+            <div className="text-sm text-gray-500">
+              Please select a date and time slot
+            </div>
+          )}
         </div>
       </div>
       
@@ -100,6 +94,7 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
           setDate={setDate}
           selectedTimeSlot={selectedTimeSlot}
           setSelectedTimeSlot={setSelectedTimeSlot}
+          availableDays={doctor.available_days}
         />
         
         <PatientInfoForm user={user} setReason={setReason} />

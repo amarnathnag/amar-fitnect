@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
+import { Textarea } from "@/components/ui/textarea";
 
 interface PatientInfoFormProps {
   user: any; // Using any for simplicity, could be typed properly
@@ -38,6 +39,15 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({ user, setReason }) =>
                 <SelectItem value="condition">Specific Health Condition</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div>
+            <Label htmlFor="notes">Additional notes</Label>
+            <Textarea 
+              id="notes" 
+              placeholder="Any specific concerns or questions for the doctor?"
+              className="resize-none"
+              onChange={(e) => setReason(prev => prev + " - " + e.target.value)}
+            />
           </div>
         </div>
       </div>

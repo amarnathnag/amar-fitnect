@@ -16,14 +16,22 @@ interface TimeSlotSelectorProps {
   setDate: (date: Date | undefined) => void;
   selectedTimeSlot: string | null;
   setSelectedTimeSlot: (timeSlot: string) => void;
+  availableDays?: string[]; // Optional prop to filter available days
 }
 
 const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ 
   date, 
   setDate, 
   selectedTimeSlot, 
-  setSelectedTimeSlot 
+  setSelectedTimeSlot,
+  availableDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] // Default available days
 }) => {
+  // Function to check if a day is available based on doctor's schedule
+  const isDayAvailable = (date: Date): boolean => {
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    return availableDays.includes(dayName);
+  };
+
   return (
     <div>
       <h4 className="font-medium mb-2">Select Date</h4>
@@ -36,7 +44,9 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
           // Disable past dates
           const today = new Date();
           today.setHours(0, 0, 0, 0);
-          return date < today;
+          
+          // Also disable dates that don't match available days
+          return date < today || !isDayAvailable(date);
         }}
       />
       

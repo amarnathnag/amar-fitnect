@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { Doctor } from '@/services/doctorService';
+import { Badge } from "@/components/ui/badge";
+import { Star, Calendar } from 'lucide-react';
 
 interface DoctorInfoCardProps {
   doctor: Doctor;
@@ -17,7 +19,15 @@ const DoctorInfoCard: React.FC<DoctorInfoCardProps> = ({ doctor }) => {
         />
         <div>
           <h3 className="font-medium">{doctor.name}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{doctor.specialty}</p>
+          <div className="flex items-center gap-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">{doctor.specialty}</p>
+            <span className="mx-1">•</span>
+            <div className="flex items-center">
+              <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+              <span className="text-xs ml-1">{doctor.rating}</span>
+            </div>
+          </div>
+          <p className="text-xs text-gray-500">{doctor.experience} experience</p>
         </div>
       </div>
       
@@ -37,6 +47,23 @@ const DoctorInfoCard: React.FC<DoctorInfoCardProps> = ({ doctor }) => {
             <span>Google Meet</span>
           </div>
         </div>
+      </div>
+
+      <div className="border rounded-md p-4 mb-4">
+        <h4 className="font-medium mb-2">Available Days</h4>
+        <div className="flex flex-wrap gap-2">
+          {doctor.available_days && doctor.available_days.map((day: string) => (
+            <Badge key={day} variant="outline" className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" /> {day}
+            </Badge>
+          ))}
+        </div>
+        {doctor.bio && (
+          <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+            <h4 className="font-medium mb-1">About</h4>
+            <p>{doctor.bio}</p>
+          </div>
+        )}
       </div>
     </>
   );
