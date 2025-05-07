@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +13,25 @@ interface PatientInfoFormProps {
 }
 
 const PatientInfoForm: React.FC<PatientInfoFormProps> = ({ user, setReason }) => {
+  // Add local state to track the notes
+  const [notes, setNotes] = useState("");
+  
+  // Function to handle reason select change
+  const handleReasonChange = (selectedReason: string) => {
+    setReason(selectedReason);
+  };
+  
+  // Function to handle notes change
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newNotes = e.target.value;
+    setNotes(newNotes);
+    
+    // Update reason with notes if there are any
+    if (newNotes) {
+      setReason(`${notes ? notes : ""} - ${newNotes}`);
+    }
+  };
+
   if (user) {
     return (
       <div className="mt-4">
@@ -28,7 +47,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({ user, setReason }) =>
           </div>
           <div>
             <Label htmlFor="reason">Reason for visit</Label>
-            <Select onValueChange={setReason}>
+            <Select onValueChange={handleReasonChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a reason" />
               </SelectTrigger>
@@ -46,7 +65,8 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({ user, setReason }) =>
               id="notes" 
               placeholder="Any specific concerns or questions for the doctor?"
               className="resize-none"
-              onChange={(e) => setReason(prev => prev + " - " + e.target.value)}
+              value={notes}
+              onChange={handleNotesChange}
             />
           </div>
         </div>
