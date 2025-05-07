@@ -2,6 +2,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { BookOpen, MessageSquare } from 'lucide-react';
+import { featuresData } from '@/data/features';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -23,36 +24,28 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, user, closeMenu }) => {
         
         {user && user.isAuthenticated ? (
           <>
-            <NavLink to="/bmi-calculator" className={({ isActive }) => 
-              `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-            } onClick={closeMenu}>
-              BMI Calculator
-            </NavLink>
-            <NavLink to="/diet-plans" className={({ isActive }) => 
-              `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-            } onClick={closeMenu}>
-              Diet Plans
-            </NavLink>
-            <NavLink to="/workouts" className={({ isActive }) => 
-              `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-            } onClick={closeMenu}>
-              Workouts
-            </NavLink>
-            <NavLink to="/disease-management" className={({ isActive }) => 
-              `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-            } onClick={closeMenu}>
-              Disease Management
-            </NavLink>
-            <NavLink to="/womens-health" className={({ isActive }) => 
-              `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-            } onClick={closeMenu}>
-              Women's Health
-            </NavLink>
+            {featuresData.map((feature) => (
+              <NavLink 
+                key={feature.title}
+                to={feature.href} 
+                className={({ isActive }) => 
+                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                } 
+                onClick={closeMenu}
+              >
+                <div className="flex items-center">
+                  {React.cloneElement(feature.icon as React.ReactElement, { className: "h-4 w-4 mr-1" })}
+                  {feature.title}
+                </div>
+              </NavLink>
+            ))}
+            
             <NavLink to="/doctor-consultation" className={({ isActive }) => 
               `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
             } onClick={closeMenu}>
               Doctor Consultation
             </NavLink>
+            
             <NavLink to="/blog" className={({ isActive }) => 
               `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
             } onClick={closeMenu}>
@@ -61,6 +54,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, user, closeMenu }) => {
                 Blog
               </div>
             </NavLink>
+            
             <NavLink to="/chat" className={({ isActive }) => 
               `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
             } onClick={closeMenu}>
