@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import FeaturedBlogSection from '@/components/blog/FeaturedBlogSection';
+import PremiumProfiles from '@/components/premium/PremiumProfiles';
 import { ArrowRight, ActivitySquare, Utensils, Dumbbell, Calendar, PieChart, Activity, Sparkles, Crown } from 'lucide-react';
 
 const Index = () => {
@@ -72,23 +74,12 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Features Section */}
-        <section className="py-16 md:py-24">
-          <div className="container-custom">
-            <div className="text-center mb-16">
-              <h2 className="section-title">What We Offer</h2>
-              <p className="section-subtitle mx-auto">
-                Comprehensive health solutions tailored to meet your personal wellness goals
-              </p>
-            </div>
+        {/* Features Section (Only shown when logged in - now controlled by FeaturesDropdown) */}
+        
+        {/* Premium Profiles Section - NEW */}
+        <PremiumProfiles />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Feature 1-6 ... keep existing code */}
-            </div>
-          </div>
-        </section>
-
-        {/* Blog Section - NEW */}
+        {/* Blog Section */}
         <FeaturedBlogSection />
 
         {/* Premium Features Section */}
@@ -159,7 +150,7 @@ const Index = () => {
   );
 };
 
-// New premium feature card component
+// Premium feature card component
 const PremiumFeatureCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => (
   <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
     <div className="mb-3">

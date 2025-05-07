@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, X, UserCircle, LogIn, MessageSquare, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginModal from './auth/LoginModal';
+import FeaturesDropdown from './FeaturesDropdown';
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,47 +46,37 @@ const NavBar = () => {
               } end>
                 Home
               </NavLink>
-              <NavLink to="/bmi-calculator" className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-              }>
-                BMI Calculator
-              </NavLink>
-              <NavLink to="/diet-plans" className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-              }>
-                Diet Plans
-              </NavLink>
-              <NavLink to="/workouts" className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-              }>
-                Workouts
-              </NavLink>
-              <NavLink to="/disease-management" className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-              }>
-                Disease Management
-              </NavLink>
-              <NavLink to="/womens-health" className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-              }>
-                Women's Health
-              </NavLink>
-              <NavLink to="/blog" className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-              }>
-                <div className="flex items-center">
-                  <BookOpen className="h-4 w-4 mr-1" />
-                  Blog
-                </div>
-              </NavLink>
-              <NavLink to="/chat" className={({ isActive }) => 
-                `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-              }>
-                <div className="flex items-center">
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  Chat
-                </div>
-              </NavLink>
+              
+              {/* Show features dropdown only for authenticated users */}
+              {user && user.isAuthenticated ? (
+                <>
+                  <FeaturesDropdown />
+                  
+                  <NavLink to="/doctor-consultation" className={({ isActive }) => 
+                    `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                  }>
+                    Doctor Consultation
+                  </NavLink>
+                  
+                  <NavLink to="/blog" className={({ isActive }) => 
+                    `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                  }>
+                    <div className="flex items-center">
+                      <BookOpen className="h-4 w-4 mr-1" />
+                      Blog
+                    </div>
+                  </NavLink>
+                  
+                  <NavLink to="/chat" className={({ isActive }) => 
+                    `px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                  }>
+                    <div className="flex items-center">
+                      <MessageSquare className="h-4 w-4 mr-1" />
+                      Chat
+                    </div>
+                  </NavLink>
+                </>
+              ) : null}
               
               {/* Auth buttons */}
               {user && user.isAuthenticated ? (
@@ -103,7 +94,7 @@ const NavBar = () => {
                   onClick={openLoginModal}
                 >
                   <LogIn className="h-4 w-4" />
-                  Login
+                  Login / Signup
                 </Button>
               )}
             </div>
@@ -141,47 +132,57 @@ const NavBar = () => {
                 } onClick={closeMenu} end>
                   Home
                 </NavLink>
-                <NavLink to="/bmi-calculator" className={({ isActive }) => 
-                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-                } onClick={closeMenu}>
-                  BMI Calculator
-                </NavLink>
-                <NavLink to="/diet-plans" className={({ isActive }) => 
-                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-                } onClick={closeMenu}>
-                  Diet Plans
-                </NavLink>
-                <NavLink to="/workouts" className={({ isActive }) => 
-                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-                } onClick={closeMenu}>
-                  Workouts
-                </NavLink>
-                <NavLink to="/disease-management" className={({ isActive }) => 
-                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-                } onClick={closeMenu}>
-                  Disease Management
-                </NavLink>
-                <NavLink to="/womens-health" className={({ isActive }) => 
-                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-                } onClick={closeMenu}>
-                  Women's Health
-                </NavLink>
-                <NavLink to="/blog" className={({ isActive }) => 
-                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-                } onClick={closeMenu}>
-                  <div className="flex items-center">
-                    <BookOpen className="h-4 w-4 mr-1" />
-                    Blog
-                  </div>
-                </NavLink>
-                <NavLink to="/chat" className={({ isActive }) => 
-                  `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
-                } onClick={closeMenu}>
-                  <div className="flex items-center">
-                    <MessageSquare className="h-4 w-4 mr-1" />
-                    Chat
-                  </div>
-                </NavLink>
+                
+                {user && user.isAuthenticated ? (
+                  <>
+                    <NavLink to="/bmi-calculator" className={({ isActive }) => 
+                      `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                    } onClick={closeMenu}>
+                      BMI Calculator
+                    </NavLink>
+                    <NavLink to="/diet-plans" className={({ isActive }) => 
+                      `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                    } onClick={closeMenu}>
+                      Diet Plans
+                    </NavLink>
+                    <NavLink to="/workouts" className={({ isActive }) => 
+                      `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                    } onClick={closeMenu}>
+                      Workouts
+                    </NavLink>
+                    <NavLink to="/disease-management" className={({ isActive }) => 
+                      `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                    } onClick={closeMenu}>
+                      Disease Management
+                    </NavLink>
+                    <NavLink to="/womens-health" className={({ isActive }) => 
+                      `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                    } onClick={closeMenu}>
+                      Women's Health
+                    </NavLink>
+                    <NavLink to="/doctor-consultation" className={({ isActive }) => 
+                      `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                    } onClick={closeMenu}>
+                      Doctor Consultation
+                    </NavLink>
+                    <NavLink to="/blog" className={({ isActive }) => 
+                      `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                    } onClick={closeMenu}>
+                      <div className="flex items-center">
+                        <BookOpen className="h-4 w-4 mr-1" />
+                        Blog
+                      </div>
+                    </NavLink>
+                    <NavLink to="/chat" className={({ isActive }) => 
+                      `block px-3 py-2 rounded-md text-base font-medium ${isActive ? 'bg-health-light text-health-primary' : 'text-gray-700 hover:bg-gray-100'}`
+                    } onClick={closeMenu}>
+                      <div className="flex items-center">
+                        <MessageSquare className="h-4 w-4 mr-1" />
+                        Chat
+                      </div>
+                    </NavLink>
+                  </>
+                ) : null}
               </div>
             </div>
           )}

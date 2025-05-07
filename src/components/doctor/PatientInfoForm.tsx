@@ -13,28 +13,39 @@ interface PatientInfoFormProps {
 }
 
 const PatientInfoForm: React.FC<PatientInfoFormProps> = ({ user, setReason }) => {
-  // Add local state to track the notes
+  // Add local state to track the notes and selected reason
   const [notes, setNotes] = useState("");
+  const [selectedReasonType, setSelectedReasonType] = useState("");
   
   // Function to handle reason select change
   const handleReasonChange = (selectedReason: string) => {
-    setReason(selectedReason);
+    setSelectedReasonType(selectedReason);
+    updateFullReason(selectedReason, notes);
   };
   
   // Function to handle notes change
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newNotes = e.target.value;
     setNotes(newNotes);
-    
-    // Update reason with notes if there are any
-    if (newNotes) {
-      setReason(`${notes ? notes : ""} - ${newNotes}`);
+    updateFullReason(selectedReasonType, newNotes);
+  };
+  
+  // Helper function to update the full reason with both type and notes
+  const updateFullReason = (reasonType: string, noteText: string) => {
+    if (!reasonType && !noteText) {
+      setReason("");
+    } else if (!noteText) {
+      setReason(reasonType);
+    } else if (!reasonType) {
+      setReason(noteText);
+    } else {
+      setReason(`${reasonType} - ${noteText}`);
     }
   };
 
   if (user) {
     return (
-      <div className="mt-4">
+      <div className="mt-4 bg-white dark:bg-gray-800 rounded-md shadow-sm border p-4">
         <h4 className="font-medium mb-2">Your Information</h4>
         <div className="space-y-2">
           <div>

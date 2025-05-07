@@ -20,6 +20,7 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [reason, setReason] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [appointmentError, setAppointmentError] = useState<string | null>(null);
 
   const handleBookAppointment = async () => {
     if (!user) {
@@ -40,6 +41,8 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
       return;
     }
 
+    setAppointmentError(null);
+    
     try {
       setIsSubmitting(true);
       
@@ -56,11 +59,12 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
       });
       
       onBookingSuccess();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error booking appointment:", error);
+      setAppointmentError(error.message || "Failed to book appointment. Please try again.");
       toast({
         title: "Booking Failed",
-        description: "There was an error booking your consultation. Please try again.",
+        description: error.message || "There was an error booking your consultation. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -73,10 +77,10 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
       <div>
         <DoctorInfoCard doctor={doctor} />
         
-        <div className="mt-4">
+        <div className="mt-4 bg-white dark:bg-gray-800 rounded-md shadow-sm border p-4">
           <h4 className="font-medium mb-2">Selected Time</h4>
           {date && selectedTimeSlot ? (
-            <div className="border rounded-md p-3 text-sm">
+            <div className="text-sm">
               <p><strong>Date:</strong> {date.toLocaleDateString()}</p>
               <p><strong>Time:</strong> {selectedTimeSlot}</p>
             </div>
@@ -98,6 +102,12 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
         />
         
         <PatientInfoForm user={user} setReason={setReason} />
+        
+        {appointmentError && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+            {appointmentError}
+          </div>
+        )}
       </div>
       
       <div className="md:col-span-2 flex justify-end mt-4">

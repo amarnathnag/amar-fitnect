@@ -33,32 +33,34 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
   };
 
   return (
-    <div>
+    <div className="w-full">
       <h4 className="font-medium mb-2">Select Date</h4>
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={setDate}
-        className="border rounded-md p-3"
-        disabled={(date) => {
-          // Disable past dates
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          
-          // Also disable dates that don't match available days
-          return date < today || !isDayAvailable(date);
-        }}
-      />
+      <div className="bg-white dark:bg-gray-800 rounded-md shadow-sm border p-2 mb-4">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          className="pointer-events-auto"
+          disabled={(date) => {
+            // Disable past dates
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Also disable dates that don't match available days
+            return date < today || !isDayAvailable(date);
+          }}
+        />
+      </div>
       
       <h4 className="font-medium mb-2 mt-4">Available Time Slots</h4>
       {date ? (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 bg-white dark:bg-gray-800 rounded-md shadow-sm border p-4">
           {timeSlots.map((time) => (
             <Button 
               key={time} 
               variant={selectedTimeSlot === time ? "default" : "outline"} 
               size="sm"
-              className={selectedTimeSlot === time ? "bg-health-primary" : ""}
+              className={`${selectedTimeSlot === time ? "bg-health-primary" : ""} hover:bg-health-primary/90`}
               onClick={() => setSelectedTimeSlot(time)}
             >
               {time}
@@ -66,7 +68,7 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({
           ))}
         </div>
       ) : (
-        <Alert>
+        <Alert className="bg-white dark:bg-gray-800">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Please select a date first
