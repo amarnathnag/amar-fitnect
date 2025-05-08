@@ -11,6 +11,8 @@ interface FeatureItemProps {
 }
 
 const FeatureItem: React.FC<FeatureItemProps> = ({ feature, closeMenu }) => {
+  const Icon = feature.icon;
+  
   return (
     <li key={feature.title}>
       <NavigationMenuLink asChild>
@@ -25,7 +27,7 @@ const FeatureItem: React.FC<FeatureItemProps> = ({ feature, closeMenu }) => {
           onClick={closeMenu}
         >
           <div className="flex flex-col items-center md:items-start">
-            {feature.icon}
+            <Icon className="h-6 w-6 mb-2 text-health-primary" />
             <div className="text-sm font-medium leading-none">{feature.title}</div>
             <p className="line-clamp-2 text-sm leading-snug text-gray-500 mt-1">
               {feature.description}
