@@ -20,13 +20,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiresPremi
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
+        console.log("ProtectedRoute: Verifying authentication...");
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("ProtectedRoute: Error verifying session:", error);
+          setIsAuthenticated(false);
+          return;
+        }
         
         if (!data.session) {
-          console.log("Protected route: No active session found");
+          console.log("ProtectedRoute: No active session found");
           setIsAuthenticated(false);
         } else {
-          console.log("Protected route: Active session verified");
+          console.log("ProtectedRoute: Active session verified");
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -43,27 +50,32 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiresPremi
     };
     
     verifyAuth();
-  }, [toast]);
+  }, [toast, location.pathname]);
   
+  // Show loading state while authentication is being verified
   if (isLoading || isVerifying) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
+  // Redirect to login if not authenticated
   if (!isAuthenticated || !user) {
+    console.log("ProtectedRoute: User not authenticated, redirecting to auth page");
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
   
-  // If route requires premium and user is not premium, redirect to subscription page
+  // Redirect to subscription page if premium is required but user is not premium
   if (requiresPremium && !user.isPremium) {
+    console.log("ProtectedRoute: Premium required but user is not premium, redirecting to subscription page");
     return <Navigate to="/subscription" replace />;
   }
   
-  // If profile is not complete and user is trying to access a page other than profile-setup,
-  // redirect to the profile setup page
+  // Redirect to profile setup if profile is not complete
   if (!isProfileComplete && location.pathname !== '/profile-setup') {
+    console.log("ProtectedRoute: Profile not complete, redirecting to profile setup page");
     return <Navigate to="/profile-setup" replace />;
   }
 
+  // If all checks pass, render the protected content
   return <>{children}</>;
 };
 

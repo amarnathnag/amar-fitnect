@@ -19,29 +19,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // First check local storage for cached auth
-        const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-        const email = localStorage.getItem('userEmail');
-        const name = localStorage.getItem('userName');
-        const isPremium = localStorage.getItem('isPremium') === 'true';
-
-        if (isAuthenticated && email) {
-          setUser({
-            name: name || undefined,
-            email,
-            isAuthenticated: true,
-            isPremium,
-          });
-        }
-
-        // Then verify with Supabase and update if needed
+        setIsLoading(true);
+        console.log("Initializing auth state...");
+        
+        // First check with Supabase for active session
         const { data } = await supabase.auth.getSession();
+        
         if (data.session) {
+          console.log("Active session found during initialization");
           const userEmail = data.session.user?.email;
           const userIsPremium = userEmail?.includes('premium') || false;
+          const userName = data.session.user?.user_metadata?.full_name;
           
           setUser({
-            name: data.session.user?.user_metadata?.full_name,
+            name: userName,
             email: userEmail || '',
             isAuthenticated: true,
             isPremium: userIsPremium,
@@ -49,14 +40,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           localStorage.setItem('isAuthenticated', 'true');
           localStorage.setItem('userEmail', userEmail || '');
+          localStorage.setItem('userName', userName || '');
           localStorage.setItem('isPremium', String(userIsPremium));
 
           // Fetch profile after authentication is confirmed
           setTimeout(() => {
             fetchProfile();
           }, 0);
-        } else if (isAuthenticated) {
-          // If we have local storage but no Supabase session, clean up
+        } else {
+          console.log("No active session found during initialization");
+          // Clean up any local storage data if no active session
           localStorage.removeItem('isAuthenticated');
           localStorage.removeItem('userEmail');
           localStorage.removeItem('userName');
@@ -70,6 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: "There was a problem with your authentication. Please try logging in again.",
           variant: "destructive",
         });
+        setUser(null);
       } finally {
         setIsLoading(false);
         setInitialLoadComplete(true);
@@ -85,9 +79,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_IN' && session) {
         const userEmail = session.user?.email;
         const userIsPremium = userEmail?.includes('premium') || false;
+        const userName = session.user?.user_metadata?.full_name;
         
         setUser({
-          name: session.user?.user_metadata?.full_name,
+          name: userName,
           email: userEmail || '',
           isAuthenticated: true,
           isPremium: userIsPremium,
@@ -95,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userEmail', userEmail || '');
+        localStorage.setItem('userName', userName || '');
         localStorage.setItem('isPremium', String(userIsPremium));
         
         // Defer profile fetch to next tick to avoid auth state deadlocks
@@ -102,6 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           fetchProfile();
         }, 0);
       } else if (event === 'SIGNED_OUT') {
+        console.log("User signed out, clearing auth state");
         setUser(null);
         localStorage.removeItem('isAuthenticated');
         localStorage.removeItem('userEmail');
