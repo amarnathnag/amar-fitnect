@@ -3,9 +3,45 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Calendar, Dumbbell } from 'lucide-react';
+import { User, Calendar, Dumbbell, Lock } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const PremiumProfiles = () => {
+  const { user } = useAuth();
+  const isPremium = user?.isPremium;
+  
+  // If user is not premium, show upgrade prompt instead
+  if (!isPremium) {
+    return (
+      <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-900/50 dark:to-blue-900/30">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Premium Professional Profiles</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Upgrade to premium for exclusive access to top healthcare professionals and fitness experts.
+            </p>
+          </div>
+          
+          <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-amber-200/50 dark:border-amber-800/30">
+            <div className="flex items-center justify-center mb-4">
+              <Lock className="h-12 w-12 text-amber-500" />
+            </div>
+            <h3 className="text-xl font-bold text-center mb-2">Premium Feature Locked</h3>
+            <p className="text-center text-gray-600 dark:text-gray-300 mb-6">
+              Access to doctor consultations and gym profiles is exclusive for premium members.
+            </p>
+            <Button className="w-full bg-gradient-to-r from-amber-500 to-amber-600" asChild>
+              <Link to="/subscription">
+                Upgrade to Premium
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
+  // For premium users, show the full content
   return (
     <section className="py-16 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-900/50 dark:to-blue-900/30">
       <div className="container-custom">

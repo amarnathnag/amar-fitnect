@@ -23,6 +23,7 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
   const [appointmentError, setAppointmentError] = useState<string | null>(null);
 
   const handleBookAppointment = async () => {
+    // Check if user is authenticated first
     if (!user) {
       toast({
         title: "Login Required",
@@ -32,6 +33,17 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
       return;
     }
     
+    // Check if user is premium
+    if (!user.isPremium) {
+      toast({
+        title: "Premium Feature",
+        description: "Doctor consultations are available for premium users only. Please upgrade to premium.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check if date and time slot are selected
     if (!date || !selectedTimeSlot) {
       toast({
         title: "Incomplete Booking",
@@ -46,6 +58,7 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
     try {
       setIsSubmitting(true);
       
+      // Send appointment data to backend
       await createAppointment({
         doctor_id: doctor.id,
         date: date.toISOString().split('T')[0],
@@ -53,11 +66,13 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
         reason: reason
       });
       
+      // Show success message
       toast({
         title: "Consultation Booked!",
         description: `Your appointment with ${doctor.name} is confirmed for ${date.toLocaleDateString()} at ${selectedTimeSlot}`,
       });
       
+      // Call success callback
       onBookingSuccess();
     } catch (error: any) {
       console.error("Error booking appointment:", error);
@@ -73,12 +88,12 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 py-4">
+    <div className="grid gap-6 md:grid-cols-2 py-4">
       <div>
         <DoctorInfoCard doctor={doctor} />
         
         <div className="mt-4 bg-white dark:bg-gray-800 rounded-md shadow-sm border p-4">
-          <h4 className="font-medium mb-2">Selected Time</h4>
+          <h4 className="font-medium mb-2">Selected Appointment</h4>
           {date && selectedTimeSlot ? (
             <div className="text-sm">
               <p><strong>Date:</strong> {date.toLocaleDateString()}</p>
@@ -116,7 +131,7 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
           disabled={!user || !date || !selectedTimeSlot || isSubmitting}
           className="bg-health-primary hover:bg-health-dark"
         >
-          {isSubmitting ? "Processing..." : "Confirm & Pay"}
+          {isSubmitting ? "Processing..." : "Confirm Booking"}
         </Button>
       </div>
     </div>

@@ -17,19 +17,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     const email = localStorage.getItem('userEmail');
     const name = localStorage.getItem('userName');
+    const isPremium = localStorage.getItem('isPremium') === 'true';
 
     if (isAuthenticated && email) {
       setUser({
         name: name || undefined,
         email,
         isAuthenticated: true,
+        isPremium,
       });
       
       // Fetch profile data if user is authenticated
-      fetchProfile();
+      setTimeout(() => {
+        fetchProfile();
+      }, 0);
     }
 
     setIsLoading(false);
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        const userEmail = session.user?.email;
+        // This is a demo premium check - in a real app you'd check subscription status
+        const userIsPremium = userEmail?.includes('premium') || false;
+        
+        setUser({
+          name: session.user?.user_metadata?.full_name,
+          email: userEmail || '',
+          isAuthenticated: true,
+          isPremium: userIsPremium,
+        });
+        
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userEmail', userEmail || '');
+        localStorage.setItem('isPremium', String(userIsPremium));
+        
+        // Defer profile fetch to next tick to avoid auth state deadlocks
+        setTimeout(() => {
+          fetchProfile();
+        }, 0);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('isPremium');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

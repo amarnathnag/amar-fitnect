@@ -3,6 +3,7 @@ export interface User {
   name?: string;
   email: string;
   isAuthenticated: boolean;
+  isPremium?: boolean;
 }
 
 export interface ProfileData {

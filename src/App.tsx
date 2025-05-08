@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -62,12 +61,50 @@ function App() {
                 <Route path="/womens-health" element={<WomensHealth />} />
                 <Route path="/daily-routine" element={<DailyRoutine />} />
                 <Route path="/community" element={<Community />} />
-                <Route path="/doctor-consultation" element={<DoctorConsultation />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/premium-ai" element={<PremiumAi />} />
+                
+                {/* Premium routes that require authentication and premium status */}
+                <Route 
+                  path="/doctor-consultation" 
+                  element={
+                    <ProtectedRoute requiresPremium>
+                      <DoctorConsultation />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/chat" 
+                  element={
+                    <ProtectedRoute>
+                      <Chat />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/premium-ai" 
+                  element={
+                    <ProtectedRoute requiresPremium>
+                      <PremiumAi />
+                    </ProtectedRoute>
+                  } 
+                />
+                
                 <Route path="/subscription" element={<Subscription />} />
-                <Route path="/premium-payment" element={<PremiumPayment />} />
-                <Route path="/premium-unlocked" element={<PremiumUnlocked />} />
+                <Route 
+                  path="/premium-payment" 
+                  element={
+                    <ProtectedRoute>
+                      <PremiumPayment />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/premium-unlocked" 
+                  element={
+                    <ProtectedRoute>
+                      <PremiumUnlocked />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:postId" element={<Blog />} />
                 <Route 

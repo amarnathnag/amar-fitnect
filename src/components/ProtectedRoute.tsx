@@ -5,9 +5,10 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiresPremium?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiresPremium = false }) => {
   const { user, isLoading, isProfileComplete } = useAuth();
   const location = useLocation();
   
@@ -16,7 +17,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!user || !user.isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/auth" replace state={{ from: location }} />;
+  }
+  
+  // If route requires premium and user is not premium, redirect to subscription page
+  if (requiresPremium && !user.isPremium) {
+    return <Navigate to="/subscription" replace />;
   }
   
   // If profile is not complete and user is trying to access a page other than profile-setup,
