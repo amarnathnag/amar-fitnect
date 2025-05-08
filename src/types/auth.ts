@@ -20,8 +20,8 @@ export interface ProfileData {
 
 export interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<any>;
+  signup: (name: string, email: string, password: string) => Promise<any>;
   logout: () => void;
   isLoading: boolean;
   profileData: ProfileData | null;
