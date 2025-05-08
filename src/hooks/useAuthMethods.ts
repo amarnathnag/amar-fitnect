@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
+import { User } from '@/types/auth';
 
 export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileComplete: boolean) => {
-  const [user, setUser] = useState<{ name?: string; email: string; isAuthenticated: boolean; isPremium?: boolean } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -16,6 +17,12 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
         localStorage.removeItem(key);
+      }
+    });
+    // Remove from sessionStorage if in use
+    Object.keys(sessionStorage || {}).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        sessionStorage.removeItem(key);
       }
     });
   };
@@ -45,6 +52,12 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
         throw error;
       }
       
+      if (!data.session || !data.user) {
+        throw new Error("Login failed: No session or user returned");
+      }
+      
+      console.log("Login successful, session established", data.session.access_token.slice(0, 10) + '...');
+      
       // Check if user is a premium user - this would be based on your subscription logic
       // For demo, we'll just check if the email contains "premium"
       const isPremium = email.includes('premium');
@@ -57,7 +70,8 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
       setUser({
         email,
         isAuthenticated: true,
-        isPremium
+        isPremium,
+        name: data.user.user_metadata?.full_name
       });
 
       // Fetch user profile after login
@@ -99,6 +113,12 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
         throw error;
       }
       
+      if (!data.session || !data.user) {
+        throw new Error("Signup failed: No session or user returned");
+      }
+      
+      console.log("Signup successful, session established", data.session.access_token.slice(0, 10) + '...');
+      
       // Store auth info
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userName', name);
@@ -123,6 +143,8 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
 
   const logout = async () => {
     try {
+      setIsLoading(true);
+      
       // Clean up auth state first
       cleanupAuthState();
       
@@ -141,6 +163,8 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
       window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

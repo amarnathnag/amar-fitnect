@@ -1,45 +1,89 @@
 
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
-import { AuthContextType } from '@/types/auth';
+import { AuthContextType, User } from '@/types/auth';
 import { useAuthMethods } from '@/hooks/useAuthMethods';
 import { useProfileData } from '@/hooks/useProfileData';
+import { useToast } from "@/hooks/use-toast";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { toast } = useToast();
   const { profileData, isProfileComplete, fetchProfile, updateProfile } = useProfileData();
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const { user, login, signup, logout, isLoading, setUser, setIsLoading } = useAuthMethods(fetchProfile, isProfileComplete);
 
   // Check if user is authenticated and fetch profile data
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    const email = localStorage.getItem('userEmail');
-    const name = localStorage.getItem('userName');
-    const isPremium = localStorage.getItem('isPremium') === 'true';
+    const initAuth = async () => {
+      try {
+        // First check local storage for cached auth
+        const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+        const email = localStorage.getItem('userEmail');
+        const name = localStorage.getItem('userName');
+        const isPremium = localStorage.getItem('isPremium') === 'true';
 
-    if (isAuthenticated && email) {
-      setUser({
-        name: name || undefined,
-        email,
-        isAuthenticated: true,
-        isPremium,
-      });
-      
-      // Fetch profile data if user is authenticated
-      setTimeout(() => {
-        fetchProfile();
-      }, 0);
-    }
+        if (isAuthenticated && email) {
+          setUser({
+            name: name || undefined,
+            email,
+            isAuthenticated: true,
+            isPremium,
+          });
+        }
 
-    setIsLoading(false);
+        // Then verify with Supabase and update if needed
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          const userEmail = data.session.user?.email;
+          const userIsPremium = userEmail?.includes('premium') || false;
+          
+          setUser({
+            name: data.session.user?.user_metadata?.full_name,
+            email: userEmail || '',
+            isAuthenticated: true,
+            isPremium: userIsPremium,
+          });
+          
+          localStorage.setItem('isAuthenticated', 'true');
+          localStorage.setItem('userEmail', userEmail || '');
+          localStorage.setItem('isPremium', String(userIsPremium));
+
+          // Fetch profile after authentication is confirmed
+          setTimeout(() => {
+            fetchProfile();
+          }, 0);
+        } else if (isAuthenticated) {
+          // If we have local storage but no Supabase session, clean up
+          localStorage.removeItem('isAuthenticated');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userName');
+          localStorage.removeItem('isPremium');
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        toast({
+          title: "Authentication Error",
+          description: "There was a problem with your authentication. Please try logging in again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+        setInitialLoadComplete(true);
+      }
+    };
+
+    initAuth();
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
+      
       if (event === 'SIGNED_IN' && session) {
         const userEmail = session.user?.email;
-        // This is a demo premium check - in a real app you'd check subscription status
         const userIsPremium = userEmail?.includes('premium') || false;
         
         setUser({
@@ -77,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login, 
       signup, 
       logout, 
-      isLoading, 
+      isLoading: isLoading && !initialLoadComplete, 
       profileData, 
       isProfileComplete, 
       updateProfile,

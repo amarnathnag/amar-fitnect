@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
+import { supabase } from "@/integrations/supabase/client";
 
 // Form validation schema
 const profileFormSchema = z.object({
@@ -39,8 +40,35 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 const ProfileSetup = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, isLoading, updateProfile } = useAuth();
+  const { user, isLoading: authLoading, updateProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          console.log("No active session found, redirecting to auth page");
+          toast({
+            title: "Authentication required",
+            description: "Please sign in to complete your profile.",
+            variant: "destructive",
+          });
+          navigate('/auth');
+        } else {
+          console.log("Active session found, user can continue with profile setup");
+        }
+      } catch (error) {
+        console.error("Error checking auth status:", error);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+
+    checkAuth();
+  }, [navigate, toast]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -50,10 +78,31 @@ const ProfileSetup = () => {
     },
   });
 
+  useEffect(() => {
+    // Update the form when user data is loaded
+    if (user?.name && form.getValues('full_name') === "") {
+      form.setValue('full_name', user.name);
+    }
+  }, [user, form]);
+
   const onSubmit = async (data: ProfileFormValues) => {
     try {
       setIsSubmitting(true);
       
+      // Verify authentication before submission
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session) {
+        toast({
+          title: "Authentication error",
+          description: "Your session has expired. Please sign in again.",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
+      
+      console.log("Submitting profile data with active session");
       await updateProfile({
         full_name: data.full_name,
         date_of_birth: format(data.date_of_birth, 'yyyy-MM-dd'),
@@ -72,11 +121,11 @@ const ProfileSetup = () => {
       
       // Navigate to profile page after successful profile setup
       navigate('/profile');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Profile setup error:', error);
       toast({
         title: "Profile setup failed",
-        description: "There was an error setting up your profile. Please try again.",
+        description: error.message || "There was an error setting up your profile. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -84,7 +133,7 @@ const ProfileSetup = () => {
     }
   };
 
-  if (isLoading) {
+  if (authLoading || !authChecked) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
