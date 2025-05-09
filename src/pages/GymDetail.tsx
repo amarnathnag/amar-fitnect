@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -64,7 +63,7 @@ const GymDetail = () => {
   };
 
   // Check if this is the owner of the gym
-  const isOwner = user && gym && user.uid === gym.owner_id;
+  const isOwner = user && gym && user.id === gym.owner_id; // Use user.id instead of user.uid
   
   if (isGymLoading) {
     return (

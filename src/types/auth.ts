@@ -1,5 +1,6 @@
 
 export interface User {
+  id: string;  // Using id instead of uid to match the Auth context
   name?: string;
   email: string;
   isAuthenticated: boolean;

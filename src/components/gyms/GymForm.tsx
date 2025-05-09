@@ -121,7 +121,7 @@ const GymForm: React.FC<GymFormProps> = ({ existingGym, onSuccess }) => {
       
       const gymData = {
         ...data,
-        owner_id: user.uid || '', // Changed from user.id to user.uid
+        owner_id: user.id || '', // Use user.id instead of user.uid
         is_premium: false,  // Set by admin or through subscription
         is_approved: false, // Requires admin approval
       };

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Gym, GymMedia, GymReview, JobPosting, JobApplication } from "@/types/gym";
 
@@ -24,7 +23,7 @@ export const fetchGyms = async (search?: string, pincode?: string) => {
     throw error;
   }
   
-  return data as Gym[];
+  return data as unknown as Gym[];
 };
 
 export const fetchGymById = async (gymId: string) => {
@@ -39,7 +38,7 @@ export const fetchGymById = async (gymId: string) => {
     throw error;
   }
   
-  return data as Gym;
+  return data as unknown as Gym;
 };
 
 export const fetchGymMedia = async (gymId: string) => {
@@ -53,7 +52,7 @@ export const fetchGymMedia = async (gymId: string) => {
     throw error;
   }
   
-  return data as GymMedia[];
+  return data as unknown as GymMedia[];
 };
 
 export const fetchGymReviews = async (gymId: string) => {
@@ -67,7 +66,7 @@ export const fetchGymReviews = async (gymId: string) => {
     throw error;
   }
   
-  return data as (GymReview & { user_profiles: { full_name: string } })[];
+  return data as unknown as (GymReview & { user_profiles: { full_name: string } })[];
 };
 
 export const createGym = async (gym: Omit<Gym, 'id' | 'created_at' | 'updated_at' | 'is_approved'>) => {
@@ -81,7 +80,7 @@ export const createGym = async (gym: Omit<Gym, 'id' | 'created_at' | 'updated_at
     throw error;
   }
   
-  return data[0] as Gym;
+  return data[0] as unknown as Gym;
 };
 
 export const updateGym = async (gymId: string, gym: Partial<Gym>) => {
@@ -96,7 +95,7 @@ export const updateGym = async (gymId: string, gym: Partial<Gym>) => {
     throw error;
   }
   
-  return data[0] as Gym;
+  return data[0] as unknown as Gym;
 };
 
 export const uploadGymMedia = async (gymId: string, file: File, type: 'image' | 'video', isFeatured: boolean = false) => {
@@ -134,7 +133,7 @@ export const uploadGymMedia = async (gymId: string, file: File, type: 'image' | 
     throw error;
   }
   
-  return data[0] as GymMedia;
+  return data[0] as unknown as GymMedia;
 };
 
 // Job Postings CRUD Operations
@@ -155,7 +154,7 @@ export const fetchJobPostings = async (gymId?: string) => {
     throw error;
   }
   
-  return data as (JobPosting & { gyms: { name: string, address: string } })[];
+  return data as unknown as (JobPosting & { gyms: { name: string, address: string } })[];
 };
 
 export const fetchJobPostingById = async (jobId: string) => {
@@ -170,7 +169,7 @@ export const fetchJobPostingById = async (jobId: string) => {
     throw error;
   }
   
-  return data as (JobPosting & { gyms: { name: string, address: string, contact_email: string, contact_phone: string } });
+  return data as unknown as (JobPosting & { gyms: { name: string, address: string, contact_email: string, contact_phone: string } });
 };
 
 export const createJobPosting = async (jobPosting: Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>) => {
@@ -184,7 +183,7 @@ export const createJobPosting = async (jobPosting: Omit<JobPosting, 'id' | 'crea
     throw error;
   }
   
-  return data[0] as JobPosting;
+  return data[0] as unknown as JobPosting;
 };
 
 export const updateJobPosting = async (jobId: string, jobPosting: Partial<JobPosting>) => {
@@ -199,7 +198,7 @@ export const updateJobPosting = async (jobId: string, jobPosting: Partial<JobPos
     throw error;
   }
   
-  return data[0] as JobPosting;
+  return data[0] as unknown as JobPosting;
 };
 
 // Job Applications CRUD Operations
@@ -214,7 +213,7 @@ export const submitJobApplication = async (application: Omit<JobApplication, 'id
     throw error;
   }
   
-  return data[0] as JobApplication;
+  return data[0] as unknown as JobApplication;
 };
 
 export const fetchMyJobApplications = async (userEmail: string) => {
@@ -257,7 +256,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'pe
     throw error;
   }
   
-  return data[0] as JobApplication;
+  return data[0] as unknown as JobApplication;
 };
 
 // Stats

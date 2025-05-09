@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -47,15 +46,19 @@ const GymReviews: React.FC<GymReviewsProps> = ({ gymId, reviews, onNewReview }) 
     try {
       setIsSubmitting(true);
       
+      // Use explicit type casting with as unknown as T pattern to handle Supabase query
       const { data, error } = await supabase
         .from('gym_reviews')
         .insert([{
           gym_id: gymId,
-          user_id: user.uid, // Changed from user.id to user.uid
+          user_id: user.id, // Use user.id instead of user.uid
           rating,
           comment: comment.trim() || null
         }])
-        .select();
+        .select() as unknown as { 
+          data: GymReview[] | null;
+          error: Error | null;
+        };
       
       if (error) throw error;
       
@@ -68,7 +71,7 @@ const GymReviews: React.FC<GymReviewsProps> = ({ gymId, reviews, onNewReview }) 
       setComment('');
       
       if (data && data[0] && onNewReview) {
-        onNewReview(data[0] as unknown as GymReview); // Added type casting
+        onNewReview(data[0]);
       }
     } catch (error: any) {
       toast({
