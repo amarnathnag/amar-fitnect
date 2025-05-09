@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
-import { Doctor, createAppointment } from '@/services/doctorService';
+import { Doctor } from '@/services/doctorService';
+import { createAppointment } from '@/services/appointmentService';
 import DoctorInfoCard from './DoctorInfoCard';
 import TimeSlotSelector from './TimeSlotSelector';
 import PatientInfoForm from './PatientInfoForm';
@@ -60,6 +61,7 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
       
       // Send appointment data to backend
       await createAppointment({
+        user_id: user.id,
         doctor_id: doctor.id,
         date: date.toISOString().split('T')[0],
         time_slot: selectedTimeSlot,

@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Video } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { fetchUserAppointments } from '@/services/doctorService';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchUserAppointments } from '@/services/appointmentService';
 import { useToast } from '@/hooks/use-toast';
 
 interface AppointmentWithDoctor {
@@ -23,12 +24,18 @@ interface AppointmentWithDoctor {
 const UserAppointments: React.FC = () => {
   const [appointments, setAppointments] = useState<AppointmentWithDoctor[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     const loadAppointments = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
       try {
-        const data = await fetchUserAppointments();
+        const data = await fetchUserAppointments(user.id);
         setAppointments(data as AppointmentWithDoctor[]);
       } catch (error) {
         console.error("Error loading appointments:", error);
@@ -43,7 +50,7 @@ const UserAppointments: React.FC = () => {
     };
 
     loadAppointments();
-  }, [toast]);
+  }, [toast, user]);
 
   if (loading) {
     return (
@@ -53,6 +60,19 @@ const UserAppointments: React.FC = () => {
         </CardHeader>
         <CardContent>
           <p>Loading your appointments...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Appointments</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Please sign in to view your appointments.</p>
         </CardContent>
       </Card>
     );
