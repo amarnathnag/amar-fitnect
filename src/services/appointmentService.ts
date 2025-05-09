@@ -36,6 +36,7 @@ export const fetchAppointments = async () => {
     doctor_id: appt.doctor_id,
     doctor_name: appt.doctors?.name || 'Unknown Doctor',
     user_id: appt.user_id,
+    // Use safe navigation with optional chaining and provide a fallback
     user_name: appt.user_profiles?.full_name || 'Unknown User',
     date: appt.date,
     time_slot: appt.time_slot,
@@ -71,7 +72,7 @@ export const fetchDoctorAppointments = async (doctorId: string) => {
     .from('appointments')
     .select(`
       *,
-      profiles:user_id (full_name)
+      user_profiles:user_id (full_name)
     `)
     .eq('doctor_id', doctorId)
     .order('date', { ascending: true });
