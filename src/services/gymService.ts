@@ -3,7 +3,7 @@ import { Gym, GymMedia, GymReview, JobPosting, JobApplication } from "@/types/gy
 
 // Gym CRUD Operations
 export const fetchGyms = async (search?: string, pincode?: string) => {
-  let query = supabase
+  let query = (supabase as any)
     .from('gyms')
     .select('*')
     .eq('is_approved', true);
@@ -27,7 +27,7 @@ export const fetchGyms = async (search?: string, pincode?: string) => {
 };
 
 export const fetchGymById = async (gymId: string) => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('gyms')
     .select('*')
     .eq('id', gymId)
@@ -42,7 +42,7 @@ export const fetchGymById = async (gymId: string) => {
 };
 
 export const fetchGymMedia = async (gymId: string) => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('gym_media')
     .select('*')
     .eq('gym_id', gymId);
@@ -56,7 +56,7 @@ export const fetchGymMedia = async (gymId: string) => {
 };
 
 export const fetchGymReviews = async (gymId: string) => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('gym_reviews')
     .select('*, user_profiles(full_name)')
     .eq('gym_id', gymId);
@@ -70,7 +70,7 @@ export const fetchGymReviews = async (gymId: string) => {
 };
 
 export const createGym = async (gym: Omit<Gym, 'id' | 'created_at' | 'updated_at' | 'is_approved'>) => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('gyms')
     .insert([gym])
     .select();

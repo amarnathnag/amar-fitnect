@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +84,7 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
       
       // Check if user is a premium user - this would be based on your subscription logic
       // For demo, we'll just check if the email contains "premium"
+      const userId = data.user.id;
       const isPremium = email.includes('premium');
       const userName = data.user.user_metadata?.full_name;
       
@@ -95,6 +95,7 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
       localStorage.setItem('isPremium', String(isPremium));
       
       setUser({
+        id: userId,
         email,
         isAuthenticated: true,
         isPremium,
@@ -188,6 +189,7 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
       localStorage.setItem('isPremium', 'false'); // New users are not premium by default
       
       setUser({
+        id: data.user.id,
         name,
         email,
         isAuthenticated: true,

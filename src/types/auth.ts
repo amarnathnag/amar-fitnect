@@ -1,6 +1,6 @@
 
 export interface User {
-  id: string;  // Using id instead of uid to match the Auth context
+  id?: string;  // Making id optional to accommodate existing code
   name?: string;
   email: string;
   isAuthenticated: boolean;

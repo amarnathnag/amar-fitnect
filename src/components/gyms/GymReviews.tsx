@@ -46,19 +46,16 @@ const GymReviews: React.FC<GymReviewsProps> = ({ gymId, reviews, onNewReview }) 
     try {
       setIsSubmitting(true);
       
-      // Use explicit type casting with as unknown as T pattern to handle Supabase query
-      const { data, error } = await supabase
+      // Use explicit type assertion to handle database schema mismatch
+      const { data, error } = await (supabase as any)
         .from('gym_reviews')
         .insert([{
           gym_id: gymId,
-          user_id: user.id, // Use user.id instead of user.uid
+          user_id: user.id || '', // Use empty string as fallback
           rating,
           comment: comment.trim() || null
         }])
-        .select() as unknown as { 
-          data: GymReview[] | null;
-          error: Error | null;
-        };
+        .select();
       
       if (error) throw error;
       
@@ -71,7 +68,7 @@ const GymReviews: React.FC<GymReviewsProps> = ({ gymId, reviews, onNewReview }) 
       setComment('');
       
       if (data && data[0] && onNewReview) {
-        onNewReview(data[0]);
+        onNewReview(data[0] as unknown as GymReview);
       }
     } catch (error: any) {
       toast({

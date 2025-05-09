@@ -62,8 +62,8 @@ const GymDetail = () => {
     refetchReviews();
   };
 
-  // Check if this is the owner of the gym
-  const isOwner = user && gym && user.id === gym.owner_id; // Use user.id instead of user.uid
+  // Check if this is the owner of the gym - handle potential undefined user.id
+  const isOwner = user && gym && user.id && user.id === gym.owner_id;
   
   if (isGymLoading) {
     return (

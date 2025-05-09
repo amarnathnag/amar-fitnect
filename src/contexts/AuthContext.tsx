@@ -27,11 +27,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (data.session) {
           console.log("Active session found during initialization");
+          const userId = data.session.user?.id;
           const userEmail = data.session.user?.email;
           const userIsPremium = userEmail?.includes('premium') || false;
           const userName = data.session.user?.user_metadata?.full_name;
           
           setUser({
+            id: userId,
             name: userName,
             email: userEmail || '',
             isAuthenticated: true,
@@ -77,11 +79,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Auth state changed:', event, session?.user?.email);
       
       if (event === 'SIGNED_IN' && session) {
+        const userId = session.user?.id;
         const userEmail = session.user?.email;
         const userIsPremium = userEmail?.includes('premium') || false;
         const userName = session.user?.user_metadata?.full_name;
         
         setUser({
+          id: userId,
           name: userName,
           email: userEmail || '',
           isAuthenticated: true,
