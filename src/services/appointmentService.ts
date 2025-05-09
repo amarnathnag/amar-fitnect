@@ -21,7 +21,7 @@ export const fetchAppointments = async () => {
     .select(`
       *,
       doctors:doctor_id (name),
-      profiles!inner(full_name)
+      profiles (full_name)
     `)
     .order('date', { ascending: true });
   
@@ -36,8 +36,8 @@ export const fetchAppointments = async () => {
     doctor_id: appt.doctor_id,
     doctor_name: appt.doctors?.name || 'Unknown Doctor',
     user_id: appt.user_id,
-    // Access profiles data correctly with type checking
-    user_name: appt.profiles ? appt.profiles.full_name || 'Unknown User' : 'Unknown User',
+    // Handle profiles data safely
+    user_name: appt.profiles && appt.profiles[0] ? appt.profiles[0].full_name || 'Unknown User' : 'Unknown User',
     date: appt.date,
     time_slot: appt.time_slot,
     reason: appt.reason,
@@ -72,7 +72,7 @@ export const fetchDoctorAppointments = async (doctorId: string) => {
     .from('appointments')
     .select(`
       *,
-      profiles!inner(full_name)
+      profiles (full_name)
     `)
     .eq('doctor_id', doctorId)
     .order('date', { ascending: true });
@@ -84,8 +84,8 @@ export const fetchDoctorAppointments = async (doctorId: string) => {
   
   return data.map(appt => ({
     ...appt,
-    // Access profiles data correctly with type checking
-    user_name: appt.profiles ? appt.profiles.full_name || 'Unknown User' : 'Unknown User'
+    // Handle profiles data safely
+    user_name: appt.profiles && appt.profiles[0] ? appt.profiles[0].full_name || 'Unknown User' : 'Unknown User'
   }));
 };
 
