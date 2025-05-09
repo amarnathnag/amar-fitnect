@@ -20,9 +20,23 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
   onSuccess?: () => void;
+  setError?: (error: string | null) => void;
+  isAdminLogin?: boolean;
+  adminEmail?: string;
+  setAdminEmail?: React.Dispatch<React.SetStateAction<string>>;
+  adminPassword?: string;
+  setAdminPassword?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ 
+  onSuccess, 
+  setError,
+  isAdminLogin,
+  adminEmail,
+  setAdminEmail,
+  adminPassword,
+  setAdminPassword
+}) => {
   const { toast } = useToast();
   const { login, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -31,13 +45,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: isAdminLogin && adminEmail ? adminEmail : "",
+      password: isAdminLogin && adminPassword ? adminPassword : "",
     },
   });
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
+      if (setError) setError(null);
       await login(values.email, values.password);
       toast({
         title: "Login successful!",
@@ -45,6 +60,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       });
       if (onSuccess) onSuccess();
     } catch (error: any) {
+      if (setError) setError(error.message || "Login failed");
       toast({
         title: "Login failed",
         description: error.message || "Please check your credentials and try again.",
@@ -52,6 +68,68 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
       });
     }
   };
+
+  // For controlled admin login fields
+  const handleAdminEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (setAdminEmail) setAdminEmail(e.target.value);
+  };
+
+  const handleAdminPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (setAdminPassword) setAdminPassword(e.target.value);
+  };
+
+  // For admin login specific form
+  if (isAdminLogin) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="admin-email">Email</Label>
+          <div className="relative">
+            <Input 
+              id="admin-email"
+              type="email"
+              value={adminEmail}
+              onChange={handleAdminEmailChange}
+              placeholder="admin@example.com"
+              disabled={isLoading}
+            />
+            <Mail className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="admin-password">Password</Label>
+          <div className="relative">
+            <Input 
+              id="admin-password"
+              type={showPassword ? "text" : "password"}
+              value={adminPassword}
+              onChange={handleAdminPasswordChange}
+              placeholder="********"
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-2.5 text-muted-foreground"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+        
+        <Button 
+          type="button" 
+          className="w-full"
+          disabled={isLoading || !adminEmail || !adminPassword} 
+          onClick={() => onSubmit({ email: adminEmail || '', password: adminPassword || '' })}
+        >
+          {isLoading ? "Logging in..." : "Admin Login"}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
@@ -91,6 +169,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-2.5 text-muted-foreground"
+                  tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>

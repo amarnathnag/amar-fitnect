@@ -9,6 +9,7 @@ import SignupForm from '@/components/auth/SignupForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 const Auth = () => {
   const [activeTab, setActiveTab] = useState("login");

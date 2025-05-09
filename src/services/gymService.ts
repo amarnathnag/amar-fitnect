@@ -59,7 +59,10 @@ export const fetchGymMedia = async (gymId: string) => {
 export const fetchGymReviews = async (gymId: string) => {
   const { data, error } = await supabase
     .from('gym_reviews')
-    .select('*, user_profiles(full_name)')
+    .select(`
+      *,
+      profiles:user_id (full_name)
+    `)
     .eq('gym_id', gymId);
   
   if (error) {
@@ -67,7 +70,7 @@ export const fetchGymReviews = async (gymId: string) => {
     throw error;
   }
   
-  return data as unknown as (GymReview & { user_profiles: { full_name: string } })[];
+  return data as unknown as (GymReview & { profiles: { full_name: string } })[];
 };
 
 export const createGym = async (gym: Omit<Gym, 'id' | 'created_at' | 'updated_at' | 'is_approved'>) => {
@@ -128,7 +131,7 @@ export const uploadGymMedia = async (gymId: string, file: File, type: 'image' | 
   
   const { data, error } = await supabase
     .from('gym_media')
-    .insert([mediaObject as any])
+    .insert([mediaObject])
     .select();
   
   if (error) {
@@ -143,7 +146,10 @@ export const uploadGymMedia = async (gymId: string, file: File, type: 'image' | 
 export const fetchJobPostings = async (gymId?: string) => {
   let query = supabase
     .from('job_postings')
-    .select('*, gyms(name, address)')
+    .select(`
+      *,
+      gyms:gym_id (name, location)
+    `)
     .eq('is_active', true);
   
   if (gymId) {
@@ -157,13 +163,16 @@ export const fetchJobPostings = async (gymId?: string) => {
     throw error;
   }
   
-  return data as unknown as (JobPosting & { gyms: { name: string, address: string } })[];
+  return data as unknown as (JobPosting & { gyms: { name: string, location: string } })[];
 };
 
 export const fetchJobPostingById = async (jobId: string) => {
   const { data, error } = await supabase
     .from('job_postings')
-    .select('*, gyms(name, address, contact_email, contact_phone)')
+    .select(`
+      *,
+      gyms:gym_id (name, location, contact_email, contact_phone)
+    `)
     .eq('id', jobId)
     .single();
   
@@ -172,13 +181,13 @@ export const fetchJobPostingById = async (jobId: string) => {
     throw error;
   }
   
-  return data as unknown as (JobPosting & { gyms: { name: string, address: string, contact_email: string, contact_phone: string } });
+  return data as unknown as (JobPosting & { gyms: { name: string, location: string, contact_email: string, contact_phone: string } });
 };
 
 export const createJobPosting = async (jobPosting: Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>) => {
   const { data, error } = await supabase
     .from('job_postings')
-    .insert([jobPosting as any])
+    .insert([jobPosting])
     .select();
   
   if (error) {
@@ -192,7 +201,7 @@ export const createJobPosting = async (jobPosting: Omit<JobPosting, 'id' | 'crea
 export const updateJobPosting = async (jobId: string, jobPosting: Partial<JobPosting>) => {
   const { data, error } = await supabase
     .from('job_postings')
-    .update(jobPosting as any)
+    .update(jobPosting)
     .eq('id', jobId)
     .select();
   
@@ -208,7 +217,7 @@ export const updateJobPosting = async (jobId: string, jobPosting: Partial<JobPos
 export const submitJobApplication = async (application: Omit<JobApplication, 'id' | 'created_at' | 'updated_at' | 'status'>) => {
   const { data, error } = await supabase
     .from('job_applications')
-    .insert([application as any])
+    .insert([application])
     .select();
   
   if (error) {
@@ -222,7 +231,10 @@ export const submitJobApplication = async (application: Omit<JobApplication, 'id
 export const fetchMyJobApplications = async (userEmail: string) => {
   const { data, error } = await supabase
     .from('job_applications')
-    .select('*, job_postings(title, gym_id, gyms(name))')
+    .select(`
+      *,
+      job_postings:job_id (title, gym_id, gyms:gym_id (name))
+    `)
     .eq('applicant_email', userEmail);
   
   if (error) {
@@ -230,13 +242,16 @@ export const fetchMyJobApplications = async (userEmail: string) => {
     throw error;
   }
   
-  return data as any[];
+  return data;
 };
 
 export const fetchApplicationsForGym = async (gymId: string) => {
   const { data, error } = await supabase
     .from('job_applications')
-    .select('*, job_postings(title)')
+    .select(`
+      *,
+      job_postings:job_id (title)
+    `)
     .eq('job_postings.gym_id', gymId);
   
   if (error) {
@@ -244,7 +259,7 @@ export const fetchApplicationsForGym = async (gymId: string) => {
     throw error;
   }
   
-  return data as any[];
+  return data;
 };
 
 export const updateApplicationStatus = async (applicationId: string, status: 'pending' | 'reviewed' | 'accepted' | 'rejected') => {

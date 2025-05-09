@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 
 interface GymFormProps {
   existingGym?: Gym;
@@ -28,7 +26,7 @@ interface GymFormProps {
 type FormValues = {
   name: string;
   owner_name: string;
-  address: string;
+  location: string; // Changed from address to location
   location_pincode: string;
   contact_phone: string;
   contact_email: string;
@@ -86,7 +84,7 @@ const GymForm: React.FC<GymFormProps> = ({ existingGym, onSuccess }) => {
     defaultValues: existingGym ? {
       name: existingGym.name,
       owner_name: existingGym.owner_name,
-      address: existingGym.address,
+      location: existingGym.location, // Changed from address to location
       location_pincode: existingGym.location_pincode,
       contact_phone: existingGym.contact_phone || '',
       contact_email: existingGym.contact_email || '',
@@ -96,7 +94,7 @@ const GymForm: React.FC<GymFormProps> = ({ existingGym, onSuccess }) => {
     } : {
       name: '',
       owner_name: user?.name || '',
-      address: '',
+      location: '', // Changed from address to location
       location_pincode: '',
       contact_phone: '',
       contact_email: user?.email || '',
@@ -192,13 +190,13 @@ const GymForm: React.FC<GymFormProps> = ({ existingGym, onSuccess }) => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="address">Address *</Label>
+              <Label htmlFor="location">Location *</Label>
               <Textarea 
-                id="address"
-                {...register('address', { required: 'Address is required' })}
+                id="location"
+                {...register('location', { required: 'Location is required' })}
                 placeholder="Enter full address"
               />
-              {errors.address && <p className="text-sm text-red-500">{errors.address.message}</p>}
+              {errors.location && <p className="text-sm text-red-500">{errors.location.message}</p>}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

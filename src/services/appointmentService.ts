@@ -21,7 +21,7 @@ export const fetchAppointments = async () => {
     .select(`
       *,
       doctors:doctor_id (name),
-      user_profiles:user_id (full_name)
+      profiles:user_id (full_name)
     `)
     .order('date', { ascending: true });
   
@@ -36,16 +36,16 @@ export const fetchAppointments = async () => {
     doctor_id: appt.doctor_id,
     doctor_name: appt.doctors?.name || 'Unknown Doctor',
     user_id: appt.user_id,
-    user_name: appt.user_profiles?.full_name || 'Unknown User',
+    user_name: appt.profiles?.full_name || 'Unknown User',
     date: appt.date,
     time_slot: appt.time_slot,
     reason: appt.reason,
     status: appt.status,
     created_at: appt.created_at,
     updated_at: appt.updated_at
-  })) as Appointment[];
+  }));
   
-  return transformedData;
+  return transformedData as Appointment[];
 };
 
 export const fetchUserAppointments = async (userId: string) => {
@@ -71,7 +71,7 @@ export const fetchDoctorAppointments = async (doctorId: string) => {
     .from('appointments')
     .select(`
       *,
-      user_profiles:user_id (full_name)
+      profiles:user_id (full_name)
     `)
     .eq('doctor_id', doctorId)
     .order('date', { ascending: true });

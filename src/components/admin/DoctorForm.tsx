@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { 
   fetchDoctorById, 
@@ -31,6 +31,7 @@ type FormValues = {
   phone: string;
   languages: string;
   available_days: string;
+  next_available: string;
 };
 
 const DoctorForm: React.FC<DoctorFormProps> = ({ doctorId, onSuccess }) => {
@@ -45,7 +46,7 @@ const DoctorForm: React.FC<DoctorFormProps> = ({ doctorId, onSuccess }) => {
     enabled: !!doctorId,
   });
   
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>();
   
   useEffect(() => {
     if (doctor) {
@@ -60,6 +61,7 @@ const DoctorForm: React.FC<DoctorFormProps> = ({ doctorId, onSuccess }) => {
         phone: doctor.phone || '',
         languages: doctor.languages?.join(', ') || 'English',
         available_days: doctor.available_days?.join(', ') || 'Monday, Tuesday, Wednesday, Thursday, Friday',
+        next_available: doctor.next_available || 'Next Week'
       });
       
       if (doctor.image_url) {
@@ -90,6 +92,7 @@ const DoctorForm: React.FC<DoctorFormProps> = ({ doctorId, onSuccess }) => {
         price: Number(data.price),
         languages: data.languages.split(',').map(lang => lang.trim()),
         available_days: data.available_days.split(',').map(day => day.trim()),
+        next_available: data.next_available
       };
       
       let imageUrl = doctor?.image_url;
@@ -232,7 +235,17 @@ const DoctorForm: React.FC<DoctorFormProps> = ({ doctorId, onSuccess }) => {
             />
           </div>
           
-          <div className="space-y-2 md:col-span-2">
+          <div className="space-y-2">
+            <Label htmlFor="next_available">Next Available</Label>
+            <Input
+              id="next_available"
+              {...register('next_available')}
+              placeholder="e.g. Next Week, Today"
+              defaultValue="Next Week"
+            />
+          </div>
+          
+          <div className="space-y-2">
             <Label htmlFor="available_days">Available Days (comma separated)</Label>
             <Input
               id="available_days"

@@ -45,7 +45,7 @@ const GymCard: React.FC<GymCardProps> = ({ gym }) => {
         </CardTitle>
         <CardDescription className="flex items-center">
           <MapPinIcon className="h-4 w-4 mr-1 text-gray-500" />
-          <span className="truncate">{gym.address}</span>
+          <span className="truncate">{gym.location}</span>
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -4,7 +4,7 @@ export interface Gym {
   name: string;
   owner_name: string;
   owner_id: string;
-  address: string;
+  location: string;  // Changed from address to location to match database
   location_pincode: string;
   contact_phone?: string;
   contact_email?: string;

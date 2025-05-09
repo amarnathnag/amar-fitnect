@@ -116,7 +116,7 @@ const AdminGyms = () => {
                       )}
                     </div>
                     <p className="text-gray-600 text-sm mt-1">
-                      {gym.address}, {gym.location_pincode}
+                      {gym.location}, {gym.location_pincode}
                     </p>
                   </div>
                   

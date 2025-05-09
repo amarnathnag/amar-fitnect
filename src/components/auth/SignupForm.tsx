@@ -25,9 +25,10 @@ export type SignupFormValues = z.infer<typeof signupSchema>;
 
 interface SignupFormProps {
   onSuccess?: () => void;
+  setError?: (error: string | null) => void;
 }
 
-const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
+const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
   const { toast } = useToast();
   const { signup, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -45,6 +46,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
 
   const onSubmit = async (values: SignupFormValues) => {
     try {
+      if (setError) setError(null);
       await signup(values.name, values.email, values.password);
       toast({
         title: "Account created!",
@@ -52,6 +54,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
       });
       if (onSuccess) onSuccess();
     } catch (error: any) {
+      if (setError) setError(error.message || "Signup failed");
       toast({
         title: "Signup failed",
         description: error.message || "Please check your information and try again.",
