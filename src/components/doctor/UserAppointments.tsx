@@ -5,24 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Video } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchUserAppointments } from '@/services/appointmentService';
+import { fetchUserAppointments, Appointment } from '@/services/appointmentService';
 import { useToast } from '@/hooks/use-toast';
 
-interface AppointmentWithDoctor {
-  id: string;
-  date: string;
-  time_slot: string;
-  status: string;
-  reason: string | null;
-  doctors: {
-    name: string;
-    specialty: string;
-    image_url: string;
-  };
-}
-
 const UserAppointments: React.FC = () => {
-  const [appointments, setAppointments] = useState<AppointmentWithDoctor[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -36,7 +23,7 @@ const UserAppointments: React.FC = () => {
       
       try {
         const data = await fetchUserAppointments(user.id);
-        setAppointments(data as AppointmentWithDoctor[]);
+        setAppointments(data);
       } catch (error) {
         console.error("Error loading appointments:", error);
         toast({
@@ -112,13 +99,13 @@ const UserAppointments: React.FC = () => {
           <div key={appointment.id} className="border rounded-md p-4 hover:shadow-sm transition-shadow">
             <div className="flex items-center gap-3">
               <img
-                src={appointment.doctors.image_url || "https://via.placeholder.com/50"}
-                alt={appointment.doctors.name}
+                src="https://via.placeholder.com/50"
+                alt={appointment.doctor_name || "Doctor"}
                 className="w-12 h-12 rounded-full object-cover"
               />
               <div>
-                <h4 className="font-medium">{appointment.doctors.name}</h4>
-                <p className="text-sm text-gray-500">{appointment.doctors.specialty}</p>
+                <h4 className="font-medium">{appointment.doctor_name || "Doctor"}</h4>
+                <p className="text-sm text-gray-500">Medical Professional</p>
               </div>
               <Badge 
                 className={`ml-auto ${
