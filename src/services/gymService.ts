@@ -1,9 +1,10 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Gym, GymMedia, GymReview, JobPosting, JobApplication } from "@/types/gym";
 
 // Gym CRUD Operations
 export const fetchGyms = async (search?: string, pincode?: string) => {
-  let query = (supabase as any)
+  let query = supabase
     .from('gyms')
     .select('*')
     .eq('is_approved', true);
@@ -23,11 +24,11 @@ export const fetchGyms = async (search?: string, pincode?: string) => {
     throw error;
   }
   
-  return data as unknown as Gym[];
+  return data as Gym[];
 };
 
 export const fetchGymById = async (gymId: string) => {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('gyms')
     .select('*')
     .eq('id', gymId)
@@ -38,11 +39,11 @@ export const fetchGymById = async (gymId: string) => {
     throw error;
   }
   
-  return data as unknown as Gym;
+  return data as Gym;
 };
 
 export const fetchGymMedia = async (gymId: string) => {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('gym_media')
     .select('*')
     .eq('gym_id', gymId);
@@ -52,11 +53,11 @@ export const fetchGymMedia = async (gymId: string) => {
     throw error;
   }
   
-  return data as unknown as GymMedia[];
+  return data as GymMedia[];
 };
 
 export const fetchGymReviews = async (gymId: string) => {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('gym_reviews')
     .select('*, user_profiles(full_name)')
     .eq('gym_id', gymId);
@@ -70,7 +71,7 @@ export const fetchGymReviews = async (gymId: string) => {
 };
 
 export const createGym = async (gym: Omit<Gym, 'id' | 'created_at' | 'updated_at' | 'is_approved'>) => {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('gyms')
     .insert([gym])
     .select();
@@ -80,7 +81,7 @@ export const createGym = async (gym: Omit<Gym, 'id' | 'created_at' | 'updated_at
     throw error;
   }
   
-  return data[0] as unknown as Gym;
+  return data[0] as Gym;
 };
 
 export const updateGym = async (gymId: string, gym: Partial<Gym>) => {
@@ -95,7 +96,7 @@ export const updateGym = async (gymId: string, gym: Partial<Gym>) => {
     throw error;
   }
   
-  return data[0] as unknown as Gym;
+  return data[0] as Gym;
 };
 
 export const uploadGymMedia = async (gymId: string, file: File, type: 'image' | 'video', isFeatured: boolean = false) => {
@@ -118,14 +119,16 @@ export const uploadGymMedia = async (gymId: string, file: File, type: 'image' | 
     .from('gym-media')
     .getPublicUrl(filePath);
   
+  const mediaObject = {
+    gym_id: gymId,
+    media_type: type,
+    url: urlData.publicUrl,
+    is_featured: isFeatured
+  };
+  
   const { data, error } = await supabase
     .from('gym_media')
-    .insert([{
-      gym_id: gymId,
-      media_type: type,
-      url: urlData.publicUrl,
-      is_featured: isFeatured
-    }])
+    .insert([mediaObject as any])
     .select();
   
   if (error) {
@@ -133,7 +136,7 @@ export const uploadGymMedia = async (gymId: string, file: File, type: 'image' | 
     throw error;
   }
   
-  return data[0] as unknown as GymMedia;
+  return data[0] as GymMedia;
 };
 
 // Job Postings CRUD Operations
@@ -175,7 +178,7 @@ export const fetchJobPostingById = async (jobId: string) => {
 export const createJobPosting = async (jobPosting: Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>) => {
   const { data, error } = await supabase
     .from('job_postings')
-    .insert([jobPosting])
+    .insert([jobPosting as any])
     .select();
   
   if (error) {
@@ -183,13 +186,13 @@ export const createJobPosting = async (jobPosting: Omit<JobPosting, 'id' | 'crea
     throw error;
   }
   
-  return data[0] as unknown as JobPosting;
+  return data[0] as JobPosting;
 };
 
 export const updateJobPosting = async (jobId: string, jobPosting: Partial<JobPosting>) => {
   const { data, error } = await supabase
     .from('job_postings')
-    .update(jobPosting)
+    .update(jobPosting as any)
     .eq('id', jobId)
     .select();
   
@@ -198,14 +201,14 @@ export const updateJobPosting = async (jobId: string, jobPosting: Partial<JobPos
     throw error;
   }
   
-  return data[0] as unknown as JobPosting;
+  return data[0] as JobPosting;
 };
 
 // Job Applications CRUD Operations
 export const submitJobApplication = async (application: Omit<JobApplication, 'id' | 'created_at' | 'updated_at' | 'status'>) => {
   const { data, error } = await supabase
     .from('job_applications')
-    .insert([application])
+    .insert([application as any])
     .select();
   
   if (error) {
@@ -213,7 +216,7 @@ export const submitJobApplication = async (application: Omit<JobApplication, 'id
     throw error;
   }
   
-  return data[0] as unknown as JobApplication;
+  return data[0] as JobApplication;
 };
 
 export const fetchMyJobApplications = async (userEmail: string) => {
@@ -227,7 +230,7 @@ export const fetchMyJobApplications = async (userEmail: string) => {
     throw error;
   }
   
-  return data;
+  return data as any[];
 };
 
 export const fetchApplicationsForGym = async (gymId: string) => {
@@ -241,7 +244,7 @@ export const fetchApplicationsForGym = async (gymId: string) => {
     throw error;
   }
   
-  return data;
+  return data as any[];
 };
 
 export const updateApplicationStatus = async (applicationId: string, status: 'pending' | 'reviewed' | 'accepted' | 'rejected') => {
@@ -256,7 +259,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'pe
     throw error;
   }
   
-  return data[0] as unknown as JobApplication;
+  return data[0] as JobApplication;
 };
 
 // Stats

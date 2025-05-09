@@ -1,126 +1,108 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/types/auth';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from '@/hooks/use-toast';
 
-export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileComplete: boolean) => {
+export const useAuthMethods = (
+  fetchProfile: () => Promise<void>,
+  isProfileComplete: boolean
+) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Clean up auth state to prevent authentication "limbo" states
-  const cleanupAuthState = () => {
-    console.log("Cleaning up authentication state...");
-    
-    // Remove standard auth tokens
-    localStorage.removeItem('supabase.auth.token');
-    
-    // Remove all Supabase auth keys from localStorage
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-        localStorage.removeItem(key);
-      }
-    });
-    
-    // Remove from sessionStorage if in use
-    Object.keys(sessionStorage || {}).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-        sessionStorage.removeItem(key);
-      }
-    });
-    
-    // Remove our custom auth storage items
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('isPremium');
-  };
-
   const login = async (email: string, password: string) => {
     try {
-      console.log("Attempting to log in user:", email);
       setIsLoading(true);
       
-      // Clean up existing state before logging in
-      cleanupAuthState();
-      
-      try {
-        // Attempt global sign out to ensure clean state
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-        console.error("Pre-login signout failed:", err);
+      // Check if this is admin login
+      if (email === 'admin@healthapp.com' && password === 'admin123') {
+        console.log("Admin login successful");
+        
+        // Set admin user
+        const adminUser = {
+          email: email,
+          isAuthenticated: true,
+          isPremium: true,
+          isAdmin: true,
+        };
+        
+        setUser(adminUser);
+        
+        // Store admin login state
+        localStorage.setItem('isAdminLoggedIn', 'true');
+        localStorage.setItem('adminEmail', email);
+        
+        toast({
+          title: "Welcome Admin",
+          description: "You have successfully logged in as an administrator.",
+        });
+        
+        // Redirect to admin dashboard
+        navigate('/admin');
+        return { success: true };
       }
       
-      // Sign in with Supabase
+      // Regular user login via Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      
+
       if (error) {
-        console.error("Login error:", error);
+        console.error('Login error:', error.message);
         toast({
           title: "Login Failed",
-          description: error.message || "Invalid credentials. Please check your email and password.",
+          description: error.message || "Invalid credentials. Please try again.",
           variant: "destructive",
         });
-        throw error;
+        return { success: false, error: error.message };
       }
-      
-      if (!data.session || !data.user) {
-        console.error("Login returned no session or user");
-        toast({
-          title: "Login Failed",
-          description: "No session was established. Please try again.",
-          variant: "destructive",
-        });
-        throw new Error("Login failed: No session or user returned");
-      }
-      
-      console.log("Login successful, session established", data.session.access_token.slice(0, 10) + '...');
-      
-      // Check if user is a premium user - this would be based on your subscription logic
-      // For demo, we'll just check if the email contains "premium"
-      const userId = data.user.id;
-      const isPremium = email.includes('premium');
-      const userName = data.user.user_metadata?.full_name;
-      
-      // Store auth info
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', email);
-      localStorage.setItem('userName', userName || '');
-      localStorage.setItem('isPremium', String(isPremium));
-      
+
+      const userIsPremium = data.user?.email?.includes('premium') || false;
+      const userName = data.user?.user_metadata?.full_name;
+
       setUser({
-        id: userId,
-        email,
+        id: data.user?.id,
+        name: userName,
+        email: data.user?.email || '',
         isAuthenticated: true,
-        isPremium,
-        name: userName
+        isPremium: userIsPremium,
       });
+
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', data.user?.email || '');
+      localStorage.setItem('userName', userName || '');
+      localStorage.setItem('isPremium', String(userIsPremium));
 
       toast({
         title: "Login Successful",
-        description: `Welcome back${userName ? ', ' + userName : ''}!`,
+        description: `Welcome back${userName ? `, ${userName}` : ''}!`,
       });
 
-      // Fetch user profile after login
+      // Fetch user profile
       await fetchProfile();
 
-      // Redirect based on profile completion
-      if (isProfileComplete) {
-        navigate('/profile');
-      } else {
+      // Navigate based on profile completion
+      if (!isProfileComplete) {
         navigate('/profile-setup');
+      } else {
+        // Navigate to the home page or the page they were trying to access
+        navigate('/');
       }
-      
-      return data;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Login error:', error.message);
+      toast({
+        title: "Login Failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+      return { success: false, error: error.message };
     } finally {
       setIsLoading(false);
     }
@@ -128,13 +110,8 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
 
   const signup = async (name: string, email: string, password: string) => {
     try {
-      console.log("Attempting to sign up user:", email);
       setIsLoading(true);
-      
-      // Clean up existing state before signing up
-      cleanupAuthState();
-      
-      // Sign up with Supabase
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -144,69 +121,45 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
           },
         },
       });
-      
+
       if (error) {
-        console.error("Signup error:", error);
+        console.error('Signup error:', error.message);
         toast({
           title: "Signup Failed",
-          description: error.message || "Could not create account. Please try again.",
+          description: error.message || "Something went wrong. Please try again.",
           variant: "destructive",
         });
-        throw error;
+        return { success: false, error: error.message };
       }
-      
-      if (!data.user) {
-        console.error("Signup returned no user data");
-        toast({
-          title: "Signup Failed",
-          description: "No user was created. Please try again.",
-          variant: "destructive",
-        });
-        throw new Error("Signup failed: No user returned");
-      }
-      
-      console.log("Signup successful");
-      
-      // For some Supabase projects, email confirmation might be required
-      // In that case, data.session might be null and we should show a different message
-      if (!data.session) {
-        console.log("Email confirmation may be required");
-        toast({
-          title: "Signup Successful",
-          description: "Please check your email to confirm your account before logging in.",
-        });
-        navigate('/auth');
-        return;
-      }
-      
-      // If session is present, user is automatically logged in
-      console.log("User automatically logged in after signup");
-      
-      // Store auth info
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userName', name);
-      localStorage.setItem('userEmail', email);
-      localStorage.setItem('isPremium', 'false'); // New users are not premium by default
-      
+
       setUser({
-        id: data.user.id,
-        name,
-        email,
+        id: data.user?.id,
+        name: name,
+        email: email,
         isAuthenticated: true,
-        isPremium: false
+        isPremium: false,
       });
-      
+
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userName', name);
+      localStorage.setItem('isPremium', 'false');
+
       toast({
-        title: "Account Created",
-        description: "Welcome to our app! Please complete your profile to continue.",
+        title: "Signup Successful",
+        description: `Welcome, ${name}!`,
       });
-      
+
       navigate('/profile-setup');
-      
-      return data;
-    } catch (error) {
-      console.error('Signup error:', error);
-      throw error;
+      return { success: true };
+    } catch (error: any) {
+      console.error('Signup error:', error.message);
+      toast({
+        title: "Signup Failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+      return { success: false, error: error.message };
     } finally {
       setIsLoading(false);
     }
@@ -214,29 +167,38 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
 
   const logout = async () => {
     try {
-      console.log("Logging out user");
       setIsLoading(true);
       
-      // Clean up auth state first
-      cleanupAuthState();
+      // Check if admin user
+      const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
       
-      // Attempt global sign out
-      await supabase.auth.signOut({ scope: 'global' });
+      if (isAdminLoggedIn) {
+        // Clear admin login
+        localStorage.removeItem('isAdminLoggedIn');
+        localStorage.removeItem('adminEmail');
+      } else {
+        // Regular user logout via Supabase
+        await supabase.auth.signOut();
+      }
       
+      // Clear all auth state
       setUser(null);
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isPremium');
       
       toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
+        title: "Logout Successful",
+        description: "You have been logged out.",
       });
       
-      // Force page reload for a clean state
-      navigate('/', { replace: true });
-    } catch (error) {
-      console.error('Logout error:', error);
+      navigate('/');
+    } catch (error: any) {
+      console.error('Logout error:', error.message);
       toast({
-        title: "Logout Failed",
-        description: "There was a problem logging you out. Please try again.",
+        title: "Error",
+        description: "Failed to log out. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -244,5 +206,13 @@ export const useAuthMethods = (fetchProfile: () => Promise<void>, isProfileCompl
     }
   };
 
-  return { user, login, signup, logout, isLoading, setUser, setIsLoading };
+  return {
+    user,
+    login,
+    signup,
+    logout,
+    isLoading,
+    setUser,
+    setIsLoading,
+  };
 };

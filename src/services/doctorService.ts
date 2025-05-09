@@ -1,9 +1,25 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
 
-export type Doctor = Tables<"doctors">;
-export type Appointment = Tables<"appointments">;
+export type Doctor = {
+  id: string;
+  name: string;
+  specialty: string;
+  experience: string;
+  price: number;
+  rating: number;
+  review_count: number;
+  image_url: string | null;
+  bio: string | null;
+  languages: string[];
+  available_days: string[];
+  location: string | null;
+  next_available: string | null;
+  email: string | null;
+  phone: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
 
 export const fetchDoctors = async (specialty?: string) => {
   let query = supabase.from("doctors").select("*");
@@ -19,7 +35,7 @@ export const fetchDoctors = async (specialty?: string) => {
     throw error;
   }
   
-  return data;
+  return data as Doctor[];
 };
 
 export const fetchDoctorById = async (doctorId: string) => {
@@ -34,7 +50,76 @@ export const fetchDoctorById = async (doctorId: string) => {
     throw error;
   }
   
-  return data;
+  return data as Doctor;
+};
+
+export const createDoctor = async (doctor: Omit<Doctor, 'id' | 'created_at' | 'updated_at'>) => {
+  const { data, error } = await supabase
+    .from("doctors")
+    .insert([doctor])
+    .select();
+  
+  if (error) {
+    console.error("Error creating doctor:", error);
+    throw error;
+  }
+  
+  return data[0] as Doctor;
+};
+
+export const updateDoctor = async (doctorId: string, updates: Partial<Doctor>) => {
+  const { data, error } = await supabase
+    .from("doctors")
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", doctorId)
+    .select();
+  
+  if (error) {
+    console.error("Error updating doctor:", error);
+    throw error;
+  }
+  
+  return data[0] as Doctor;
+};
+
+export const deleteDoctor = async (doctorId: string) => {
+  const { error } = await supabase
+    .from("doctors")
+    .delete()
+    .eq("id", doctorId);
+  
+  if (error) {
+    console.error("Error deleting doctor:", error);
+    throw error;
+  }
+  
+  return true;
+};
+
+export const uploadDoctorImage = async (file: File) => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+  const filePath = `doctors/${fileName}`;
+  
+  const { error: uploadError } = await supabase
+    .storage
+    .from('doctors-images')
+    .upload(filePath, file);
+  
+  if (uploadError) {
+    console.error('Error uploading image:', uploadError);
+    throw uploadError;
+  }
+  
+  const { data: urlData } = supabase
+    .storage
+    .from('doctors-images')
+    .getPublicUrl(filePath);
+  
+  return { url: urlData.publicUrl };
 };
 
 export const createAppointment = async (appointment: {
@@ -57,7 +142,8 @@ export const createAppointment = async (appointment: {
         doctor_id: appointment.doctor_id,
         date: appointment.date,
         time_slot: appointment.time_slot,
-        reason: appointment.reason || null
+        reason: appointment.reason || null,
+        status: 'pending'
       }
     ])
     .select();

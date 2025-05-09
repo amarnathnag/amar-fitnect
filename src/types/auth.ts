@@ -5,6 +5,7 @@ export interface User {
   email: string;
   isAuthenticated: boolean;
   isPremium?: boolean;
+  isAdmin?: boolean;
 }
 
 export interface ProfileData {

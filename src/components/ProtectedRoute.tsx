@@ -8,9 +8,14 @@ import { useToast } from '@/hooks/use-toast';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiresPremium?: boolean;
+  requiresAdmin?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiresPremium = false }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requiresPremium = false,
+  requiresAdmin = false
+}) => {
   const { user, isLoading, isProfileComplete } = useAuth();
   const location = useLocation();
   const { toast } = useToast();
@@ -21,15 +26,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiresPremi
     const verifyAuth = async () => {
       try {
         console.log("ProtectedRoute: Verifying authentication...");
+        
+        // Check for admin login first
+        const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+        if (isAdminLoggedIn) {
+          console.log("ProtectedRoute: Admin is logged in");
+          setIsAuthenticated(true);
+          setIsVerifying(false);
+          return;
+        }
+        
+        // Regular user authentication with Supabase
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("ProtectedRoute: Error verifying session:", error);
           setIsAuthenticated(false);
-          return;
-        }
-        
-        if (!data.session) {
+        } else if (!data.session) {
           console.log("ProtectedRoute: No active session found");
           setIsAuthenticated(false);
         } else {
@@ -57,7 +70,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiresPremi
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  // Redirect to login if not authenticated
+  // Check for admin requirement
+  if (requiresAdmin) {
+    if (!user?.isAdmin) {
+      console.log("ProtectedRoute: Admin privileges required but user is not an admin");
+      return <Navigate to="/auth" replace state={{ from: location }} />;
+    }
+    // If user is admin, render the protected content immediately
+    return <>{children}</>;
+  }
+
+  // Regular user authentication checks
   if (!isAuthenticated || !user) {
     console.log("ProtectedRoute: User not authenticated, redirecting to auth page");
     return <Navigate to="/auth" replace state={{ from: location }} />;

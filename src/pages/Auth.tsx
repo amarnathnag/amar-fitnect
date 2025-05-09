@@ -1,97 +1,108 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import { useAuth } from '@/contexts/AuthContext';
 import LoginForm from '@/components/auth/LoginForm';
 import SignupForm from '@/components/auth/SignupForm';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 const Auth = () => {
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("login");
+  const [error, setError] = useState<string | null>(null);
   const { user, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<string>("login");
+  const navigate = useNavigate();
+  const location = useLocation();
   
-  // Redirect if already authenticated
+  // Simplified login for admin
+  const [adminEmail, setAdminEmail] = useState("admin@healthapp.com");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
+  
+  // Check if user is already authenticated
   useEffect(() => {
-    if (user && user.isAuthenticated) {
-      navigate('/profile');
+    if (user && !isLoading) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from);
     }
-  }, [user, navigate]);
+  }, [user, isLoading, navigate, location]);
+  
+  const handleAdminToggle = () => {
+    setIsAdminLogin(!isAdminLogin);
+  };
   
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-grow flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
   }
-
+  
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      
-      <main className="flex-grow py-10">
-        <div className="container max-w-md mx-auto px-4">
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-2 w-full mb-8">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
+      <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+              {isAdminLogin ? 'Admin Login' : 'Your Health Journey Starts Here'}
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              {isAdminLogin 
+                ? 'Enter your admin credentials to access the dashboard' 
+                : 'Sign in or create an account to access personalized health services'}
+            </p>
+          </div>
+          
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          <div>
+            <button 
+              onClick={handleAdminToggle} 
+              className="text-sm text-primary hover:text-primary-dark mb-4 block w-full text-right"
+            >
+              {isAdminLogin ? 'Switch to User Login' : 'Admin Login'}
+            </button>
             
-            {/* Login Form */}
-            <TabsContent value="login" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Welcome Back</CardTitle>
-                  <CardDescription>
-                    Login to access your personalized health journey
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <LoginForm onSuccess={() => navigate('/profile')} />
-                </CardContent>
-                <CardFooter className="flex flex-col space-y-4">
-                  <div className="text-sm text-center">
-                    Don't have an account?{" "}
-                    <button
-                      onClick={() => setActiveTab("signup")}
-                      className="text-primary hover:underline"
-                    >
-                      Sign up
-                    </button>
-                  </div>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-            
-            {/* Signup Form */}
-            <TabsContent value="signup" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create an Account</CardTitle>
-                  <CardDescription>
-                    Join our health community and start your wellness journey
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SignupForm onSuccess={() => navigate('/profile-setup')} />
-                </CardContent>
-                <CardFooter className="flex flex-col space-y-4">
-                  <div className="text-sm text-center">
-                    Already have an account?{" "}
-                    <button
-                      onClick={() => setActiveTab("login")}
-                      className="text-primary hover:underline"
-                    >
-                      Login
-                    </button>
-                  </div>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            {isAdminLogin ? (
+              <LoginForm 
+                isAdminLogin={true} 
+                adminEmail={adminEmail}
+                setAdminEmail={setAdminEmail}
+                adminPassword={adminPassword}
+                setAdminPassword={setAdminPassword}
+                setError={setError} 
+              />
+            ) : (
+              <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="login">Login</TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                </TabsList>
+                <TabsContent value="login">
+                  <LoginForm setError={setError} />
+                </TabsContent>
+                <TabsContent value="signup">
+                  <SignupForm setError={setError} />
+                </TabsContent>
+              </Tabs>
+            )}
+          </div>
         </div>
-      </main>
-      
+      </div>
       <Footer />
     </div>
   );

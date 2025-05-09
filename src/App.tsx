@@ -30,6 +30,7 @@ import Blog from '@/pages/Blog';
 import Profile from '@/pages/Profile';
 import ProfileSetup from '@/pages/ProfileSetup';
 import NotFound from '@/pages/NotFound';
+import Admin from '@/pages/Admin';
 
 // Gym Section Pages
 import Gyms from '@/pages/Gyms';
@@ -73,86 +74,30 @@ function App() {
                 <Route path="/daily-routine" element={<DailyRoutine />} />
                 <Route path="/community" element={<Community />} />
                 
+                {/* Admin Route */}
+                <Route path="/admin" element={<Admin />} />
+                
                 {/* Gym Section Routes */}
                 <Route path="/gyms" element={<Gyms />} />
                 <Route path="/gyms/:id" element={<GymDetail />} />
-                <Route 
-                  path="/gyms/register" 
-                  element={
-                    <ProtectedRoute>
-                      <GymRegistration />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/gyms/register" element={<GymRegistration />} />
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/jobs/:id" element={<JobDetails />} />
-                <Route 
-                  path="/jobs/:id/apply" 
-                  element={<JobApplication />} 
-                />
+                <Route path="/jobs/:id/apply" element={<JobApplication />} />
                 <Route path="/jobs/application-success" element={<JobApplicationSuccess />} />
                 
                 {/* Premium routes that require authentication and premium status */}
-                <Route 
-                  path="/doctor-consultation" 
-                  element={
-                    <ProtectedRoute requiresPremium>
-                      <DoctorConsultation />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/chat" 
-                  element={
-                    <ProtectedRoute>
-                      <Chat />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/premium-ai" 
-                  element={
-                    <ProtectedRoute requiresPremium>
-                      <PremiumAi />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/doctor-consultation" element={<DoctorConsultation />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/premium-ai" element={<PremiumAi />} />
                 
                 <Route path="/subscription" element={<Subscription />} />
-                <Route 
-                  path="/premium-payment" 
-                  element={
-                    <ProtectedRoute>
-                      <PremiumPayment />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/premium-unlocked" 
-                  element={
-                    <ProtectedRoute>
-                      <PremiumUnlocked />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/premium-payment" element={<PremiumPayment />} />
+                <Route path="/premium-unlocked" element={<PremiumUnlocked />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:postId" element={<Blog />} />
-                <Route 
-                  path="/profile-setup" 
-                  element={
-                    <ProtectedRoute>
-                      <ProfileSetup />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/profile" 
-                  element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  } 
-                />
+                <Route path="/profile-setup" element={<ProfileSetup />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster />

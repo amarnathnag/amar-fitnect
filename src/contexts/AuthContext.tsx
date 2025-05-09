@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -28,20 +27,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (data.session) {
           console.log("Active session found during initialization");
           const userId = data.session.user?.id;
-          const userEmail = data.session.user?.email;
-          const userIsPremium = userEmail?.includes('premium') || false;
+          const userEmail = data.session.user?.email || '';
+          const userIsPremium = userEmail.includes('premium') || false;
           const userName = data.session.user?.user_metadata?.full_name;
           
           setUser({
             id: userId,
             name: userName,
-            email: userEmail || '',
+            email: userEmail,
             isAuthenticated: true,
             isPremium: userIsPremium,
           });
           
           localStorage.setItem('isAuthenticated', 'true');
-          localStorage.setItem('userEmail', userEmail || '');
+          localStorage.setItem('userEmail', userEmail);
           localStorage.setItem('userName', userName || '');
           localStorage.setItem('isPremium', String(userIsPremium));
 
@@ -50,13 +49,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             fetchProfile();
           }, 0);
         } else {
-          console.log("No active session found during initialization");
-          // Clean up any local storage data if no active session
-          localStorage.removeItem('isAuthenticated');
-          localStorage.removeItem('userEmail');
-          localStorage.removeItem('userName');
-          localStorage.removeItem('isPremium');
-          setUser(null);
+          // Check for local admin login
+          const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+          const adminEmail = localStorage.getItem('adminEmail');
+          
+          if (isAdminLoggedIn && adminEmail) {
+            console.log("Admin user logged in locally");
+            setUser({
+              email: adminEmail,
+              isAuthenticated: true,
+              isPremium: true,
+              isAdmin: true,
+            });
+          } else {
+            console.log("No active session found during initialization");
+            // Clean up any local storage data if no active session
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('isPremium');
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -80,20 +93,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (event === 'SIGNED_IN' && session) {
         const userId = session.user?.id;
-        const userEmail = session.user?.email;
-        const userIsPremium = userEmail?.includes('premium') || false;
+        const userEmail = session.user?.email || '';
+        const userIsPremium = userEmail.includes('premium') || false;
         const userName = session.user?.user_metadata?.full_name;
         
         setUser({
           id: userId,
           name: userName,
-          email: userEmail || '',
+          email: userEmail,
           isAuthenticated: true,
           isPremium: userIsPremium,
         });
         
         localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', userEmail || '');
+        localStorage.setItem('userEmail', userEmail);
         localStorage.setItem('userName', userName || '');
         localStorage.setItem('isPremium', String(userIsPremium));
         
@@ -103,11 +116,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }, 0);
       } else if (event === 'SIGNED_OUT') {
         console.log("User signed out, clearing auth state");
-        setUser(null);
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('isPremium');
+        // Don't clear admin login when Supabase session ends
+        const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+        const adminEmail = localStorage.getItem('adminEmail');
+        
+        if (isAdminLoggedIn && adminEmail) {
+          // Keep admin logged in
+          setUser({
+            email: adminEmail,
+            isAuthenticated: true,
+            isPremium: true,
+            isAdmin: true,
+          });
+        } else {
+          setUser(null);
+          localStorage.removeItem('isAuthenticated');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userName');
+          localStorage.removeItem('isPremium');
+        }
       }
     });
 

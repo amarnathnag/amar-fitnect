@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          password: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          password: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          password?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           created_at: string | null
@@ -73,12 +94,15 @@ export type Database = {
           available_days: string[]
           bio: string | null
           created_at: string | null
+          email: string | null
           experience: string
           id: string
           image_url: string | null
           languages: string[]
+          location: string | null
           name: string
           next_available: string | null
+          phone: string | null
           price: number
           rating: number
           review_count: number
@@ -89,12 +113,15 @@ export type Database = {
           available_days: string[]
           bio?: string | null
           created_at?: string | null
+          email?: string | null
           experience: string
           id?: string
           image_url?: string | null
           languages?: string[]
+          location?: string | null
           name: string
           next_available?: string | null
+          phone?: string | null
           price: number
           rating?: number
           review_count?: number
@@ -105,12 +132,15 @@ export type Database = {
           available_days?: string[]
           bio?: string | null
           created_at?: string | null
+          email?: string | null
           experience?: string
           id?: string
           image_url?: string | null
           languages?: string[]
+          location?: string | null
           name?: string
           next_available?: string | null
+          phone?: string | null
           price?: number
           rating?: number
           review_count?: number
@@ -118,6 +148,233 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      gym_media: {
+        Row: {
+          created_at: string | null
+          gym_id: string
+          id: string
+          is_featured: boolean | null
+          media_type: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          gym_id: string
+          id?: string
+          is_featured?: boolean | null
+          media_type: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          gym_id?: string
+          id?: string
+          is_featured?: boolean | null
+          media_type?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gym_media_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gym_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          gym_id: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          gym_id: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          gym_id?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gym_reviews_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gyms: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          facilities: Json | null
+          id: string
+          is_approved: boolean | null
+          is_premium: boolean | null
+          location: string
+          location_pincode: string
+          name: string
+          opening_hours: Json | null
+          owner_id: string
+          owner_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          facilities?: Json | null
+          id?: string
+          is_approved?: boolean | null
+          is_premium?: boolean | null
+          location: string
+          location_pincode: string
+          name: string
+          opening_hours?: Json | null
+          owner_id: string
+          owner_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          facilities?: Json | null
+          id?: string
+          is_approved?: boolean | null
+          is_premium?: boolean | null
+          location?: string
+          location_pincode?: string
+          name?: string
+          opening_hours?: Json | null
+          owner_id?: string
+          owner_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          applicant_email: string
+          applicant_name: string
+          applicant_phone: string
+          created_at: string | null
+          desired_role: string
+          id: string
+          job_id: string
+          preferred_location: string | null
+          resume_url: string | null
+          status: string
+          updated_at: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          applicant_email: string
+          applicant_name: string
+          applicant_phone: string
+          created_at?: string | null
+          desired_role: string
+          id?: string
+          job_id: string
+          preferred_location?: string | null
+          resume_url?: string | null
+          status?: string
+          updated_at?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          applicant_email?: string
+          applicant_name?: string
+          applicant_phone?: string
+          created_at?: string | null
+          desired_role?: string
+          id?: string
+          job_id?: string
+          preferred_location?: string | null
+          resume_url?: string | null
+          status?: string
+          updated_at?: string | null
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_postings: {
+        Row: {
+          created_at: string | null
+          deadline: string | null
+          description: string
+          experience_required: string | null
+          gym_id: string
+          id: string
+          is_active: boolean | null
+          salary_range: string | null
+          title: string
+          updated_at: string | null
+          working_hours: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deadline?: string | null
+          description: string
+          experience_required?: string | null
+          gym_id: string
+          id?: string
+          is_active?: boolean | null
+          salary_range?: string | null
+          title: string
+          updated_at?: string | null
+          working_hours?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deadline?: string | null
+          description?: string
+          experience_required?: string | null
+          gym_id?: string
+          id?: string
+          is_active?: boolean | null
+          salary_range?: string | null
+          title?: string
+          updated_at?: string | null
+          working_hours?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_postings_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_profiles: {
         Row: {
