@@ -21,7 +21,7 @@ export const fetchAppointments = async () => {
     .select(`
       *,
       doctors:doctor_id (name),
-      profiles:user_id (full_name)
+      user_profiles:user_id (full_name)
     `)
     .order('date', { ascending: true });
   
@@ -36,8 +36,8 @@ export const fetchAppointments = async () => {
     doctor_id: appt.doctor_id,
     doctor_name: appt.doctors?.name || 'Unknown Doctor',
     user_id: appt.user_id,
-    // Access profiles safely - check if it exists before accessing full_name
-    user_name: appt.profiles ? appt.profiles.full_name || 'Unknown User' : 'Unknown User',
+    // Access user_profiles safely and provide fallback
+    user_name: appt.user_profiles ? appt.user_profiles.full_name || 'Unknown User' : 'Unknown User',
     date: appt.date,
     time_slot: appt.time_slot,
     reason: appt.reason,
@@ -72,7 +72,7 @@ export const fetchDoctorAppointments = async (doctorId: string) => {
     .from('appointments')
     .select(`
       *,
-      profiles:user_id (full_name)
+      user_profiles:user_id (full_name)
     `)
     .eq('doctor_id', doctorId)
     .order('date', { ascending: true });
@@ -84,8 +84,8 @@ export const fetchDoctorAppointments = async (doctorId: string) => {
   
   return data.map(appt => ({
     ...appt,
-    // Access profiles safely - check if it exists before accessing full_name
-    user_name: appt.profiles ? appt.profiles.full_name || 'Unknown User' : 'Unknown User'
+    // Access user_profiles safely and provide fallback
+    user_name: appt.user_profiles ? appt.user_profiles.full_name || 'Unknown User' : 'Unknown User'
   }));
 };
 
