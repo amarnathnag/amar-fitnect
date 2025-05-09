@@ -1,6 +1,5 @@
 
-import { supabase } from "@/integrations/supabase/client";
-
+// Import the Appointment interface and remove the Supabase import
 export interface Appointment {
   id: string;
   doctor_id: string;
@@ -15,78 +14,51 @@ export interface Appointment {
   updated_at: string | null;
 }
 
-export const fetchAppointments = async () => {
-  const { data, error } = await supabase
-    .from('appointments')
-    .select(`
-      *,
-      doctors (name),
-      user_profiles (full_name)
-    `)
-    .order('date', { ascending: true });
-  
-  if (error) {
-    console.error('Error fetching appointments:', error);
-    throw error;
+// Mock data for appointments
+const mockAppointments: Appointment[] = [
+  {
+    id: '1',
+    doctor_id: 'doc-1',
+    doctor_name: 'Dr. John Smith',
+    user_id: 'user-123',
+    user_name: 'Regular User',
+    date: '2025-06-15',
+    time_slot: '10:00 AM',
+    reason: 'Annual checkup',
+    status: 'confirmed',
+    created_at: '2025-06-01T10:30:00Z',
+    updated_at: null
+  },
+  {
+    id: '2',
+    doctor_id: 'doc-2',
+    doctor_name: 'Dr. Sarah Johnson',
+    user_id: 'user-456',
+    user_name: 'Premium User',
+    date: '2025-06-20',
+    time_slot: '2:30 PM',
+    reason: 'Follow-up consultation',
+    status: 'pending',
+    created_at: '2025-06-05T14:45:00Z',
+    updated_at: null
   }
-  
-  // Transform the data to flatten the structure
-  const transformedData = data.map((appt) => ({
-    id: appt.id,
-    doctor_id: appt.doctor_id,
-    doctor_name: appt.doctors?.name || 'Unknown Doctor',
-    user_id: appt.user_id,
-    // Access user_profiles safely with type checking
-    user_name: appt.user_profiles && 'full_name' in appt.user_profiles ? appt.user_profiles.full_name || 'Unknown User' : 'Unknown User',
-    date: appt.date,
-    time_slot: appt.time_slot,
-    reason: appt.reason,
-    status: appt.status,
-    created_at: appt.created_at,
-    updated_at: appt.updated_at
-  }));
-  
-  return transformedData as Appointment[];
+];
+
+export const fetchAppointments = async (): Promise<Appointment[]> => {
+  // Return mock appointments
+  return Promise.resolve([...mockAppointments]);
 };
 
 export const fetchUserAppointments = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('appointments')
-    .select(`
-      *,
-      doctors (name, specialty, image_url)
-    `)
-    .eq('user_id', userId)
-    .order('date', { ascending: true });
-  
-  if (error) {
-    console.error('Error fetching user appointments:', error);
-    throw error;
-  }
-  
-  return data;
+  // Filter appointments for the specified user
+  const userAppointments = mockAppointments.filter(appt => appt.user_id === userId);
+  return Promise.resolve(userAppointments);
 };
 
 export const fetchDoctorAppointments = async (doctorId: string) => {
-  const { data, error } = await supabase
-    .from('appointments')
-    .select(`
-      *,
-      user_profiles (full_name)
-    `)
-    .eq('doctor_id', doctorId)
-    .order('date', { ascending: true });
-  
-  if (error) {
-    console.error('Error fetching doctor appointments:', error);
-    throw error;
-  }
-  
-  return data.map(appt => ({
-    ...appt,
-    // Access user_profiles safely with type checking
-    user_name: appt.user_profiles && 'full_name' in appt.user_profiles ? appt.user_profiles.full_name || 'Unknown User' : 'Unknown User'
-  }));
+  // Filter appointments for the specified doctor
+  const doctorAppointments = mockAppointments.filter(appt => appt.doctor_id === doctorId);
+  return Promise.resolve(doctorAppointments);
 };
 
 export const createAppointment = async (appointment: {
@@ -95,54 +67,61 @@ export const createAppointment = async (appointment: {
   date: string;
   time_slot: string;
   reason?: string;
-}) => {
-  const { data, error } = await supabase
-    .from('appointments')
-    .insert([{
-      ...appointment,
-      status: 'pending'
-    }])
-    .select();
+}): Promise<Appointment> => {
+  // Create a new appointment
+  const newAppointment: Appointment = {
+    id: `appt-${Date.now()}`,
+    doctor_id: appointment.doctor_id,
+    doctor_name: 'Dr. Example', // In a real app, you'd fetch the doctor's name
+    user_id: appointment.user_id,
+    user_name: 'Current User', // In a real app, you'd use the current user's name
+    date: appointment.date,
+    time_slot: appointment.time_slot,
+    reason: appointment.reason || null,
+    status: 'pending',
+    created_at: new Date().toISOString(),
+    updated_at: null
+  };
   
-  if (error) {
-    console.error('Error creating appointment:', error);
-    throw error;
-  }
+  // In a real app, you'd save this to a database
+  mockAppointments.push(newAppointment);
   
-  return data[0];
+  return Promise.resolve(newAppointment);
 };
 
 export const updateAppointmentStatus = async (
   appointmentId: string,
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
-) => {
-  const { data, error } = await supabase
-    .from('appointments')
-    .update({ 
-      status,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', appointmentId)
-    .select();
+): Promise<Appointment> => {
+  // Find the appointment to update
+  const appointmentIndex = mockAppointments.findIndex(appt => appt.id === appointmentId);
   
-  if (error) {
-    console.error('Error updating appointment status:', error);
-    throw error;
+  if (appointmentIndex === -1) {
+    throw new Error('Appointment not found');
   }
   
-  return data[0];
+  // Update the status
+  const updatedAppointment = {
+    ...mockAppointments[appointmentIndex],
+    status,
+    updated_at: new Date().toISOString()
+  };
+  
+  mockAppointments[appointmentIndex] = updatedAppointment;
+  
+  return Promise.resolve(updatedAppointment);
 };
 
-export const deleteAppointment = async (appointmentId: string) => {
-  const { error } = await supabase
-    .from('appointments')
-    .delete()
-    .eq('id', appointmentId);
+export const deleteAppointment = async (appointmentId: string): Promise<boolean> => {
+  // Find the appointment to delete
+  const appointmentIndex = mockAppointments.findIndex(appt => appt.id === appointmentId);
   
-  if (error) {
-    console.error('Error deleting appointment:', error);
-    throw error;
+  if (appointmentIndex === -1) {
+    throw new Error('Appointment not found');
   }
   
-  return true;
+  // Remove the appointment
+  mockAppointments.splice(appointmentIndex, 1);
+  
+  return Promise.resolve(true);
 };
