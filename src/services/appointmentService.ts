@@ -21,7 +21,7 @@ export const fetchAppointments = async () => {
     .select(`
       *,
       doctors:doctor_id (name),
-      profiles:user_id (full_name)
+      profiles!user_id (full_name)
     `)
     .order('date', { ascending: true });
   
@@ -72,7 +72,7 @@ export const fetchDoctorAppointments = async (doctorId: string) => {
     .from('appointments')
     .select(`
       *,
-      profiles:user_id (full_name)
+      profiles!user_id (full_name)
     `)
     .eq('doctor_id', doctorId)
     .order('date', { ascending: true });
