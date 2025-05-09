@@ -36,7 +36,7 @@ export const fetchAppointments = async () => {
     doctor_id: appt.doctor_id,
     doctor_name: appt.doctors?.name || 'Unknown Doctor',
     user_id: appt.user_id,
-    // Use safe navigation with optional chaining and provide a fallback
+    // Access profiles data safely - handle when profiles data might be null or undefined
     user_name: appt.profiles?.full_name || 'Unknown User',
     date: appt.date,
     time_slot: appt.time_slot,
@@ -82,7 +82,10 @@ export const fetchDoctorAppointments = async (doctorId: string) => {
     throw error;
   }
   
-  return data;
+  return data.map(appt => ({
+    ...appt,
+    user_name: appt.profiles?.full_name || 'Unknown User'
+  }));
 };
 
 export const createAppointment = async (appointment: {
