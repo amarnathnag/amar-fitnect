@@ -51,7 +51,7 @@ const GymReviews: React.FC<GymReviewsProps> = ({ gymId, reviews, onNewReview }) 
         .from('gym_reviews')
         .insert([{
           gym_id: gymId,
-          user_id: user.id,
+          user_id: user.uid, // Changed from user.id to user.uid
           rating,
           comment: comment.trim() || null
         }])
@@ -68,7 +68,7 @@ const GymReviews: React.FC<GymReviewsProps> = ({ gymId, reviews, onNewReview }) 
       setComment('');
       
       if (data && data[0] && onNewReview) {
-        onNewReview(data[0] as GymReview);
+        onNewReview(data[0] as unknown as GymReview); // Added type casting
       }
     } catch (error: any) {
       toast({

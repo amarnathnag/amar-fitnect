@@ -121,7 +121,7 @@ const GymForm: React.FC<GymFormProps> = ({ existingGym, onSuccess }) => {
       
       const gymData = {
         ...data,
-        owner_id: user.id || '',
+        owner_id: user.uid || '', // Changed from user.id to user.uid
         is_premium: false,  // Set by admin or through subscription
         is_approved: false, // Requires admin approval
       };
@@ -176,7 +176,6 @@ const GymForm: React.FC<GymFormProps> = ({ existingGym, onSuccess }) => {
                   id="name"
                   {...register('name', { required: 'Gym name is required' })}
                   placeholder="Enter gym name"
-                  error={errors.name?.message}
                 />
                 {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
               </div>

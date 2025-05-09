@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchGymById, fetchGymMedia, fetchGymReviews, fetchJobPostings } from '@/services/gymService';
+import { useAuth } from '@/contexts/AuthContext';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import GymFacilities from '@/components/gyms/GymFacilities';
@@ -28,6 +29,7 @@ import { GymReview } from '@/types/gym';
 const GymDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('overview');
+  const { user } = useAuth();
   
   const { data: gym, isLoading: isGymLoading } = useQuery({
     queryKey: ['gym', id],
@@ -60,6 +62,9 @@ const GymDetail = () => {
   const handleNewReview = (review: GymReview) => {
     refetchReviews();
   };
+
+  // Check if this is the owner of the gym
+  const isOwner = user && gym && user.uid === gym.owner_id;
   
   if (isGymLoading) {
     return (
@@ -303,7 +308,7 @@ const GymDetail = () => {
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">Job Openings</h2>
-                  {gym.owner_id === /* Need to replace with current user ID */ '' && (
+                  {isOwner && (
                     <Button asChild>
                       <Link to={`/gyms/${gym.id}/jobs/create`}>
                         Post New Job

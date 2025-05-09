@@ -16,10 +16,14 @@ const Jobs = () => {
   const { data: jobs, isLoading } = useQuery({
     queryKey: ['jobs'],
     queryFn: () => fetchJobPostings(),
-    onSuccess: (data) => {
-      setFilteredJobs(data);
-    }
   });
+  
+  // Initialize filtered jobs when jobs data is loaded
+  React.useEffect(() => {
+    if (jobs) {
+      setFilteredJobs(jobs);
+    }
+  }, [jobs]);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
