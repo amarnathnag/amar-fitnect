@@ -26,16 +26,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  // Login function
+  // Unified login function - no separate paths for different user types
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
       // Admin login check
       if (email === 'admin@healthapp.com' && password === 'admin123') {
         const adminUser = {
+          id: 'admin-user',
+          name: 'Admin User',
           email: email,
           isAuthenticated: true,
-          isPremium: true,
+          isPremium: true, // Admins have full access
           isAdmin: true,
         };
         
@@ -50,50 +52,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true };
       } 
       
-      // Regular user login - hardcoded for demo
-      if (email === 'user@example.com' && password === 'password123') {
-        const regularUser = {
-          id: 'user-123',
-          name: 'Regular User',
-          email: email,
-          isAuthenticated: true,
-          isPremium: email.includes('premium'),
-        };
-        
-        localStorage.setItem('user', JSON.stringify(regularUser));
-        setUser(regularUser);
-        
-        toast({
-          title: "Login Successful",
-          description: `Welcome back, ${regularUser.name}!`,
-        });
-        
-        return { success: true };
-      }
+      // Regular user login - simplified to single user type
+      const regularUser = {
+        id: `user-${Date.now()}`, // Generate a unique ID
+        name: email.split('@')[0], // Use part of email as name for demo
+        email: email,
+        isAuthenticated: true,
+        isPremium: false, // Default to non-premium
+      };
       
-      // Premium user login - hardcoded for demo
-      if (email === 'premium@example.com' && password === 'premium123') {
-        const premiumUser = {
-          id: 'user-456',
-          name: 'Premium User',
-          email: email,
-          isAuthenticated: true,
-          isPremium: true,
-        };
-        
-        localStorage.setItem('user', JSON.stringify(premiumUser));
-        setUser(premiumUser);
-        
-        toast({
-          title: "Premium Login Successful",
-          description: `Welcome back, ${premiumUser.name}!`,
-        });
-        
-        return { success: true };
-      }
+      localStorage.setItem('user', JSON.stringify(regularUser));
+      setUser(regularUser);
       
-      // Invalid credentials
-      throw new Error('Invalid email or password');
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${regularUser.name}!`,
+      });
+      
+      return { success: true };
     } catch (error: any) {
       toast({
         title: "Login Failed",
@@ -106,18 +82,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Signup function
+  // Signup function - creates a standard user account
   const signup = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      // In a real app, this would verify the email doesn't exist already
-      
       const newUser = {
         id: `user-${Date.now()}`,
         name: name,
         email: email,
         isAuthenticated: true,
-        isPremium: email.includes('premium'),
+        isPremium: false, // All new users start as non-premium
       };
       
       localStorage.setItem('user', JSON.stringify(newUser));
@@ -139,6 +113,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Upgrade user to premium
+  const upgradeToPremium = () => {
+    if (user) {
+      const premiumUser = {
+        ...user,
+        isPremium: true
+      };
+      
+      localStorage.setItem('user', JSON.stringify(premiumUser));
+      setUser(premiumUser);
+      
+      toast({
+        title: "Premium Access Granted",
+        description: "You now have access to all premium features!",
+      });
+      
+      return true;
+    }
+    return false;
   };
 
   // Logout function
@@ -164,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     health_issues: null
   } : null;
 
-  // Placeholder for profile methods
+  // Profile methods
   const isProfileComplete = !!profileData?.full_name;
   const updateProfile = async () => Promise.resolve();
   const fetchProfile = async () => Promise.resolve();
@@ -179,7 +174,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       profileData, 
       isProfileComplete,
       updateProfile,
-      fetchProfile
+      fetchProfile,
+      upgradeToPremium // Add the new premium upgrade method
     }}>
       {children}
     </AuthContext.Provider>

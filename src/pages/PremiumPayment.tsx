@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 const PremiumPayment = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, upgradeToPremium } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -38,8 +38,18 @@ const PremiumPayment = () => {
   };
 
   const handleContinue = () => {
-    // In a real implementation, this would also update the user's premium status in the database
-    navigate('/premium-unlocked');
+    // Update user to premium status using the new method
+    const success = upgradeToPremium();
+    
+    if (success) {
+      navigate('/premium-unlocked');
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to upgrade to premium. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

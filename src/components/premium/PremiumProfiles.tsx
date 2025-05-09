@@ -138,7 +138,7 @@ const PremiumProfiles = () => {
                   className="w-full mt-4 border-health-secondary text-health-secondary hover:bg-health-secondary hover:text-white" 
                   asChild
                 >
-                  <Link to="/gym-profiles" className="flex items-center justify-center gap-2">
+                  <Link to="/gyms" className="flex items-center justify-center gap-2">
                     <Dumbbell className="h-4 w-4" />
                     View Gyms
                   </Link>

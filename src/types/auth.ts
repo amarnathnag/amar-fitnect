@@ -30,4 +30,5 @@ export interface AuthContextType {
   isProfileComplete: boolean;
   updateProfile: (data: Partial<ProfileData>) => Promise<void>;
   fetchProfile: () => Promise<void>;
+  upgradeToPremium: () => boolean; // New method for upgrading to premium
 }

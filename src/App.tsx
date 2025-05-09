@@ -59,6 +59,7 @@ function App() {
           <LanguageProvider>
             <AuthProvider>
               <Routes>
+                {/* Public Routes - Anyone can access */}
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
@@ -73,31 +74,89 @@ function App() {
                 <Route path="/womens-health" element={<WomensHealth />} />
                 <Route path="/daily-routine" element={<DailyRoutine />} />
                 <Route path="/community" element={<Community />} />
-                
-                {/* Admin Route */}
-                <Route path="/admin" element={<Admin />} />
-                
-                {/* Gym Section Routes */}
-                <Route path="/gyms" element={<Gyms />} />
-                <Route path="/gyms/:id" element={<GymDetail />} />
-                <Route path="/gyms/register" element={<GymRegistration />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/jobs/:id" element={<JobDetails />} />
-                <Route path="/jobs/:id/apply" element={<JobApplication />} />
-                <Route path="/jobs/application-success" element={<JobApplicationSuccess />} />
-                
-                {/* Premium routes that require authentication and premium status */}
-                <Route path="/doctor-consultation" element={<DoctorConsultation />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/premium-ai" element={<PremiumAi />} />
-                
                 <Route path="/subscription" element={<Subscription />} />
                 <Route path="/premium-payment" element={<PremiumPayment />} />
-                <Route path="/premium-unlocked" element={<PremiumUnlocked />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:postId" element={<Blog />} />
-                <Route path="/profile-setup" element={<ProfileSetup />} />
-                <Route path="/profile" element={<Profile />} />
+                
+                {/* Admin Route - Requires Admin Privileges */}
+                <Route path="/admin" element={
+                  <ProtectedRoute requiresAdmin={true}>
+                    <Admin />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Auth Required Routes - User needs to be logged in */}
+                <Route path="/profile-setup" element={
+                  <ProtectedRoute>
+                    <ProfileSetup />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/premium-unlocked" element={
+                  <ProtectedRoute>
+                    <PremiumUnlocked />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Premium Routes - Requires premium status */}
+                <Route path="/doctor-consultation" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <DoctorConsultation />
+                  </ProtectedRoute>
+                } />
+                <Route path="/chat" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <Chat />
+                  </ProtectedRoute>
+                } />
+                <Route path="/premium-ai" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <PremiumAi />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Gym Routes - Now requires premium */}
+                <Route path="/gyms" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <Gyms />
+                  </ProtectedRoute>
+                } />
+                <Route path="/gyms/:id" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <GymDetail />
+                  </ProtectedRoute>
+                } />
+                <Route path="/gyms/register" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <GymRegistration />
+                  </ProtectedRoute>
+                } />
+                <Route path="/jobs" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <Jobs />
+                  </ProtectedRoute>
+                } />
+                <Route path="/jobs/:id" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <JobDetails />
+                  </ProtectedRoute>
+                } />
+                <Route path="/jobs/:id/apply" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <JobApplication />
+                  </ProtectedRoute>
+                } />
+                <Route path="/jobs/application-success" element={
+                  <ProtectedRoute requiresPremium={true}>
+                    <JobApplicationSuccess />
+                  </ProtectedRoute>
+                } />
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster />

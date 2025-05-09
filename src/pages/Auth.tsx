@@ -9,7 +9,6 @@ import SignupForm from '@/components/auth/SignupForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { Label } from '@/components/ui/label';
 
 const Auth = () => {
   const [activeTab, setActiveTab] = useState("login");
@@ -18,11 +17,6 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Simplified login for admin
-  const [adminEmail, setAdminEmail] = useState("admin@healthapp.com");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [isAdminLogin, setIsAdminLogin] = useState(false);
-  
   // Check if user is already authenticated
   useEffect(() => {
     if (user && !isLoading) {
@@ -30,10 +24,6 @@ const Auth = () => {
       navigate(from);
     }
   }, [user, isLoading, navigate, location]);
-  
-  const handleAdminToggle = () => {
-    setIsAdminLogin(!isAdminLogin);
-  };
   
   if (isLoading) {
     return (
@@ -54,12 +44,10 @@ const Auth = () => {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
             <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
-              {isAdminLogin ? 'Admin Login' : 'Your Health Journey Starts Here'}
+              Your Health Journey Starts Here
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              {isAdminLogin 
-                ? 'Enter your admin credentials to access the dashboard' 
-                : 'Sign in or create an account to access personalized health services'}
+              Sign in or create an account to access personalized health services
             </p>
           </div>
           
@@ -70,38 +58,18 @@ const Auth = () => {
             </Alert>
           )}
           
-          <div>
-            <button 
-              onClick={handleAdminToggle} 
-              className="text-sm text-primary hover:text-primary-dark mb-4 block w-full text-right"
-            >
-              {isAdminLogin ? 'Switch to User Login' : 'Admin Login'}
-            </button>
-            
-            {isAdminLogin ? (
-              <LoginForm 
-                isAdminLogin={true} 
-                adminEmail={adminEmail}
-                setAdminEmail={setAdminEmail}
-                adminPassword={adminPassword}
-                setAdminPassword={setAdminPassword}
-                setError={setError} 
-              />
-            ) : (
-              <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Login</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                </TabsList>
-                <TabsContent value="login">
-                  <LoginForm setError={setError} />
-                </TabsContent>
-                <TabsContent value="signup">
-                  <SignupForm setError={setError} />
-                </TabsContent>
-              </Tabs>
-            )}
-          </div>
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            <TabsContent value="login">
+              <LoginForm setError={setError} />
+            </TabsContent>
+            <TabsContent value="signup">
+              <SignupForm setError={setError} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
       <Footer />
