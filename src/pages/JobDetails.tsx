@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -56,7 +55,7 @@ const JobDetails = () => {
   }
   
   // Calculate days remaining for application deadline
-  const daysRemaining = job.deadline 
+  const daysRemaining = job?.deadline 
     ? Math.ceil((new Date(job.deadline).getTime() - new Date().getTime()) / (1000 * 3600 * 24))
     : null;
   
@@ -105,7 +104,7 @@ const JobDetails = () => {
                       <MapPin className="h-5 w-5 text-gray-500 mr-3 mt-1" />
                       <div>
                         <p className="font-medium">Location</p>
-                        <p className="text-gray-700">{job.gyms.address}</p>
+                        <p className="text-gray-700">{job?.gyms.location}</p>
                       </div>
                     </div>
                     

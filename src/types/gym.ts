@@ -1,10 +1,12 @@
 
+
 export interface Gym {
   id: string;
   name: string;
   owner_name: string;
   owner_id: string;
-  location: string;  // Changed from address to location to match database
+  address?: string;  // Added for backward compatibility
+  location: string;  // Used for database field
   location_pincode: string;
   contact_phone?: string;
   contact_email?: string;

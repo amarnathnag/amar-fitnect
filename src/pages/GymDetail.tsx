@@ -120,7 +120,7 @@ const GymDetail = () => {
                 <div className="flex items-center gap-4 text-gray-600 mt-1">
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-1" />
-                    <span>{gym.address}</span>
+                    <span>{gym.location}</span>
                   </div>
                   <div className="flex items-center">
                     <Star className="h-4 w-4 text-yellow-500 mr-1" />
@@ -255,7 +255,7 @@ const GymDetail = () => {
                         <MapPin className="h-5 w-5 text-gray-500 mr-3 mt-0.5" />
                         <div>
                           <p className="font-medium">Address</p>
-                          <p className="text-gray-700">{gym.address}</p>
+                          <p className="text-gray-700">{gym.location}</p>
                           <p className="text-gray-700">Pincode: {gym.location_pincode}</p>
                         </div>
                       </div>
@@ -297,7 +297,10 @@ const GymDetail = () => {
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <GymReviews 
                   gymId={gym.id} 
-                  reviews={reviews || []} 
+                  reviews={(reviews || []).map(review => ({
+                    ...review,
+                    user_profiles: review.profiles // Map profiles to user_profiles for compatibility
+                  }))}
                   onNewReview={handleNewReview}
                 />
               </div>
@@ -324,7 +327,13 @@ const GymDetail = () => {
                 ) : jobs && jobs.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {jobs.map((job) => (
-                      <JobPostingCard key={job.id} job={job} />
+                      <JobPostingCard key={job.id} job={{
+                        ...job,
+                        gyms: {
+                          ...job.gyms,
+                          address: job.gyms.location // Map location to address for compatibility
+                        }
+                      }} />
                     ))}
                   </div>
                 ) : (

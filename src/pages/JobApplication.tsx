@@ -21,6 +21,15 @@ const JobApplication = () => {
   const handleSuccess = () => {
     navigate('/jobs/application-success');
   };
+
+  // Transform job data to include address field for compatibility
+  const transformedJob = job ? {
+    ...job,
+    gyms: {
+      ...job.gyms,
+      address: job.gyms.location // Map location to address for compatibility
+    }
+  } : null;
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -44,8 +53,8 @@ const JobApplication = () => {
               <div className="flex justify-center py-12">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
               </div>
-            ) : job ? (
-              <JobApplicationForm job={job} onSuccess={handleSuccess} />
+            ) : transformedJob ? (
+              <JobApplicationForm job={transformedJob} onSuccess={handleSuccess} />
             ) : (
               <div className="text-center py-12">
                 <p className="text-xl text-gray-500">Job posting not found.</p>

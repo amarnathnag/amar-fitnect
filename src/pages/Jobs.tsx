@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchJobPostings } from '@/services/gymService';
@@ -21,7 +20,15 @@ const Jobs = () => {
   // Initialize filtered jobs when jobs data is loaded
   React.useEffect(() => {
     if (jobs) {
-      setFilteredJobs(jobs);
+      // Transform jobs to include address compatibility
+      const transformedJobs = jobs.map(job => ({
+        ...job,
+        gyms: {
+          ...job.gyms,
+          address: job.gyms.location
+        }
+      }));
+      setFilteredJobs(transformedJobs);
     }
   }, [jobs]);
   
@@ -31,7 +38,15 @@ const Jobs = () => {
     if (!jobs) return;
     
     if (!searchTerm.trim()) {
-      setFilteredJobs(jobs);
+      // Transform jobs to include address compatibility
+      const transformedJobs = jobs.map(job => ({
+        ...job,
+        gyms: {
+          ...job.gyms,
+          address: job.gyms.location
+        }
+      }));
+      setFilteredJobs(transformedJobs);
       return;
     }
     
@@ -40,8 +55,14 @@ const Jobs = () => {
       job.title.toLowerCase().includes(lowerCaseSearch) ||
       job.description.toLowerCase().includes(lowerCaseSearch) ||
       job.gyms.name.toLowerCase().includes(lowerCaseSearch) ||
-      job.gyms.address.toLowerCase().includes(lowerCaseSearch)
-    );
+      job.gyms.location.toLowerCase().includes(lowerCaseSearch)
+    ).map(job => ({
+      ...job,
+      gyms: {
+        ...job.gyms,
+        address: job.gyms.location
+      }
+    }));
     
     setFilteredJobs(filtered);
   };
