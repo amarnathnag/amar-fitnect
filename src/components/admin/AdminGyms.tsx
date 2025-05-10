@@ -21,7 +21,7 @@ const AdminGyms = () => {
   
   const { data: gyms, isLoading } = useQuery({
     queryKey: ['admin-gyms'],
-    queryFn: fetchGyms,
+    queryFn: () => fetchGyms(),
   });
   
   const handleApproval = (id: string, approved: boolean) => {
