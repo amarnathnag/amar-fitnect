@@ -1,45 +1,37 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Gym, GymMedia, GymReview, JobPosting, JobApplication } from "@/types/gym";
+import { dummyGyms, dummyJobs } from "./dummyData";
 
 // Gym CRUD Operations
 export const fetchGyms = async (search?: string, pincode?: string) => {
-  let query = supabase
-    .from('gyms')
-    .select('*')
-    .eq('is_approved', true);
+  // For demonstration, we're using dummy data instead of Supabase
+  let filteredGyms = [...dummyGyms];
   
   if (search) {
-    query = query.ilike('name', `%${search}%`);
+    const lowerCaseSearch = search.toLowerCase();
+    filteredGyms = filteredGyms.filter(gym => 
+      gym.name.toLowerCase().includes(lowerCaseSearch) || 
+      gym.location.toLowerCase().includes(lowerCaseSearch)
+    );
   }
   
   if (pincode) {
-    query = query.eq('location_pincode', pincode);
+    filteredGyms = filteredGyms.filter(gym => 
+      gym.location_pincode === pincode
+    );
   }
   
-  const { data, error } = await query;
-  
-  if (error) {
-    console.error('Error fetching gyms:', error);
-    throw error;
-  }
-  
-  return data as Gym[];
+  return filteredGyms;
 };
 
 export const fetchGymById = async (gymId: string) => {
-  const { data, error } = await supabase
-    .from('gyms')
-    .select('*')
-    .eq('id', gymId)
-    .single();
+  const gym = dummyGyms.find(g => g.id === gymId);
   
-  if (error) {
-    console.error('Error fetching gym:', error);
-    throw error;
+  if (!gym) {
+    throw new Error('Gym not found');
   }
   
-  return data as Gym;
+  return gym;
 };
 
 export const fetchGymMedia = async (gymId: string) => {
@@ -144,44 +136,24 @@ export const uploadGymMedia = async (gymId: string, file: File, type: 'image' | 
 
 // Job Postings CRUD Operations
 export const fetchJobPostings = async (gymId?: string) => {
-  let query = supabase
-    .from('job_postings')
-    .select(`
-      *,
-      gyms:gym_id (name, location)
-    `)
-    .eq('is_active', true);
+  // For demonstration, using dummy job data
+  let filteredJobs = [...dummyJobs];
   
   if (gymId) {
-    query = query.eq('gym_id', gymId);
+    filteredJobs = filteredJobs.filter(job => job.gym_id === gymId);
   }
   
-  const { data, error } = await query;
-  
-  if (error) {
-    console.error('Error fetching job postings:', error);
-    throw error;
-  }
-  
-  return data as unknown as (JobPosting & { gyms: { name: string, location: string } })[];
+  return filteredJobs;
 };
 
 export const fetchJobPostingById = async (jobId: string) => {
-  const { data, error } = await supabase
-    .from('job_postings')
-    .select(`
-      *,
-      gyms:gym_id (name, location, contact_email, contact_phone)
-    `)
-    .eq('id', jobId)
-    .single();
+  const job = dummyJobs.find(j => j.id === jobId);
   
-  if (error) {
-    console.error('Error fetching job posting:', error);
-    throw error;
+  if (!job) {
+    throw new Error('Job posting not found');
   }
   
-  return data as unknown as (JobPosting & { gyms: { name: string, location: string, contact_email: string, contact_phone: string } });
+  return job;
 };
 
 export const createJobPosting = async (jobPosting: Omit<JobPosting, 'id' | 'created_at' | 'updated_at'>) => {
@@ -279,26 +251,9 @@ export const updateApplicationStatus = async (applicationId: string, status: 'pe
 
 // Stats
 export const fetchGymStats = async () => {
-  const { count: totalGyms, error: gymsError } = await supabase
-    .from('gyms')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_approved', true);
-  
-  const { count: totalTrainers, error: trainersError } = await supabase
-    .from('job_postings')
-    .select('*', { count: 'exact', head: true })
-    .ilike('title', '%trainer%')
-    .eq('is_active', true);
-  
-  if (gymsError || trainersError) {
-    console.error('Error fetching stats:', gymsError || trainersError);
-    throw gymsError || trainersError;
-  }
-  
   return {
-    totalGyms: totalGyms || 0,
-    totalTrainers: totalTrainers || 0,
-    // For member count, we'd ideally have a separate table, but for now let's return a placeholder
-    totalMembers: 5000
+    totalGyms: dummyGyms.length,
+    totalTrainers: 15,  // Static example number
+    totalMembers: 500   // Static example number
   };
 };

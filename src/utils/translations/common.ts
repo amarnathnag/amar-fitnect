@@ -75,9 +75,9 @@ export const commonTranslations: TranslationMap = {
   
   // Messages
   "welcomeMessage": {
-    english: "Welcome to AmarHealth",
-    hindi: "अमर हेल्थ में आपका स्वागत है",
-    bengali: "অমর হেলথে আপনাকে স্বাগতম"
+    english: "Welcome to SmartDoc AI",
+    hindi: "स्मार्टडॉक एआई में आपका स्वागत है",
+    bengali: "স্মার্টডক এআই-এ আপনাকে স্বাগতম"
   },
   "aboutTitle": {
     english: "About Us",

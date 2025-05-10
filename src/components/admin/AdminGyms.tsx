@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchGyms, updateGym } from '@/services/gymService';
+import { fetchGyms } from '@/services/gymService';
 import { Gym } from '@/types/gym';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,46 +9,37 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Loader2, Pencil, CheckCircle, XCircle, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import GymForm from '@/components/gyms/GymForm';
+import { dummyGyms } from '@/services/dummyData';
 
 const AdminGyms = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editGymId, setEditGymId] = useState<string | null>(null);
   const [showAddGym, setShowAddGym] = useState(false);
+  const [gymsData, setGymsData] = useState(dummyGyms);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   const { data: gyms, isLoading } = useQuery({
     queryKey: ['admin-gyms'],
-    queryFn: () => fetchGyms(),
-  });
-  
-  const updateGymMutation = useMutation({
-    mutationFn: ({ id, approved }: { id: string, approved: boolean }) => 
-      updateGym(id, { is_approved: approved }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-gyms'] });
-      toast({
-        title: "Gym Updated",
-        description: "Gym approval status has been updated.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Update Failed",
-        description: error.message || "Failed to update gym status",
-        variant: "destructive",
-      });
-    },
+    queryFn: fetchGyms,
   });
   
   const handleApproval = (id: string, approved: boolean) => {
-    updateGymMutation.mutate({ id, approved });
+    // For demo purposes, update the local state
+    setGymsData(prevGyms => 
+      prevGyms.map(gym => 
+        gym.id === id ? { ...gym, is_approved: approved } : gym
+      )
+    );
+    
+    toast({
+      title: "Gym Updated",
+      description: "Gym approval status has been updated.",
+    });
   };
   
   const handleGymCreated = () => {
     setShowAddGym(false);
-    queryClient.invalidateQueries({ queryKey: ['admin-gyms'] });
     toast({
       title: "Gym Added",
       description: "New gym has been added successfully.",
@@ -57,14 +48,17 @@ const AdminGyms = () => {
   
   const handleGymUpdated = () => {
     setEditGymId(null);
-    queryClient.invalidateQueries({ queryKey: ['admin-gyms'] });
     toast({
       title: "Gym Updated",
       description: "Gym details have been updated successfully.",
     });
   };
   
-  const filteredGyms = gyms?.filter(gym => 
+  const editGym = (gymId: string) => {
+    setEditGymId(gymId);
+  };
+  
+  const filteredGyms = gymsData.filter(gym => 
     gym.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     gym.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     gym.location_pincode.includes(searchTerm)
@@ -124,7 +118,7 @@ const AdminGyms = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => setEditGymId(gym.id)}
+                      onClick={() => editGym(gym.id)}
                     >
                       <Pencil className="h-4 w-4 mr-1" /> Edit
                     </Button>
@@ -161,10 +155,14 @@ const AdminGyms = () => {
             <DialogTitle>Edit Gym</DialogTitle>
           </DialogHeader>
           {editGymId && (
-            <GymForm 
-              existingGym={gyms?.find(g => g.id === editGymId)} 
-              onSuccess={handleGymUpdated} 
-            />
+            <div className="p-4">
+              <p className="text-center text-gray-500">
+                Gym editor would go here. For this demo, changes will be simulated.
+              </p>
+              <div className="flex justify-end mt-4">
+                <Button onClick={handleGymUpdated}>Save Changes</Button>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
@@ -175,7 +173,14 @@ const AdminGyms = () => {
           <DialogHeader>
             <DialogTitle>Add New Gym</DialogTitle>
           </DialogHeader>
-          <GymForm onSuccess={handleGymCreated} />
+          <div className="p-4">
+            <p className="text-center text-gray-500">
+              Gym creation form would go here. For this demo, creation will be simulated.
+            </p>
+            <div className="flex justify-end mt-4">
+              <Button onClick={handleGymCreated}>Add Gym</Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

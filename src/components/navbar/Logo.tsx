@@ -8,10 +8,10 @@ const Logo: React.FC = () => {
     <NavLink to="/" className="text-xl font-bold flex items-center">
       <Shield className="h-6 w-6 text-health-primary mr-1.5" />
       <span className="hidden md:block text-health-primary font-poppins tracking-tight">
-        AmarHealth
+        SmartDoc AI
       </span>
       <span className="md:hidden text-health-primary font-poppins tracking-tight">
-        AH
+        SD
       </span>
     </NavLink>
   );
