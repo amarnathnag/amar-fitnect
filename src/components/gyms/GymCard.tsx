@@ -19,6 +19,16 @@ const GymCard: React.FC<GymCardProps> = ({ gym }) => {
       .map(([key]) => key.replace(/_/g, ' '))
     : [];
 
+  // Get gym image based on ID
+  const getGymImage = (id: string) => {
+    const imageMap: {[key: string]: string} = {
+      'gym-001': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop',
+      'gym-002': 'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=80&w=1000&auto=format&fit=crop',
+      'gym-003': 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=1000&auto=format&fit=crop',
+    };
+    return imageMap[id] || 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=1000&auto=format&fit=crop';
+  };
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">
       {gym.is_premium && (
@@ -28,12 +38,13 @@ const GymCard: React.FC<GymCardProps> = ({ gym }) => {
           </Badge>
         </div>
       )}
-      <div className="relative h-48 w-full bg-gray-200">
-        {/* Placeholder for gym image - would be replaced by actual image fetched from gym_media */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {/* This would be replaced by an actual image */}
-          <span className="text-gray-500">Gym Photo</span>
-        </div>
+      <div className="relative h-48 w-full">
+        <img 
+          src={getGymImage(gym.id)} 
+          alt={`${gym.name} gym`} 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
       </div>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">

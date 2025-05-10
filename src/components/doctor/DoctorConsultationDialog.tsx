@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import BookAppointmentForm from '@/components/doctor/BookAppointmentForm';
 import BookingSuccessDialog from '@/components/doctor/BookingSuccessDialog';
 import { Doctor } from '@/services/doctorService';
@@ -22,20 +22,19 @@ const DoctorConsultationDialog: React.FC<DoctorConsultationDialogProps> = ({
 
   return (
     <Dialog open={!!doctor} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[700px]">
+      <DialogContent className="sm:max-w-[425px] md:max-w-[800px] lg:max-w-[900px] p-0">
         {!consultationSuccess ? (
           <>
-            <DialogHeader>
-              <DialogTitle>Book Consultation</DialogTitle>
-              <DialogDescription>
-                Select a date and time for your appointment with {doctor.name}.
-              </DialogDescription>
+            <DialogHeader className="p-6 pb-0">
+              <DialogTitle>Book Consultation with {doctor.name}</DialogTitle>
             </DialogHeader>
             
-            <BookAppointmentForm 
-              doctor={doctor} 
-              onBookingSuccess={onBookingSuccess}
-            />
+            <div className="p-6 pt-2">
+              <BookAppointmentForm 
+                doctor={doctor} 
+                onBookingSuccess={onBookingSuccess}
+              />
+            </div>
           </>
         ) : (
           <BookingSuccessDialog doctor={doctor} onClose={() => onOpenChange(false)} />

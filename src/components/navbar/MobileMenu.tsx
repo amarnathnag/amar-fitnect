@@ -3,7 +3,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Dumbbell, Briefcase } from 'lucide-react';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -48,15 +48,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, user, closeMenu }) => {
         <NavLink to="/community" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
           Community
         </NavLink>
-        <NavLink to="/gyms" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
-          Gyms
-        </NavLink>
-        <NavLink to="/jobs" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
-          Jobs
-        </NavLink>
-        <NavLink to="/doctor-consultation" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
-          Doctors
-        </NavLink>
         <NavLink to="/blog" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
           Blog
         </NavLink>
@@ -71,10 +62,39 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, user, closeMenu }) => {
               <p className="text-sm font-semibold text-gray-500">Premium</p>
             </div>
             <NavLink to="/chat" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
-              Chat
+              AI Chat
             </NavLink>
             <NavLink to="/premium-ai" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
               Premium AI
+            </NavLink>
+            
+            <div className="px-3 py-1 mt-2">
+              <p className="text-sm font-semibold text-gray-500">Premium Services</p>
+            </div>
+            <NavLink to="/gyms" onClick={closeMenu} className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-md">
+              <Dumbbell className="h-4 w-4 mr-2" /> Gyms
+            </NavLink>
+            <NavLink to="/jobs" onClick={closeMenu} className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-md">
+              <Briefcase className="h-4 w-4 mr-2" /> Jobs
+            </NavLink>
+            <NavLink to="/doctor-consultation" onClick={closeMenu} className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-md">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-4 w-4 mr-2" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-5a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"></path>
+                <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"></path>
+                <circle cx="20" cy="10" r="2"></circle>
+              </svg>
+              Doctors
             </NavLink>
           </>
         )}

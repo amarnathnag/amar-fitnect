@@ -1,13 +1,15 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { Doctor } from '@/services/doctorService';
 import { createAppointment } from '@/services/appointmentService';
 import DoctorInfoCard from './DoctorInfoCard';
 import TimeSlotSelector from './TimeSlotSelector';
-import PatientInfoForm from './PatientInfoForm';
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Calendar } from 'lucide-react';
 
 interface BookAppointmentFormProps {
   doctor: Doctor;
@@ -90,51 +92,64 @@ const BookAppointmentForm: React.FC<BookAppointmentFormProps> = ({ doctor, onBoo
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 py-4">
-      <div>
-        <DoctorInfoCard doctor={doctor} />
-        
-        <div className="mt-4 bg-white dark:bg-gray-800 rounded-md shadow-sm border p-4">
-          <h4 className="font-medium mb-2">Selected Appointment</h4>
-          {date && selectedTimeSlot ? (
-            <div className="text-sm">
-              <p><strong>Date:</strong> {date.toLocaleDateString()}</p>
-              <p><strong>Time:</strong> {selectedTimeSlot}</p>
-            </div>
-          ) : (
-            <div className="text-sm text-gray-500">
-              Please select a date and time slot
-            </div>
-          )}
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="md:w-1/3">
+          <DoctorInfoCard doctor={doctor} />
         </div>
-      </div>
-      
-      <div>
-        <TimeSlotSelector 
-          date={date} 
-          setDate={setDate}
-          selectedTimeSlot={selectedTimeSlot}
-          setSelectedTimeSlot={setSelectedTimeSlot}
-          availableDays={doctor.available_days}
-        />
         
-        <PatientInfoForm user={user} setReason={setReason} />
-        
-        {appointmentError && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-            {appointmentError}
-          </div>
-        )}
-      </div>
-      
-      <div className="md:col-span-2 flex justify-end mt-4">
-        <Button 
-          onClick={handleBookAppointment} 
-          disabled={!user || !date || !selectedTimeSlot || isSubmitting}
-          className="bg-health-primary hover:bg-health-dark"
-        >
-          {isSubmitting ? "Processing..." : "Confirm Booking"}
-        </Button>
+        <div className="md:w-2/3">
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-3">Schedule Appointment</h3>
+            
+            <div className="grid gap-4">
+              <TimeSlotSelector 
+                date={date} 
+                setDate={setDate}
+                selectedTimeSlot={selectedTimeSlot}
+                setSelectedTimeSlot={setSelectedTimeSlot}
+                availableDays={doctor.available_days}
+              />
+              
+              <div>
+                <label htmlFor="reason" className="block text-sm font-medium mb-1">Reason for visit (optional)</label>
+                <Textarea
+                  id="reason"
+                  placeholder="Briefly describe why you're seeing the doctor..."
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  className="w-full"
+                  rows={3}
+                />
+              </div>
+            </div>
+            
+            {appointmentError && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                {appointmentError}
+              </div>
+            )}
+            
+            <div className="mt-4">
+              <Button 
+                onClick={handleBookAppointment} 
+                disabled={!user || !date || !selectedTimeSlot || isSubmitting}
+                className="w-full bg-health-primary hover:bg-health-dark flex items-center justify-center gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                {isSubmitting ? "Processing..." : "Confirm Booking"}
+              </Button>
+            </div>
+            
+            {date && selectedTimeSlot && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
+                <p className="text-sm text-center">
+                  <span className="font-medium">Selected appointment:</span> {date.toLocaleDateString()} at {selectedTimeSlot}
+                </p>
+              </div>
+            )}
+          </Card>
+        </div>
       </div>
     </div>
   );
