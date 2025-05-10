@@ -22,14 +22,16 @@ const DoctorConsultationDialog: React.FC<DoctorConsultationDialogProps> = ({
 
   return (
     <Dialog open={!!doctor} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] md:max-w-[800px] lg:max-w-[900px] p-0">
+      <DialogContent className="sm:max-w-[425px] md:max-w-[600px] lg:max-w-[700px] p-0 max-h-[90vh] overflow-y-auto">
         {!consultationSuccess ? (
           <>
-            <DialogHeader className="p-6 pb-0">
-              <DialogTitle>Book Consultation with {doctor.name}</DialogTitle>
+            <DialogHeader className="sticky top-0 z-10 bg-white dark:bg-gray-950 p-6 pb-3 border-b">
+              <DialogTitle className="text-xl font-bold text-health-primary">
+                Book Consultation with Dr. {doctor.name}
+              </DialogTitle>
             </DialogHeader>
             
-            <div className="p-6 pt-2">
+            <div className="p-5">
               <BookAppointmentForm 
                 doctor={doctor} 
                 onBookingSuccess={onBookingSuccess}
