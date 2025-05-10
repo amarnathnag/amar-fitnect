@@ -9,18 +9,40 @@ import { blogPosts } from '@/data/blogPosts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import NewBlogForm from '@/components/blog/NewBlogForm';
 
 const Blog = () => {
   const { postId } = useParams<{ postId: string }>();
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const [showNewBlogForm, setShowNewBlogForm] = useState(false);
   const { user } = useAuth();
   
   // In a real app, this would come from user data
-  const isPremiumUser = false;
+  const isPremiumUser = user?.isPremium || false;
   
-  const categories = Array.from(
-    new Set(blogPosts.map(post => post.category))
-  );
+  const { data: categories = [] } = useQuery({
+    queryKey: ['blogCategories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blogs')
+        .select('category')
+        .order('category');
+        
+      if (error) throw new Error(error.message);
+      
+      // Extract unique categories
+      const uniqueCategories = Array.from(
+        new Set(data.map(item => item.category))
+      );
+      
+      return uniqueCategories;
+    },
+    // Fallback to hardcoded categories in case of error
+    onError: () => Array.from(new Set(blogPosts.map(post => post.category)))
+  });
   
   // Find the specific post if postId is provided
   const currentPost = postId ? blogPosts.find(post => post.id === postId) : undefined;
@@ -41,27 +63,34 @@ const Blog = () => {
                   Expert advice and evidence-based articles on nutrition, fitness, and managing health conditions.
                 </p>
                 
-                <div className="flex flex-wrap justify-center mt-6 gap-2">
-                  <Button 
-                    variant={selectedCategory === undefined ? "default" : "outline"} 
-                    onClick={() => setSelectedCategory(undefined)}
-                    size="sm"
-                  >
-                    All
-                  </Button>
+                <div className="flex flex-wrap items-center justify-center mt-6 gap-2">
+                  <Tabs value={selectedCategory || "all"} onValueChange={(value) => setSelectedCategory(value === "all" ? undefined : value)}>
+                    <TabsList className="bg-gray-100/80 dark:bg-gray-800/50 p-1">
+                      <TabsTrigger value="all">All</TabsTrigger>
+                      {categories.map((category) => (
+                        <TabsTrigger key={category} value={category}>
+                          {category}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </Tabs>
                   
-                  {categories.map((category) => (
-                    <Button
-                      key={category}
-                      variant={selectedCategory === category ? "default" : "outline"}
-                      onClick={() => setSelectedCategory(category)}
-                      size="sm"
+                  {user && (
+                    <Button 
+                      className="ml-4 bg-health-primary" 
+                      onClick={() => setShowNewBlogForm(!showNewBlogForm)}
                     >
-                      {category}
+                      {showNewBlogForm ? "Cancel" : "Create New Blog"}
                     </Button>
-                  ))}
+                  )}
                 </div>
               </div>
+              
+              {showNewBlogForm && user && (
+                <div className="mb-12">
+                  <NewBlogForm onSuccess={() => setShowNewBlogForm(false)} />
+                </div>
+              )}
               
               <BlogList 
                 posts={blogPosts}
