@@ -21,7 +21,6 @@ interface PersonalInfoTabProps {
   handlePersonalChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   saveChanges: () => void;
 }
-
 const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ userData, handlePersonalChange, saveChanges }) => {
   return (
     <div className="space-y-6">
