@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import HeroSection from '@/components/womens-health/HeroSection';
 import TabNavigation from '@/components/womens-health/TabNavigation';
 import DoctorConsultationCTA from '@/components/womens-health/DoctorConsultationCTA';
+import GenderSpecificContent from '@/components/womens-health/GenderSpecificContent';
 
 const WomensHealth = () => {
   const [activeTab, setActiveTab] = useState("menstrual-health");
@@ -18,6 +19,13 @@ const WomensHealth = () => {
       <main className="flex-grow">
         {/* Hero Section */}
         <HeroSection />
+
+        {/* Gender-Specific Content */}
+        <section className="py-8">
+          <div className="container-custom">
+            <GenderSpecificContent />
+          </div>
+        </section>
 
         {/* Main Content Section */}
         <section className="py-12">

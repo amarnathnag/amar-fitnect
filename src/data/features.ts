@@ -6,6 +6,7 @@ export interface FeatureItem {
   href: string;
   description: string;
   icon: LucideIcon;
+  genderSpecific?: 'female' | 'male' | null;
 }
 
 export const featuresData: FeatureItem[] = [
@@ -38,6 +39,7 @@ export const featuresData: FeatureItem[] = [
     href: "/womens-health",
     description: "Resources tailored for women's specific health needs.",
     icon: Calendar,
+    genderSpecific: 'female',
   },
   {
     title: "Daily Routine",
@@ -46,3 +48,11 @@ export const featuresData: FeatureItem[] = [
     icon: ActivitySquare,
   },
 ];
+
+// Helper function to filter features based on user gender
+export const getFilteredFeatures = (userGender?: 'male' | 'female' | 'other' | null) => {
+  return featuresData.filter(feature => {
+    if (!feature.genderSpecific) return true;
+    return feature.genderSpecific === userGender;
+  });
+};

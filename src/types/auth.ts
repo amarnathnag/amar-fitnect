@@ -6,6 +6,7 @@ export interface User {
   isAuthenticated: boolean;
   isPremium?: boolean;
   isAdmin?: boolean;
+  gender?: 'male' | 'female' | 'other' | null;
 }
 
 export interface ProfileData {
