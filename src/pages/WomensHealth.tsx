@@ -9,7 +9,7 @@ import DoctorConsultationCTA from '@/components/womens-health/DoctorConsultation
 import GenderSpecificContent from '@/components/womens-health/GenderSpecificContent';
 
 const WomensHealth = () => {
-  const [activeTab, setActiveTab] = useState("menstrual-health");
+  const [activeTab, setActiveTab] = useState("period-tracking");
   const isMobile = useIsMobile();
 
   return (
