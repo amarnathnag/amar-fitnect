@@ -45,7 +45,7 @@ const Community = () => {
         .from('community_posts')
         .select(`
           *,
-          user_profiles!community_posts_user_id_fkey (full_name)
+          user_profiles (full_name)
         `)
         .order('created_at', { ascending: false });
       
@@ -62,7 +62,7 @@ const Community = () => {
         .from('community_comments')
         .select(`
           *,
-          user_profiles!community_comments_user_id_fkey (full_name)
+          user_profiles (full_name)
         `)
         .order('created_at', { ascending: false });
       
@@ -580,7 +580,7 @@ const Community = () => {
                               <div className="flex items-center space-x-4">
                                 <Avatar>
                                   <AvatarFallback>
-                                    {getUserInitials(post.user_profiles?.full_name)}
+                                    {getUserInitials(post.user_profiles?.full_name || 'Anonymous')}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div>
@@ -635,7 +635,7 @@ const Community = () => {
                                   <div key={comment.id} className="flex items-start space-x-3">
                                     <Avatar className="h-7 w-7">
                                       <AvatarFallback className="text-xs">
-                                        {getUserInitials(comment.user_profiles?.full_name)}
+                                        {getUserInitials(comment.user_profiles?.full_name || 'Anonymous')}
                                       </AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1">
