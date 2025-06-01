@@ -37,37 +37,89 @@ const Community = () => {
   const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
   const queryClient = useQueryClient();
 
-  // Fetch posts from Supabase with manual join
+  // Fetch posts from Supabase with user profiles
   const { data: posts = [], isLoading: postsLoading } = useQuery({
     queryKey: ['community-posts'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get the posts
+      const { data: postsData, error: postsError } = await supabase
         .from('community_posts')
-        .select(`
-          *,
-          user_profiles!inner(full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
-      return data || [];
+      if (postsError) throw postsError;
+      
+      if (!postsData || postsData.length === 0) return [];
+      
+      // Get unique user IDs
+      const userIds = [...new Set(postsData.map(post => post.user_id))];
+      
+      // Fetch user profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('user_profiles')
+        .select('user_id, full_name')
+        .in('user_id', userIds);
+      
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        // Return posts without profile data
+        return postsData.map(post => ({
+          ...post,
+          user_profiles: { full_name: 'Anonymous' }
+        }));
+      }
+      
+      // Combine posts with profile data
+      return postsData.map(post => {
+        const profile = profilesData?.find(p => p.user_id === post.user_id);
+        return {
+          ...post,
+          user_profiles: { full_name: profile?.full_name || 'Anonymous' }
+        };
+      });
     }
   });
 
-  // Fetch comments for posts with manual join
+  // Fetch comments for posts with user profiles
   const { data: comments = [], isLoading: commentsLoading } = useQuery({
     queryKey: ['community-comments'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get the comments
+      const { data: commentsData, error: commentsError } = await supabase
         .from('community_comments')
-        .select(`
-          *,
-          user_profiles!inner(full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
-      return data || [];
+      if (commentsError) throw commentsError;
+      
+      if (!commentsData || commentsData.length === 0) return [];
+      
+      // Get unique user IDs
+      const userIds = [...new Set(commentsData.map(comment => comment.user_id))];
+      
+      // Fetch user profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('user_profiles')
+        .select('user_id, full_name')
+        .in('user_id', userIds);
+      
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        // Return comments without profile data
+        return commentsData.map(comment => ({
+          ...comment,
+          user_profiles: { full_name: 'Anonymous' }
+        }));
+      }
+      
+      // Combine comments with profile data
+      return commentsData.map(comment => {
+        const profile = profilesData?.find(p => p.user_id === comment.user_id);
+        return {
+          ...comment,
+          user_profiles: { full_name: profile?.full_name || 'Anonymous' }
+        };
+      });
     }
   });
 
