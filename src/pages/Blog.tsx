@@ -26,22 +26,25 @@ const Blog = () => {
   const { data: categories = [] } = useQuery({
     queryKey: ['blogCategories'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('category')
-        .order('category');
+      try {
+        const { data, error } = await supabase
+          .from('blogs')
+          .select('category')
+          .order('category');
+          
+        if (error) throw new Error(error.message);
         
-      if (error) throw new Error(error.message);
-      
-      // Extract unique categories
-      const uniqueCategories = Array.from(
-        new Set(data.map(item => item.category))
-      );
-      
-      return uniqueCategories;
-    },
-    // Fallback to hardcoded categories in case of error
-    onError: () => Array.from(new Set(blogPosts.map(post => post.category)))
+        // Extract unique categories
+        const uniqueCategories = Array.from(
+          new Set(data.map(item => item.category))
+        );
+        
+        return uniqueCategories;
+      } catch (error) {
+        // Fallback to hardcoded categories in case of error
+        return Array.from(new Set(blogPosts.map(post => post.category)));
+      }
+    }
   });
   
   // Find the specific post if postId is provided

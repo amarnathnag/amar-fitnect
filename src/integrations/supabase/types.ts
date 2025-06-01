@@ -291,6 +291,48 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_reports: {
+        Row: {
+          category: string
+          contact_info: string | null
+          created_at: string | null
+          description: string
+          id: string
+          location: string
+          status: string
+          title: string
+          updated_at: string | null
+          urgency_level: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          contact_info?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          location: string
+          status?: string
+          title: string
+          updated_at?: string | null
+          urgency_level: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          contact_info?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          location?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+          urgency_level?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       gym_media: {
         Row: {
           created_at: string | null
