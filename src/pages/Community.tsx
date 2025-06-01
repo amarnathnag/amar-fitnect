@@ -37,7 +37,7 @@ const Community = () => {
   const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
   const queryClient = useQueryClient();
 
-  // Fetch posts from Supabase
+  // Fetch posts from Supabase with manual join
   const { data: posts = [], isLoading: postsLoading } = useQuery({
     queryKey: ['community-posts'],
     queryFn: async () => {
@@ -45,7 +45,7 @@ const Community = () => {
         .from('community_posts')
         .select(`
           *,
-          user_profiles (full_name)
+          user_profiles!inner(full_name)
         `)
         .order('created_at', { ascending: false });
       
@@ -54,7 +54,7 @@ const Community = () => {
     }
   });
 
-  // Fetch comments for posts
+  // Fetch comments for posts with manual join
   const { data: comments = [], isLoading: commentsLoading } = useQuery({
     queryKey: ['community-comments'],
     queryFn: async () => {
@@ -62,7 +62,7 @@ const Community = () => {
         .from('community_comments')
         .select(`
           *,
-          user_profiles (full_name)
+          user_profiles!inner(full_name)
         `)
         .order('created_at', { ascending: false });
       
