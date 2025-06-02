@@ -8,6 +8,7 @@ import ProfileLayout from '@/components/profile/ProfileLayout';
 import PersonalInfoTab from '@/components/profile/PersonalInfoTab';
 import PreferencesTab from '@/components/profile/PreferencesTab';
 import ProgressTab from '@/components/profile/ProgressTab';
+import HealthDataTab from '@/components/profile/HealthDataTab';
 import UserAppointments from '@/components/doctor/UserAppointments';
 
 const Profile = () => {
@@ -21,7 +22,7 @@ const Profile = () => {
       name: user?.name || "",
       email: user?.email || "",
       age: 28,
-      gender: "male",
+      gender: user?.gender || "male",
       height: 175,
       weight: 70,
       targetWeight: 65,
@@ -51,7 +52,8 @@ const Profile = () => {
         personal: {
           ...prevData.personal,
           name: user.name || prevData.personal.name,
-          email: user.email
+          email: user.email,
+          gender: user.gender || prevData.personal.gender
         }
       }));
     }
@@ -126,6 +128,10 @@ const Profile = () => {
           handleProgressChange={handleProgressChange} 
           saveChanges={saveChanges} 
         />
+      )}
+
+      {activeTab === "health-data" && (
+        <HealthDataTab />
       )}
 
       {activeTab === "appointments" && (

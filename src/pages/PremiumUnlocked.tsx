@@ -11,26 +11,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
   Dumbbell, Utensils, FileText, Activity, BarChart2, 
-  Calendar, Star, Download, ShoppingCart, Crown, 
-  ArrowRight, Book, Phone, MessageSquare, UserCheck, Plus, Save, Play
+  Calendar, Download, Crown, 
+  ArrowRight, Book, Plus, Save, Play
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import DietPlanCreator from '@/components/diet/DietPlanCreator';
+import { useDietPlans } from '@/hooks/useDietPlans';
 
 const PremiumUnlocked = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { dietPlans } = useDietPlans();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'workouts');
-  
-  // State for diet plan creation
-  const [dietGoal, setDietGoal] = useState('');
-  const [dietPlanName, setDietPlanName] = useState('');
   
   // State for progress tracking
   const [currentWeight, setCurrentWeight] = useState('');
   const [workoutCount, setWorkoutCount] = useState('');
-  
-  const isPremium = true;
   
   const workoutPrograms = [
     {
@@ -80,27 +77,16 @@ const PremiumUnlocked = () => {
     }
   ];
 
-  const handleCreateDietPlan = () => {
-    if (dietGoal && dietPlanName) {
-      console.log('Creating diet plan:', { goal: dietGoal, name: dietPlanName });
-      // Here you would typically save to database
-      alert(`Diet plan "${dietPlanName}" created successfully for ${dietGoal}!`);
-      setDietGoal('');
-      setDietPlanName('');
-    }
-  };
-
   const handleUpdateProgress = () => {
     if (currentWeight && workoutCount) {
       console.log('Updating progress:', { weight: currentWeight, workouts: workoutCount });
-      // Here you would typically save to database
       alert('Progress updated successfully!');
     }
   };
 
   const handleStartWorkout = (workoutId: number) => {
     console.log('Starting workout:', workoutId);
-    navigate(`/workout-detail/${workoutId}`);
+    navigate('/workouts');
   };
   
   return (
@@ -192,106 +178,40 @@ const PremiumUnlocked = () => {
               </div>
               
               <div className="space-y-6">
-                <Card className="border-2 border-dashed border-gray-200 dark:border-gray-700">
-                  <CardHeader>
-                    <CardTitle>Create Your Custom Diet Plan</CardTitle>
-                    <CardDescription>Use our AI-powered diet generator to create personalized meal plans</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="planName">Diet Plan Name</Label>
-                        <Input 
-                          id="planName"
-                          placeholder="e.g., My Weight Loss Plan"
-                          value={dietPlanName}
-                          onChange={(e) => setDietPlanName(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Select Your Goal</Label>
-                        <div className="grid grid-cols-3 gap-2">
-                          <Button 
-                            variant={dietGoal === 'weight-loss' ? 'default' : 'outline'}
-                            onClick={() => setDietGoal('weight-loss')}
-                            className="h-auto py-4 flex flex-col items-center gap-2"
-                          >
-                            <Activity className="h-4 w-4" />
-                            <span className="text-xs">Weight Loss</span>
-                          </Button>
-                          <Button 
-                            variant={dietGoal === 'muscle-gain' ? 'default' : 'outline'}
-                            onClick={() => setDietGoal('muscle-gain')}
-                            className="h-auto py-4 flex flex-col items-center gap-2"
-                          >
-                            <Dumbbell className="h-4 w-4" />
-                            <span className="text-xs">Muscle Gain</span>
-                          </Button>
-                          <Button 
-                            variant={dietGoal === 'thyroid-control' ? 'default' : 'outline'}
-                            onClick={() => setDietGoal('thyroid-control')}
-                            className="h-auto py-4 flex flex-col items-center gap-2"
-                          >
-                            <Activity className="h-4 w-4" />
-                            <span className="text-xs">Thyroid Control</span>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      className="w-full bg-health-primary hover:bg-health-dark"
-                      onClick={handleCreateDietPlan}
-                      disabled={!dietGoal || !dietPlanName}
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Generate My Diet Plan
-                    </Button>
-                  </CardContent>
-                </Card>
+                <DietPlanCreator />
 
                 <div>
-                  <h4 className="text-lg font-semibold mb-4">Your Saved Diet Plans</h4>
+                  <h4 className="text-lg font-semibold mb-4">Your Saved Diet Plans ({dietPlans.length})</h4>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                          <CardTitle className="text-lg">Weight Loss Plan</CardTitle>
-                          <Badge variant="outline">Weight Loss</Badge>
-                        </div>
-                        <CardDescription>Created on 2024-01-15</CardDescription>
-                      </CardHeader>
-                      <CardFooter className="pt-2">
-                        <div className="flex gap-2 w-full">
-                          <Button variant="outline" size="sm" className="flex-1">
-                            <Download className="mr-2 h-4 w-4" /> Download PDF
-                          </Button>
-                          <Button size="sm" className="flex-1">
-                            View Details
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
+                    {dietPlans.map((plan) => (
+                      <Card key={plan.id}>
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between items-start">
+                            <CardTitle className="text-lg">{plan.name}</CardTitle>
+                            <Badge variant="outline">{plan.goal.replace('-', ' ')}</Badge>
+                          </div>
+                          <CardDescription>Created on {new Date(plan.created_at).toLocaleDateString()}</CardDescription>
+                        </CardHeader>
+                        <CardFooter className="pt-2">
+                          <div className="flex gap-2 w-full">
+                            <Button variant="outline" size="sm" className="flex-1">
+                              <Download className="mr-2 h-4 w-4" /> Export
+                            </Button>
+                            <Button size="sm" className="flex-1">
+                              View Details
+                            </Button>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    ))}
                     
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                          <CardTitle className="text-lg">Muscle Gain Diet</CardTitle>
-                          <Badge variant="outline">Muscle Gain</Badge>
-                        </div>
-                        <CardDescription>Created on 2024-01-10</CardDescription>
-                      </CardHeader>
-                      <CardFooter className="pt-2">
-                        <div className="flex gap-2 w-full">
-                          <Button variant="outline" size="sm" className="flex-1">
-                            <Download className="mr-2 h-4 w-4" /> Download PDF
-                          </Button>
-                          <Button size="sm" className="flex-1">
-                            View Details
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </Card>
+                    {dietPlans.length === 0 && (
+                      <Card className="col-span-full">
+                        <CardContent className="text-center py-8">
+                          <p className="text-gray-500 dark:text-gray-400">No diet plans created yet. Create your first plan above!</p>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </div>
               </div>

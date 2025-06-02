@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Plus, TrendingUp, AlertCircle, Heart, Save } from 'lucide-react';
+import { usePeriodTracking } from '@/hooks/usePeriodTracking';
 
 const PeriodTrackingTab = () => {
-  const [lastPeriodDate, setLastPeriodDate] = useState('');
-  const [cycleLength, setCycleLength] = useState('28');
-  const [periodLength, setPeriodLength] = useState('5');
-  const [symptoms, setSymptoms] = useState<string[]>([]);
+  const { periodData, savePeriodData } = usePeriodTracking();
+  const [lastPeriodDate, setLastPeriodDate] = useState(periodData?.last_period_date || '');
+  const [cycleLength, setCycleLength] = useState(periodData?.cycle_length?.toString() || '28');
+  const [periodLength, setPeriodLength] = useState(periodData?.period_length?.toString() || '5');
+  const [symptoms, setSymptoms] = useState<string[]>(periodData?.symptoms || []);
 
   const commonSymptoms = [
     'Cramps', 'Bloating', 'Mood swings', 'Headache', 
@@ -26,14 +28,15 @@ const PeriodTrackingTab = () => {
     );
   };
 
-  const handleSaveData = () => {
-    console.log('Saving period data:', {
-      lastPeriodDate,
-      cycleLength,
-      periodLength,
-      symptoms
-    });
-    alert('Period data saved successfully!');
+  const handleSaveData = async () => {
+    const data = {
+      last_period_date: lastPeriodDate || null,
+      cycle_length: cycleLength ? parseInt(cycleLength) : null,
+      period_length: periodLength ? parseInt(periodLength) : null,
+      symptoms: symptoms.length > 0 ? symptoms : null
+    };
+
+    await savePeriodData(data);
   };
 
   return (
@@ -123,15 +126,30 @@ const PeriodTrackingTab = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <span className="text-sm font-medium">Next Period Expected</span>
-                <span className="text-green-600 font-bold">Feb 15, 2024</span>
+                <span className="text-green-600 font-bold">
+                  {lastPeriodDate ? 
+                    new Date(new Date(lastPeriodDate).getTime() + parseInt(cycleLength) * 24 * 60 * 60 * 1000).toLocaleDateString() :
+                    'Enter last period date'
+                  }
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <span className="text-sm font-medium">Ovulation Window</span>
-                <span className="text-blue-600 font-bold">Feb 1-5, 2024</span>
+                <span className="text-blue-600 font-bold">
+                  {lastPeriodDate ? 
+                    `${Math.floor(parseInt(cycleLength) / 2) - 2} to ${Math.floor(parseInt(cycleLength) / 2) + 2} days` :
+                    'Enter cycle data'
+                  }
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <span className="text-sm font-medium">Fertile Days</span>
-                <span className="text-purple-600 font-bold">Jan 30 - Feb 6</span>
+                <span className="text-sm font-medium">Cycle Day</span>
+                <span className="text-purple-600 font-bold">
+                  {lastPeriodDate ? 
+                    Math.floor((new Date().getTime() - new Date(lastPeriodDate).getTime()) / (24 * 60 * 60 * 1000)) + 1 :
+                    'N/A'
+                  }
+                </span>
               </div>
             </div>
           </CardContent>
@@ -221,7 +239,7 @@ const PeriodTrackingTab = () => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => navigate('/doctor-consultation')}>
             <Plus className="mr-2 h-4 w-4" />
             Consult Gynecologist
           </Button>

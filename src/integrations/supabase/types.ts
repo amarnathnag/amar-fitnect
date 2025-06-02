@@ -216,6 +216,74 @@ export type Database = {
         }
         Relationships: []
       }
+      diet_plan_meals: {
+        Row: {
+          calories: number | null
+          created_at: string
+          day_of_week: string
+          diet_plan_id: string
+          food_name: string
+          id: string
+          meal_type: string
+          quantity: string | null
+        }
+        Insert: {
+          calories?: number | null
+          created_at?: string
+          day_of_week: string
+          diet_plan_id: string
+          food_name: string
+          id?: string
+          meal_type: string
+          quantity?: string | null
+        }
+        Update: {
+          calories?: number | null
+          created_at?: string
+          day_of_week?: string
+          diet_plan_id?: string
+          food_name?: string
+          id?: string
+          meal_type?: string
+          quantity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diet_plan_meals_diet_plan_id_fkey"
+            columns: ["diet_plan_id"]
+            isOneToOne: false
+            referencedRelation: "diet_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diet_plans: {
+        Row: {
+          created_at: string
+          goal: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goal: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goal?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       doctor: {
         Row: {
           created_at: string
@@ -559,6 +627,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      period_tracking: {
+        Row: {
+          created_at: string
+          cycle_length: number | null
+          id: string
+          last_period_date: string | null
+          notes: string | null
+          period_length: number | null
+          symptoms: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_length?: number | null
+          id?: string
+          last_period_date?: string | null
+          notes?: string | null
+          period_length?: number | null
+          symptoms?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          cycle_length?: number | null
+          id?: string
+          last_period_date?: string | null
+          notes?: string | null
+          period_length?: number | null
+          symptoms?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_profiles: {
         Row: {
