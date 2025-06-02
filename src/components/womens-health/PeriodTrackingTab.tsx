@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Calendar, Plus, TrendingUp, AlertCircle, Heart, Save } from 'lucide-rea
 import { usePeriodTracking } from '@/hooks/usePeriodTracking';
 
 const PeriodTrackingTab = () => {
+  const navigate = useNavigate();
   const { periodData, savePeriodData } = usePeriodTracking();
   const [lastPeriodDate, setLastPeriodDate] = useState(periodData?.last_period_date || '');
   const [cycleLength, setCycleLength] = useState(periodData?.cycle_length?.toString() || '28');
