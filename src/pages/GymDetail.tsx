@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import GymDetailPage from '@/components/gyms/GymDetailPage';
-import { gymService } from '@/services/gymService';
+import { fetchGymById } from '@/services/gymService';
 
 const GymDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,7 +14,7 @@ const GymDetail = () => {
     const fetchGym = async () => {
       if (id) {
         try {
-          const gymData = await gymService.getGymById(id);
+          const gymData = await fetchGymById(id);
           // Add mock data for enhanced features
           const enhancedGym = {
             ...gymData,
