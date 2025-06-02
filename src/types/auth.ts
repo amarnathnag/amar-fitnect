@@ -1,6 +1,6 @@
 
 export interface User {
-  id?: string;  // Making id optional to accommodate existing code
+  id?: string;
   name?: string;
   email: string;
   isAuthenticated: boolean;
@@ -25,11 +25,12 @@ export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<any>;
   signup: (name: string, email: string, password: string) => Promise<any>;
+  signInWithGoogle?: () => Promise<any>;
   logout: () => void;
   isLoading: boolean;
   profileData: ProfileData | null;
   isProfileComplete: boolean;
   updateProfile: (data: Partial<ProfileData>) => Promise<void>;
   fetchProfile: () => Promise<void>;
-  upgradeToPremium: () => boolean; // New method for upgrading to premium
+  upgradeToPremium: () => boolean;
 }

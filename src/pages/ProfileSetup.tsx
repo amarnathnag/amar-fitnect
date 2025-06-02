@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
-import { Calendar as CalendarIcon, User, ArrowRight } from 'lucide-react';
+import { Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -21,7 +21,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
-import { supabase } from "@/integrations/supabase/client";
 
 // Form validation schema
 const profileFormSchema = z.object({
@@ -42,33 +41,19 @@ const ProfileSetup = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading, updateProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
 
   // Check authentication status
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!data.session) {
-          console.log("No active session found, redirecting to auth page");
-          toast({
-            title: "Authentication required",
-            description: "Please sign in to complete your profile.",
-            variant: "destructive",
-          });
-          navigate('/auth');
-        } else {
-          console.log("Active session found, user can continue with profile setup");
-        }
-      } catch (error) {
-        console.error("Error checking auth status:", error);
-      } finally {
-        setAuthChecked(true);
-      }
-    };
-
-    checkAuth();
-  }, [navigate, toast]);
+    if (!authLoading && !user) {
+      console.log("No authenticated user found, redirecting to auth page");
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to complete your profile.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate, toast]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -79,7 +64,6 @@ const ProfileSetup = () => {
   });
 
   useEffect(() => {
-    // Update the form when user data is loaded
     if (user?.name && form.getValues('full_name') === "") {
       form.setValue('full_name', user.name);
     }
@@ -89,20 +73,7 @@ const ProfileSetup = () => {
     try {
       setIsSubmitting(true);
       
-      // Verify authentication before submission
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !sessionData.session) {
-        toast({
-          title: "Authentication error",
-          description: "Your session has expired. Please sign in again.",
-          variant: "destructive",
-        });
-        navigate('/auth');
-        return;
-      }
-      
-      console.log("Submitting profile data with active session");
+      console.log("Submitting profile data with authenticated user");
       await updateProfile({
         full_name: data.full_name,
         date_of_birth: format(data.date_of_birth, 'yyyy-MM-dd'),
@@ -119,7 +90,6 @@ const ProfileSetup = () => {
         description: "Your profile has been successfully created.",
       });
       
-      // Navigate to profile page after successful profile setup
       navigate('/profile');
     } catch (error: any) {
       console.error('Profile setup error:', error);
@@ -133,8 +103,12 @@ const ProfileSetup = () => {
     }
   };
 
-  if (authLoading || !authChecked) {
+  if (authLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  if (!user) {
+    return null; // Will redirect in useEffect
   }
 
   return (
