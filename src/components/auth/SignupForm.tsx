@@ -54,6 +54,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
           description: "Welcome to your health journey. Please check your email to verify your account.",
         });
         if (onSuccess) onSuccess();
+      } else {
+        if (setError) setError(result.error || "Signup failed");
       }
     } catch (error: any) {
       if (setError) setError(error.message || "Signup failed");
@@ -63,15 +65,15 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
   const handleGoogleSignup = async () => {
     try {
       if (setError) setError(null);
-      if (signInWithGoogle) {
-        const result = await signInWithGoogle();
-        if (result.success) {
-          toast({
-            title: "Account created with Google!",
-            description: "Welcome to your health journey.",
-          });
-          if (onSuccess) onSuccess();
-        }
+      const result = await signInWithGoogle();
+      if (result.success) {
+        toast({
+          title: "Account created with Google!",
+          description: "Welcome to your health journey.",
+        });
+        if (onSuccess) onSuccess();
+      } else {
+        if (setError) setError(result.error || "Google signup failed");
       }
     } catch (error: any) {
       if (setError) setError(error.message || "Google signup failed");

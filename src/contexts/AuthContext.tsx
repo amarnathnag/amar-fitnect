@@ -15,6 +15,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
 
+  // Clean up auth state utility
+  const cleanupAuthState = () => {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+  };
+
   // Initialize auth state
   useEffect(() => {
     // Set up auth state listener
@@ -175,6 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       
       // Clean up any existing state
+      cleanupAuthState();
       try {
         await supabase.auth.signOut({ scope: 'global' });
       } catch (err) {
@@ -266,6 +276,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       
+      // Clean up any existing state
+      cleanupAuthState();
+      
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -304,11 +317,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       
       // Clean up auth state
-      Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-          localStorage.removeItem(key);
-        }
-      });
+      cleanupAuthState();
       
       await supabase.auth.signOut({ scope: 'global' });
       

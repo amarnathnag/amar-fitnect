@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -51,6 +50,8 @@ const LoginForm: React.FC<LoginFormProps> = ({
           description: "Welcome back to your health journey.",
         });
         if (onSuccess) onSuccess();
+      } else {
+        if (setError) setError(result.error || "Login failed");
       }
     } catch (error: any) {
       if (setError) setError(error.message || "Login failed");
@@ -60,15 +61,15 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const handleGoogleLogin = async () => {
     try {
       if (setError) setError(null);
-      if (signInWithGoogle) {
-        const result = await signInWithGoogle();
-        if (result.success) {
-          toast({
-            title: "Google login successful!",
-            description: "Welcome to your health journey.",
-          });
-          if (onSuccess) onSuccess();
-        }
+      const result = await signInWithGoogle();
+      if (result.success) {
+        toast({
+          title: "Google login successful!",
+          description: "Welcome to your health journey.",
+        });
+        if (onSuccess) onSuccess();
+      } else {
+        if (setError) setError(result.error || "Google login failed");
       }
     } catch (error: any) {
       if (setError) setError(error.message || "Google login failed");
