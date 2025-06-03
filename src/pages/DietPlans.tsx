@@ -6,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Utensils, Clock, Target, Plus, CheckCircle } from 'lucide-react';
-import EnhancedDietPlanCreator from '@/components/diet/EnhancedDietPlanCreator';
+import { Utensils, Clock, Target, Plus, CheckCircle, Zap, Users } from 'lucide-react';
+import EnhancedDietPlanForm from '@/components/diet/EnhancedDietPlanForm';
 import { useDietPlans } from '@/hooks/useDietPlans';
 import { dietTemplates } from '@/data/dietTemplates';
 import { useToast } from "@/hooks/use-toast";
@@ -78,15 +78,6 @@ const DietPlans = () => {
     }
   };
 
-  const templateCards = [
-    { id: 'weight-loss-starter', name: "Weight Loss Starter", goal: "weight-loss", meals: 21 },
-    { id: 'muscle-building', name: "Muscle Building", goal: "muscle-gain", meals: 28 },
-    { id: 'pcos-friendly', name: "PCOS Friendly", goal: "pcos-management", meals: 35 },
-    { id: 'thyroid-care', name: "Thyroid Care", goal: "thyroid-control", meals: 24 },
-    { id: 'maintenance-plan', name: "Maintenance Plan", goal: "maintenance", meals: 30 },
-    { id: 'beginner-friendly', name: "Beginner Friendly", goal: "weight-loss", meals: 18 }
-  ];
-
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
@@ -94,9 +85,9 @@ const DietPlans = () => {
       <main className="flex-grow">
         <div className="container-custom py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Diet Plans</h1>
+            <h1 className="text-3xl font-bold mb-2">Enhanced Diet Plan System</h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Create personalized diet plans with time-wise food selection
+              Create personalized diet plans with advanced customization and time-wise food selection
             </p>
           </div>
           
@@ -104,7 +95,7 @@ const DietPlans = () => {
             <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="create" className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
-                Create Plan
+                Create Custom Plan
               </TabsTrigger>
               <TabsTrigger value="my-plans" className="flex items-center gap-2">
                 <Utensils className="h-4 w-4" />
@@ -112,12 +103,12 @@ const DietPlans = () => {
               </TabsTrigger>
               <TabsTrigger value="templates" className="flex items-center gap-2">
                 <Target className="h-4 w-4" />
-                Templates
+                Ready-to-Use Plans
               </TabsTrigger>
             </TabsList>
             
             <TabsContent value="create" className="mt-0">
-              <EnhancedDietPlanCreator />
+              <EnhancedDietPlanForm />
             </TabsContent>
             
             <TabsContent value="my-plans" className="mt-0">
@@ -127,18 +118,20 @@ const DietPlans = () => {
                 ) : dietPlans.length > 0 ? (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {dietPlans.map((plan) => (
-                      <Card key={plan.id}>
+                      <Card key={plan.id} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2">
                             <Utensils className="h-5 w-5 text-green-500" />
                             {plan.name}
                           </CardTitle>
                           <CardDescription>
-                            <Badge variant="outline">{plan.goal.replace('-', ' ')}</Badge>
+                            <Badge variant="outline" className="capitalize">
+                              {plan.goal.replace('-', ' ')}
+                            </Badge>
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                               <Clock className="h-4 w-4" />
                               Created {new Date(plan.created_at).toLocaleDateString()}
@@ -153,16 +146,22 @@ const DietPlans = () => {
                   </div>
                 ) : (
                   <Card>
-                    <CardContent className="text-center py-8">
+                    <CardContent className="text-center py-12">
                       <Utensils className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                       <h3 className="text-lg font-medium mb-2">No Diet Plans Yet</h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">
-                        Create your first personalized diet plan to get started
+                      <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        Create your first personalized diet plan or use one of our ready-to-use templates
                       </p>
-                      <Button onClick={() => setActiveTab("create")}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create Your First Plan
-                      </Button>
+                      <div className="flex gap-3 justify-center">
+                        <Button onClick={() => setActiveTab("create")}>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Create Custom Plan
+                        </Button>
+                        <Button variant="outline" onClick={() => setActiveTab("templates")}>
+                          <Target className="mr-2 h-4 w-4" />
+                          Browse Templates
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 )}
@@ -170,78 +169,101 @@ const DietPlans = () => {
             </TabsContent>
             
             <TabsContent value="templates" className="mt-0">
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">Ready-to-Use Diet Plans</h2>
+              <div className="mb-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <Target className="h-6 w-6 text-blue-500" />
+                  <h2 className="text-2xl font-semibold">Ready-to-Use Diet Plans</h2>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    Professionally Designed
+                  </Badge>
+                </div>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Choose from our expertly crafted diet plans with pre-planned meals for an entire week
+                  Choose from our expertly crafted diet plans with pre-planned meals for an entire week. 
+                  Each plan includes specific foods, portions, and calorie counts.
                 </p>
               </div>
               
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {templateCards.map((template) => {
-                  const templateData = dietTemplates.find(t => t.id === template.id);
+                {dietTemplates.map((template) => {
                   const isLoading = loadingTemplate === template.id;
                   
                   return (
-                    <Card key={template.id} className="relative">
-                      <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                          <span>{template.name}</span>
-                          {templateData && (
-                            <Badge variant="secondary" className="text-xs">
-                              {templateData.dailyCalories} cal/day
-                            </Badge>
-                          )}
-                        </CardTitle>
-                        <CardDescription>
-                          <Badge variant="outline">{template.goal.replace('-', ' ')}</Badge>
+                    <Card key={template.id} className="relative hover:shadow-lg transition-all duration-300 border-2 hover:border-blue-200">
+                      <CardHeader className="pb-4">
+                        <div className="flex items-start justify-between">
+                          <CardTitle className="text-lg">{template.name}</CardTitle>
+                          <Badge variant="secondary" className="text-xs font-medium">
+                            {template.dailyCalories} cal/day
+                          </Badge>
+                        </div>
+                        <CardDescription className="flex items-center gap-2">
+                          <Badge variant="outline" className="capitalize">
+                            {template.goal.replace('-', ' ')}
+                          </Badge>
                         </CardDescription>
                       </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {templateData && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {templateData.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                            <Utensils className="h-4 w-4" />
-                            {template.meals} pre-planned meals
-                          </div>
-                          {templateData && (
-                            <div className="text-xs bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                              <strong>Sample meals:</strong>
-                              <ul className="mt-1 space-y-1">
-                                {Object.entries(templateData.weekPlan.Monday).slice(0, 2).map(([mealType, foods]) => (
-                                  <li key={mealType} className="text-gray-600 dark:text-gray-400">
-                                    • {mealType}: {foods[0]?.name}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          <Button 
-                            onClick={() => handleUseTemplate(template.id)}
-                            className="w-full"
-                            disabled={isLoading}
-                          >
-                            {isLoading ? (
-                              <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                Creating Plan...
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Use Template
-                              </>
-                            )}
-                          </Button>
+                      <CardContent className="space-y-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                          {template.description}
+                        </p>
+                        
+                        <div className="flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+                          <Utensils className="h-4 w-4" />
+                          {template.totalMeals} pre-planned meals
                         </div>
+
+                        {/* Sample Meals Preview */}
+                        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Sample Meals:</h4>
+                          <div className="space-y-1">
+                            {Object.entries(template.weekPlan.Monday).slice(0, 2).map(([mealType, foods]) => (
+                              <div key={mealType} className="text-xs text-gray-600 dark:text-gray-400">
+                                <span className="font-medium capitalize">{mealType}:</span> {foods[0]?.name}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <Button 
+                          onClick={() => handleUseTemplate(template.id)}
+                          className="w-full bg-blue-500 hover:bg-blue-600 transition-colors"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Creating Plan...
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="mr-2 h-4 w-4" />
+                              Use Template
+                            </>
+                          )}
+                        </Button>
                       </CardContent>
                     </Card>
                   );
                 })}
+              </div>
+              
+              <div className="mt-8 text-center">
+                <Card className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 border-blue-200 dark:border-blue-800">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Target className="h-5 w-5 text-blue-500" />
+                      <h3 className="text-lg font-semibold">Need Something Custom?</h3>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Templates not quite right? Create a fully customized diet plan with BMR calculation and personalized preferences.
+                    </p>
+                    <Button onClick={() => setActiveTab("create")} variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create Custom Diet Plan
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
           </Tabs>
