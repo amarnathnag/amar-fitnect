@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -347,11 +346,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const upgradeToPremium = () => {
     // Mock implementation - in real app this would handle payment
-    toast({
-      title: "Premium Access Granted",
-      description: "You now have access to all premium features!",
-    });
-    return true;
+    if (user) {
+      const updatedUser = { ...user, isPremium: true };
+      setUser(updatedUser);
+      
+      // Update localStorage to persist premium status
+      localStorage.setItem('isPremium', 'true');
+      
+      toast({
+        title: "Premium Access Granted",
+        description: "You now have access to all premium features!",
+      });
+      return true;
+    }
+    return false;
   };
 
   const authUser = user ? {
@@ -359,7 +367,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
     email: user.email || '',
     isAuthenticated: true,
-    isPremium: user.user_metadata?.isPremium || false,
+    isPremium: user.user_metadata?.isPremium || localStorage.getItem('isPremium') === 'true' || false,
     isAdmin: user.email === 'admin@healthapp.com',
     gender: profileData?.gender as 'male' | 'female' | 'other' | null,
   } : null;

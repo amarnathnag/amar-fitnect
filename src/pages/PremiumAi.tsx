@@ -8,13 +8,25 @@ import PremiumDashboard from '@/components/premium/PremiumDashboard';
 import { Badge } from '@/components/ui/badge';
 import { blogPosts } from '@/data/blogPosts';
 import BlogList from '@/components/blog/BlogList';
+import { Button } from '@/components/ui/button';
+import { Crown } from 'lucide-react';
 
 const PremiumAi = () => {
-  const { user } = useAuth();
-  const isPremium = false; // In a real app, this would come from user data
+  const { user, upgradeToPremium } = useAuth();
+  
+  // For demo purposes, allow access if user is authenticated
+  // In production, check actual premium status from database
+  const isPremium = user?.isPremium || user?.isAuthenticated;
   
   // Filter only premium blog posts
   const premiumPosts = blogPosts.filter(post => post.isPremium);
+
+  const handleUpgradeToPremium = () => {
+    const success = upgradeToPremium();
+    if (success) {
+      window.location.reload(); // Refresh to show premium content
+    }
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -24,6 +36,24 @@ const PremiumAi = () => {
         {!isPremium ? (
           <>
             <PremiumUpsell />
+            
+            {/* Temporary Premium Access Button for Demo */}
+            {user && (
+              <section className="py-8 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20">
+                <div className="container-custom text-center">
+                  <Button 
+                    onClick={handleUpgradeToPremium}
+                    className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white px-8 py-3 text-lg"
+                  >
+                    <Crown className="mr-2 h-5 w-5" />
+                    Get Instant Premium Access (Demo)
+                  </Button>
+                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    Click to unlock premium features for this session
+                  </p>
+                </div>
+              </section>
+            )}
             
             {/* Premium Content Preview */}
             <section className="py-12 bg-gray-50 dark:bg-gray-800/30">

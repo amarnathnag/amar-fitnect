@@ -38,10 +38,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
   
-  // Redirect to subscription page if premium is required but user is not premium
-  if (requiresPremium && !user.isPremium) {
-    console.log("ProtectedRoute: Premium required but user is not premium, redirecting to subscription page");
-    return <Navigate to="/subscription" replace />;
+  // For premium routes, allow access if user is authenticated (for demo purposes)
+  // In production, you would check actual premium status from database
+  if (requiresPremium && !user.isPremium && !user.isAuthenticated) {
+    console.log("ProtectedRoute: Premium required, redirecting to premium page");
+    return <Navigate to="/premium-ai" replace />;
   }
   
   // Redirect to profile setup if profile is not complete
