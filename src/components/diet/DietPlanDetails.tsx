@@ -35,6 +35,7 @@ const DietPlanDetails: React.FC<DietPlanDetailsProps> = ({
 
   useEffect(() => {
     if (isOpen && planId) {
+      console.log('Loading meals for plan:', planId);
       loadMeals();
     }
   }, [isOpen, planId]);
@@ -43,6 +44,7 @@ const DietPlanDetails: React.FC<DietPlanDetailsProps> = ({
     setLoading(true);
     try {
       const planMeals = await getMealsForPlan(planId);
+      console.log('Loaded meals:', planMeals);
       setMeals(planMeals);
     } catch (error) {
       console.error('Error loading meals:', error);
@@ -86,7 +88,7 @@ const DietPlanDetails: React.FC<DietPlanDetailsProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-2">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Utensils className="h-5 w-5 text-green-500" />
@@ -110,7 +112,7 @@ const DietPlanDetails: React.FC<DietPlanDetailsProps> = ({
               if (!dayMeals) return null;
 
               return (
-                <div key={day} className="border rounded-lg p-4">
+                <div key={day} className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
@@ -127,7 +129,7 @@ const DietPlanDetails: React.FC<DietPlanDetailsProps> = ({
                       if (!mealTypeData) return null;
 
                       return (
-                        <div key={mealType} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                        <div key={mealType} className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
                           <h4 className="font-medium text-sm mb-2 flex items-center gap-1">
                             <span>{getMealTypeIcon(mealType)}</span>
                             {mealType.charAt(0).toUpperCase() + mealType.slice(1)}

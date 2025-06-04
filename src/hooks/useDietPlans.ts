@@ -29,16 +29,22 @@ export const useDietPlans = () => {
   const fetchDietPlans = async () => {
     try {
       setIsLoading(true);
+      console.log('Fetching diet plans...');
+      
       const { data: sessionData } = await supabase.auth.getSession();
       
       if (!sessionData.session) {
         console.log('No active session found when fetching diet plans');
+        setDietPlans([]);
         return;
       }
+
+      console.log('Session found, fetching diet plans for user:', sessionData.session.user.id);
 
       const { data, error } = await supabase
         .from('diet_plans')
         .select('*')
+        .eq('user_id', sessionData.session.user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -51,6 +57,7 @@ export const useDietPlans = () => {
         return;
       }
 
+      console.log('Diet plans fetched:', data);
       setDietPlans(data || []);
     } catch (error) {
       console.error('Error in fetchDietPlans:', error);
@@ -72,6 +79,8 @@ export const useDietPlans = () => {
         return null;
       }
 
+      console.log('Creating diet plan:', { name, goal });
+
       const { data, error } = await supabase
         .from('diet_plans')
         .insert([{ 
@@ -92,6 +101,8 @@ export const useDietPlans = () => {
         return null;
       }
 
+      console.log('Diet plan created:', data);
+
       toast({
         title: "Success",
         description: "Diet plan created successfully!",
@@ -107,6 +118,8 @@ export const useDietPlans = () => {
 
   const addMealToPlan = async (dietPlanId: string, dayOfWeek: string, mealType: string, foodName: string, quantity?: string, calories?: number) => {
     try {
+      console.log('Adding meal to plan:', { dietPlanId, dayOfWeek, mealType, foodName, quantity, calories });
+
       const { data, error } = await supabase
         .from('diet_plan_meals')
         .insert([{
@@ -130,11 +143,7 @@ export const useDietPlans = () => {
         return null;
       }
 
-      toast({
-        title: "Success",
-        description: "Meal added successfully!",
-      });
-
+      console.log('Meal added successfully:', data);
       return data;
     } catch (error) {
       console.error('Error in addMealToPlan:', error);
@@ -144,6 +153,8 @@ export const useDietPlans = () => {
 
   const getMealsForPlan = async (dietPlanId: string) => {
     try {
+      console.log('Fetching meals for plan:', dietPlanId);
+
       const { data, error } = await supabase
         .from('diet_plan_meals')
         .select('*')
@@ -155,6 +166,7 @@ export const useDietPlans = () => {
         return [];
       }
 
+      console.log('Meals fetched for plan:', data);
       return data || [];
     } catch (error) {
       console.error('Error in getMealsForPlan:', error);

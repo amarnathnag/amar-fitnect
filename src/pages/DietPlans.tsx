@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -20,6 +21,9 @@ const DietPlans = () => {
   const [loadingTemplate, setLoadingTemplate] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<{id: string, name: string, goal: string} | null>(null);
 
+  console.log('Current diet plans:', dietPlans);
+  console.log('Is loading:', isLoading);
+
   const handleUseTemplate = async (templateId: string) => {
     try {
       setLoadingTemplate(templateId);
@@ -34,6 +38,8 @@ const DietPlans = () => {
         return;
       }
 
+      console.log('Using template:', template);
+
       // Create the diet plan
       const createdPlan = await createDietPlan(template.name, template.goal);
       
@@ -45,6 +51,8 @@ const DietPlans = () => {
         });
         return;
       }
+
+      console.log('Created plan:', createdPlan);
 
       // Add meals from template to the plan
       for (const [dayName, dayMeals] of Object.entries(template.weekPlan)) {
@@ -81,6 +89,7 @@ const DietPlans = () => {
   };
 
   const handleViewPlanDetails = (plan: {id: string, name: string, goal: string}) => {
+    console.log('View plan details clicked:', plan);
     setSelectedPlan(plan);
   };
 
@@ -89,7 +98,7 @@ const DietPlans = () => {
       <NavBar />
       
       <main className="flex-grow">
-        <div className="container-custom py-8">
+        <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Enhanced Diet Plan System</h1>
             <p className="text-gray-600 dark:text-gray-400">
@@ -105,7 +114,7 @@ const DietPlans = () => {
               </TabsTrigger>
               <TabsTrigger value="my-plans" className="flex items-center gap-2">
                 <Utensils className="h-4 w-4" />
-                My Plans
+                My Plans ({dietPlans.length})
               </TabsTrigger>
               <TabsTrigger value="templates" className="flex items-center gap-2">
                 <Target className="h-4 w-4" />
@@ -120,7 +129,10 @@ const DietPlans = () => {
             <TabsContent value="my-plans" className="mt-0">
               <div className="space-y-6">
                 {isLoading ? (
-                  <div className="text-center py-8">Loading your diet plans...</div>
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
+                    <p>Loading your diet plans...</p>
+                  </div>
                 ) : dietPlans.length > 0 ? (
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {dietPlans.map((plan) => (
