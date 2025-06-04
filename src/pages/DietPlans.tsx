@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Utensils, Clock, Target, Plus, CheckCircle, Zap, Users } from 'lucide-react';
+import { Utensils, Clock, Target, Plus, CheckCircle, Zap, Users, Eye, ChefHat, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import EnhancedDietPlanForm from '@/components/diet/EnhancedDietPlanForm';
 import { useDietPlans } from '@/hooks/useDietPlans';
 import { dietTemplates } from '@/data/dietTemplates';
@@ -172,15 +173,15 @@ const DietPlans = () => {
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
                   <Target className="h-6 w-6 text-blue-500" />
-                  <h2 className="text-2xl font-semibold">Ready-to-Use Diet Plans</h2>
+                  <h2 className="text-2xl font-semibold">Ready-to-Use Indian Diet Plans</h2>
                   <Badge variant="secondary" className="flex items-center gap-1">
                     <Users className="h-3 w-3" />
                     Professionally Designed
                   </Badge>
                 </div>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Choose from our expertly crafted diet plans with pre-planned meals for an entire week. 
-                  Each plan includes specific foods, portions, and calorie counts.
+                  Choose from our expertly crafted Indian diet plans with pre-planned meals for an entire week. 
+                  Each plan includes specific foods, portions, and calorie counts tailored for Indian cuisine.
                 </p>
               </div>
               
@@ -197,12 +198,19 @@ const DietPlans = () => {
                             {template.dailyCalories} cal/day
                           </Badge>
                         </div>
-                        <CardDescription className="flex items-center gap-2">
+                        <CardDescription className="space-y-2">
                           <Badge variant="outline" className="capitalize">
                             {template.goal.replace('-', ' ')}
                           </Badge>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                            <strong>Focus:</strong> {template.focus}
+                          </p>
+                          <p className="text-sm text-blue-600 dark:text-blue-400">
+                            <strong>Ideal for:</strong> {template.idealFor}
+                          </p>
                         </CardDescription>
                       </CardHeader>
+                      
                       <CardContent className="space-y-4">
                         <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                           {template.description}
@@ -215,33 +223,116 @@ const DietPlans = () => {
 
                         {/* Sample Meals Preview */}
                         <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Sample Meals:</h4>
+                          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
+                            <ChefHat className="h-3 w-3" />
+                            Sample Indian Meals:
+                          </h4>
                           <div className="space-y-1">
-                            {Object.entries(template.weekPlan.Monday).slice(0, 2).map(([mealType, foods]) => (
-                              <div key={mealType} className="text-xs text-gray-600 dark:text-gray-400">
-                                <span className="font-medium capitalize">{mealType}:</span> {foods[0]?.name}
+                            {template.sampleMeals.slice(0, 2).map((meal, index) => (
+                              <div key={index} className="text-xs text-gray-600 dark:text-gray-400">
+                                <span className="font-medium text-green-600">{meal.time}:</span> {meal.meal}
+                                <span className="text-orange-500 ml-1">({meal.calories} cal)</span>
                               </div>
                             ))}
                           </div>
                         </div>
 
-                        <Button 
-                          onClick={() => handleUseTemplate(template.id)}
-                          className="w-full bg-blue-500 hover:bg-blue-600 transition-colors"
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                              Creating Plan...
-                            </>
-                          ) : (
-                            <>
-                              <Zap className="mr-2 h-4 w-4" />
-                              Use Template
-                            </>
-                          )}
-                        </Button>
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="flex-1">
+                                <Eye className="mr-1 h-3 w-3" />
+                                View Details
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2">
+                                  <Utensils className="h-5 w-5 text-green-500" />
+                                  {template.name} - Full Day Plan
+                                </DialogTitle>
+                                <DialogDescription>
+                                  Complete meal breakdown with timing and calories
+                                </DialogDescription>
+                              </DialogHeader>
+                              
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                  <div>
+                                    <p className="text-sm font-medium">Daily Calories</p>
+                                    <p className="text-lg font-bold text-green-600">{template.dailyCalories} kcal</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Total Meals</p>
+                                    <p className="text-lg font-bold text-blue-600">{template.totalMeals}/week</p>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold flex items-center gap-2">
+                                    <Calendar className="h-4 w-4" />
+                                    Daily Meal Schedule
+                                  </h4>
+                                  {template.sampleMeals.map((meal, index) => (
+                                    <div key={index} className="flex justify-between items-center p-3 border rounded-lg">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <Clock className="h-3 w-3 text-gray-500" />
+                                          <span className="text-sm font-medium text-blue-600">{meal.time}</span>
+                                        </div>
+                                        <p className="font-medium">{meal.meal}</p>
+                                        <p className="text-xs text-gray-500">{meal.description}</p>
+                                      </div>
+                                      <Badge variant="outline" className="ml-2">
+                                        {meal.calories} cal
+                                      </Badge>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="pt-4 border-t">
+                                  <Button 
+                                    onClick={() => handleUseTemplate(template.id)}
+                                    className="w-full bg-green-500 hover:bg-green-600"
+                                    disabled={isLoading}
+                                  >
+                                    {isLoading ? (
+                                      <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        Creating Plan...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Zap className="mr-2 h-4 w-4" />
+                                        Use This Template
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          
+                          <Button 
+                            onClick={() => handleUseTemplate(template.id)}
+                            size="sm"
+                            className="bg-blue-500 hover:bg-blue-600 flex-1"
+                            disabled={isLoading}
+                          >
+                            {isLoading ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                                Creating...
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="mr-1 h-3 w-3" />
+                                Use Template
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   );
@@ -256,7 +347,7 @@ const DietPlans = () => {
                       <h3 className="text-lg font-semibold">Need Something Custom?</h3>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      Templates not quite right? Create a fully customized diet plan with BMR calculation and personalized preferences.
+                      Templates not quite right? Create a fully customized diet plan with BMR calculation and personalized Indian food preferences.
                     </p>
                     <Button onClick={() => setActiveTab("create")} variant="outline">
                       <Plus className="mr-2 h-4 w-4" />
