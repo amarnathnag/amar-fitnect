@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calculator, Utensils, Zap } from 'lucide-react';
 import { useDietPlans } from '@/hooks/useDietPlans';
 import { useToast } from "@/hooks/use-toast";
+import MealPlanningSection from './MealPlanningSection';
 
 interface DietPlanFormData {
   planName: string;
@@ -24,8 +24,22 @@ interface DietPlanFormData {
   enableTimewisePlan: boolean;
 }
 
+interface MealItem {
+  id: string;
+  name: string;
+  quantity: string;
+  calories: number;
+}
+
+interface DayMeals {
+  morning: MealItem[];
+  afternoon: MealItem[];
+  evening: MealItem[];
+  night: MealItem[];
+}
+
 const EnhancedDietPlanForm = () => {
-  const { createDietPlan } = useDietPlans();
+  const { createDietPlan, addMealToPlan } = useDietPlans();
   const { toast } = useToast();
   const [formData, setFormData] = useState<DietPlanFormData>({
     planName: '',
@@ -41,6 +55,12 @@ const EnhancedDietPlanForm = () => {
   });
   const [calculatedBMR, setCalculatedBMR] = useState<number | null>(null);
   const [recommendedCalories, setRecommendedCalories] = useState<number | null>(null);
+  const [customMeals, setCustomMeals] = useState<DayMeals>({
+    morning: [],
+    afternoon: [],
+    evening: [],
+    night: []
+  });
 
   const healthGoals = [
     { value: 'weight-loss', label: 'Weight Loss' },
@@ -116,6 +136,10 @@ const EnhancedDietPlanForm = () => {
     }));
   };
 
+  const handleMealsChange = (meals: DayMeals) => {
+    setCustomMeals(meals);
+  };
+
   const generateDietPlan = async () => {
     if (!formData.planName || !formData.healthGoal) {
       toast({
@@ -129,6 +153,22 @@ const EnhancedDietPlanForm = () => {
     try {
       const plan = await createDietPlan(formData.planName, formData.healthGoal);
       
+      if (plan && formData.enableTimewisePlan) {
+        // Save custom meals if time-wise plan is enabled and meals are added
+        for (const [mealTime, meals] of Object.entries(customMeals)) {
+          for (const meal of meals) {
+            await addMealToPlan(
+              plan.id,
+              'Monday', // Default to Monday, could be extended to all days
+              mealTime,
+              meal.name,
+              meal.quantity,
+              meal.calories
+            );
+          }
+        }
+      }
+
       if (plan) {
         toast({
           title: "Diet Plan Generated!",
@@ -150,6 +190,12 @@ const EnhancedDietPlanForm = () => {
         });
         setCalculatedBMR(null);
         setRecommendedCalories(null);
+        setCustomMeals({
+          morning: [],
+          afternoon: [],
+          evening: [],
+          night: []
+        });
       }
     } catch (error) {
       console.error('Error generating diet plan:', error);
@@ -162,195 +208,203 @@ const EnhancedDietPlanForm = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Utensils className="h-5 w-5 text-green-500" />
-          Create Custom Diet Plan
-        </CardTitle>
-        <CardDescription>
-          Design a personalized diet plan based on your specific needs and preferences
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Basic Information */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Basic Information</h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="planName">Diet Plan Name *</Label>
-              <Input 
-                id="planName"
-                placeholder="e.g., My Weight Loss Plan"
-                value={formData.planName}
-                onChange={(e) => handleInputChange('planName', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Health Goal *</Label>
-              <Select value={formData.healthGoal} onValueChange={(value) => handleInputChange('healthGoal', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your goal" />
-                </SelectTrigger>
-                <SelectContent>
-                  {healthGoals.map((goal) => (
-                    <SelectItem key={goal.value} value={goal.value}>
-                      {goal.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        {/* Physical Information */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Physical Information</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="age">Age (years)</Label>
-              <Input 
-                id="age"
-                type="number"
-                placeholder="25"
-                value={formData.age}
-                onChange={(e) => handleInputChange('age', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Gender</Label>
-              <Select value={formData.gender} onValueChange={(value) => handleInputChange('gender', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="weight">Weight (kg)</Label>
-              <Input 
-                id="weight"
-                type="number"
-                placeholder="70"
-                value={formData.weight}
-                onChange={(e) => handleInputChange('weight', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="height">Height (cm)</Label>
-              <Input 
-                id="height"
-                type="number"
-                placeholder="170"
-                value={formData.height}
-                onChange={(e) => handleInputChange('height', e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <div className="flex gap-4">
-            <Button 
-              variant="outline" 
-              onClick={calculateBMR}
-              className="flex items-center gap-2"
-            >
-              <Calculator className="h-4 w-4" />
-              Calculate BMR
-            </Button>
-            
-            {calculatedBMR && recommendedCalories && (
-              <div className="flex gap-2">
-                <Badge variant="outline">BMR: {calculatedBMR} cal</Badge>
-                <Badge variant="secondary">Daily: {recommendedCalories} cal</Badge>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Utensils className="h-5 w-5 text-green-500" />
+            Create Custom Diet Plan
+          </CardTitle>
+          <CardDescription>
+            Design a personalized diet plan based on your specific needs and preferences
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Basic Information</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="planName">Diet Plan Name *</Label>
+                <Input 
+                  id="planName"
+                  placeholder="e.g., My Weight Loss Plan"
+                  value={formData.planName}
+                  onChange={(e) => handleInputChange('planName', e.target.value)}
+                />
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Preferences */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Preferences</h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Activity Level</Label>
-              <Select value={formData.activityLevel} onValueChange={(value) => handleInputChange('activityLevel', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select activity level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {activityLevels.map((level) => (
-                    <SelectItem key={level.value} value={level.value}>
-                      {level.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Food Preference</Label>
-              <Select value={formData.foodPreference} onValueChange={(value) => handleInputChange('foodPreference', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select preference" />
-                </SelectTrigger>
-                <SelectContent>
-                  {foodPreferences.map((pref) => (
-                    <SelectItem key={pref.value} value={pref.value}>
-                      {pref.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Budget Level</Label>
-              <Select value={formData.budgetLevel} onValueChange={(value) => handleInputChange('budgetLevel', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select budget" />
-                </SelectTrigger>
-                <SelectContent>
-                  {budgetLevels.map((budget) => (
-                    <SelectItem key={budget.value} value={budget.value}>
-                      {budget.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label>Health Goal *</Label>
+                <Select value={formData.healthGoal} onValueChange={(value) => handleInputChange('healthGoal', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your goal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {healthGoals.map((goal) => (
+                      <SelectItem key={goal.value} value={goal.value}>
+                        {goal.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Time-wise Meal Plan Toggle */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label htmlFor="timewise-toggle">Enable Time-wise Meal Plan</Label>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Generate specific meal times and portions throughout the day
-              </p>
+          {/* Physical Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Physical Information</h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="age">Age (years)</Label>
+                <Input 
+                  id="age"
+                  type="number"
+                  placeholder="25"
+                  value={formData.age}
+                  onChange={(e) => handleInputChange('age', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Gender</Label>
+                <Select value={formData.gender} onValueChange={(value) => handleInputChange('gender', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="weight">Weight (kg)</Label>
+                <Input 
+                  id="weight"
+                  type="number"
+                  placeholder="70"
+                  value={formData.weight}
+                  onChange={(e) => handleInputChange('weight', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="height">Height (cm)</Label>
+                <Input 
+                  id="height"
+                  type="number"
+                  placeholder="170"
+                  value={formData.height}
+                  onChange={(e) => handleInputChange('height', e.target.value)}
+                />
+              </div>
             </div>
-            <Switch
-              id="timewise-toggle"
-              checked={formData.enableTimewisePlan}
-              onCheckedChange={(checked) => handleInputChange('enableTimewisePlan', checked)}
-            />
+            
+            <div className="flex gap-4">
+              <Button 
+                variant="outline" 
+                onClick={calculateBMR}
+                className="flex items-center gap-2"
+              >
+                <Calculator className="h-4 w-4" />
+                Calculate BMR
+              </Button>
+              
+              {calculatedBMR && recommendedCalories && (
+                <div className="flex gap-2">
+                  <Badge variant="outline">BMR: {calculatedBMR} cal</Badge>
+                  <Badge variant="secondary">Daily: {recommendedCalories} cal</Badge>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Generate Button */}
-        <Button 
-          onClick={generateDietPlan}
-          className="w-full bg-green-500 hover:bg-green-600 text-lg py-6"
-          disabled={!formData.planName || !formData.healthGoal}
-        >
-          <Zap className="mr-2 h-5 w-5" />
-          Generate Diet Plan
-        </Button>
-      </CardContent>
-    </Card>
+          {/* Preferences */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Preferences</h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Activity Level</Label>
+                <Select value={formData.activityLevel} onValueChange={(value) => handleInputChange('activityLevel', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select activity level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activityLevels.map((level) => (
+                      <SelectItem key={level.value} value={level.value}>
+                        {level.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Food Preference</Label>
+                <Select value={formData.foodPreference} onValueChange={(value) => handleInputChange('foodPreference', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select preference" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {foodPreferences.map((pref) => (
+                      <SelectItem key={pref.value} value={pref.value}>
+                        {pref.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Budget Level</Label>
+                <Select value={formData.budgetLevel} onValueChange={(value) => handleInputChange('budgetLevel', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select budget" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {budgetLevels.map((budget) => (
+                      <SelectItem key={budget.value} value={budget.value}>
+                        {budget.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Time-wise Meal Plan Toggle */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="timewise-toggle">Enable Time-wise Meal Plan</Label>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Generate specific meal times and portions throughout the day
+                </p>
+              </div>
+              <Switch
+                id="timewise-toggle"
+                checked={formData.enableTimewisePlan}
+                onCheckedChange={(checked) => handleInputChange('enableTimewisePlan', checked)}
+              />
+            </div>
+          </div>
+
+          {/* Generate Button */}
+          <Button 
+            onClick={generateDietPlan}
+            className="w-full bg-green-500 hover:bg-green-600 text-lg py-6"
+            disabled={!formData.planName || !formData.healthGoal}
+          >
+            <Zap className="mr-2 h-5 w-5" />
+            Generate Diet Plan
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Custom Meal Planning Section */}
+      <MealPlanningSection 
+        onMealsChange={handleMealsChange}
+        isEnabled={formData.enableTimewisePlan}
+      />
+    </div>
   );
 };
 
