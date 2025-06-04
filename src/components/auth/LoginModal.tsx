@@ -12,8 +12,10 @@ interface LoginModalProps {
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<string>("login");
+  const [error, setError] = useState<string | null>(null);
 
   const handleSuccess = () => {
+    setError(null);
     onClose();
   };
 
@@ -37,14 +39,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
           
-          {/* Login Form */}
           <TabsContent value="login" className="space-y-4">
-            <LoginForm onSuccess={handleSuccess} />
+            <LoginForm onSuccess={handleSuccess} setError={setError} />
           </TabsContent>
           
-          {/* Signup Form */}
           <TabsContent value="signup" className="space-y-4">
-            <SignupForm onSuccess={handleSuccess} />
+            <SignupForm onSuccess={handleSuccess} setError={setError} />
           </TabsContent>
         </Tabs>
       </DialogContent>

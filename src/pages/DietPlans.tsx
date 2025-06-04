@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -9,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Utensils, Clock, Target, Plus, CheckCircle, Zap, Users, Eye, ChefHat, Calendar } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import EnhancedDietPlanForm from '@/components/diet/EnhancedDietPlanForm';
+import DietPlanDetails from '@/components/diet/DietPlanDetails';
 import { useDietPlans } from '@/hooks/useDietPlans';
 import { dietTemplates } from '@/data/dietTemplates';
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +18,7 @@ const DietPlans = () => {
   const { dietPlans, isLoading, createDietPlan, addMealToPlan } = useDietPlans();
   const { toast } = useToast();
   const [loadingTemplate, setLoadingTemplate] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<{id: string, name: string, goal: string} | null>(null);
 
   const handleUseTemplate = async (templateId: string) => {
     try {
@@ -79,6 +80,10 @@ const DietPlans = () => {
     }
   };
 
+  const handleViewPlanDetails = (plan: {id: string, name: string, goal: string}) => {
+    setSelectedPlan(plan);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
@@ -137,7 +142,16 @@ const DietPlans = () => {
                               <Clock className="h-4 w-4" />
                               Created {new Date(plan.created_at).toLocaleDateString()}
                             </div>
-                            <Button variant="outline" className="w-full">
+                            <Button 
+                              variant="outline" 
+                              className="w-full"
+                              onClick={() => handleViewPlanDetails({
+                                id: plan.id,
+                                name: plan.name,
+                                goal: plan.goal
+                              })}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
                               View Plan Details
                             </Button>
                           </div>
@@ -221,7 +235,6 @@ const DietPlans = () => {
                           {template.totalMeals} pre-planned meals
                         </div>
 
-                        {/* Sample Meals Preview */}
                         <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                           <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
                             <ChefHat className="h-3 w-3" />
@@ -237,7 +250,6 @@ const DietPlans = () => {
                           </div>
                         </div>
 
-                        {/* Action Buttons */}
                         <div className="flex gap-2">
                           <Dialog>
                             <DialogTrigger asChild>
@@ -362,6 +374,17 @@ const DietPlans = () => {
       </main>
       
       <Footer />
+
+      {/* Diet Plan Details Modal */}
+      {selectedPlan && (
+        <DietPlanDetails
+          isOpen={!!selectedPlan}
+          onClose={() => setSelectedPlan(null)}
+          planId={selectedPlan.id}
+          planName={selectedPlan.name}
+          planGoal={selectedPlan.goal}
+        />
+      )}
     </div>
   );
 };
