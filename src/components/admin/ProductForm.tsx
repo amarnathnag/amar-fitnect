@@ -68,7 +68,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess, onCancel 
       const productData = {
         name: formData.name,
         description: formData.description,
-        category: formData.category,
+        category: formData.category as 'food' | 'supplements' | 'fitness_gear' | 'wellness',
         subcategory: formData.subcategory,
         brand: formData.brand,
         price: parseFloat(formData.price),
@@ -82,7 +82,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess, onCancel 
         allergens: formData.allergens.split(',').map(item => item.trim()).filter(Boolean),
         ingredients: formData.ingredients ? JSON.parse(formData.ingredients) : null,
         nutritional_info: formData.nutritional_info ? JSON.parse(formData.nutritional_info) : null,
-        status: 'approved'
+        status: 'active' as 'active' | 'inactive' | 'pending_approval'
       };
 
       let result;
@@ -94,7 +94,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess, onCancel 
       } else {
         result = await supabase
           .from('products')
-          .insert([productData]);
+          .insert(productData);
       }
 
       if (result.error) throw result.error;
@@ -157,14 +157,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSuccess, onCancel 
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="food_beverage">Food & Beverage</SelectItem>
+              <SelectItem value="food">Food</SelectItem>
               <SelectItem value="supplements">Supplements</SelectItem>
-              <SelectItem value="fitness_equipment">Fitness Equipment</SelectItem>
-              <SelectItem value="personal_care">Personal Care</SelectItem>
-              <SelectItem value="medical_devices">Medical Devices</SelectItem>
-              <SelectItem value="organic_foods">Organic Foods</SelectItem>
-              <SelectItem value="baby_care">Baby Care</SelectItem>
-              <SelectItem value="vitamins_minerals">Vitamins & Minerals</SelectItem>
+              <SelectItem value="fitness_gear">Fitness Gear</SelectItem>
+              <SelectItem value="wellness">Wellness</SelectItem>
             </SelectContent>
           </Select>
         </div>

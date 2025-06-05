@@ -32,11 +32,11 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       let query = supabase
         .from('products')
         .select('*')
-        .eq('status', 'approved');
+        .eq('status', 'active');
 
       // Apply filters
       if (options.category) {
-        query = query.eq('category', options.category);
+        query = query.eq('category', options.category as any);
       }
 
       if (options.search) {
@@ -111,7 +111,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       const { data, error } = await supabase
         .from('products')
         .select('category')
-        .eq('status', 'approved');
+        .eq('status', 'active');
 
       if (error) throw error;
 

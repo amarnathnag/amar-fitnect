@@ -42,7 +42,7 @@ const AdminProducts = () => {
     }
   };
 
-  const handleStatusChange = async (productId: string, newStatus: string) => {
+  const handleStatusChange = async (productId: string, newStatus: 'active' | 'inactive' | 'pending_approval') => {
     try {
       const { error } = await supabase
         .from('products')
@@ -94,10 +94,9 @@ const AdminProducts = () => {
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
-      approved: 'default',
+      active: 'default',
       pending_approval: 'secondary',
-      rejected: 'destructive',
-      out_of_stock: 'outline'
+      inactive: 'destructive'
     };
     return <Badge variant={variants[status] as any}>{status.replace('_', ' ')}</Badge>;
   };
@@ -195,7 +194,7 @@ const AdminProducts = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleStatusChange(product.id, 'approved')}
+                          onClick={() => handleStatusChange(product.id, 'active')}
                           className="text-green-600"
                         >
                           <CheckCircle className="h-3 w-3" />
@@ -203,7 +202,7 @@ const AdminProducts = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleStatusChange(product.id, 'rejected')}
+                          onClick={() => handleStatusChange(product.id, 'inactive')}
                           className="text-red-600"
                         >
                           <XCircle className="h-3 w-3" />

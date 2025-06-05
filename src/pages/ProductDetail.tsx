@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -32,7 +31,7 @@ const ProductDetail = () => {
         .from('products')
         .select('*')
         .eq('id', id)
-        .eq('status', 'approved')
+        .eq('status', 'active' as any)
         .single();
 
       if (error) throw error;
