@@ -114,6 +114,10 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({ user, openLoginModal }) => {
           <DropdownMenuItem asChild>
             <NavLink to="/community" className="w-full">Community</NavLink>
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <NavLink to="/marketplace" className="w-full">Health Marketplace</NavLink>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

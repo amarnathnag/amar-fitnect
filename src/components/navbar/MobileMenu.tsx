@@ -3,7 +3,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, Dumbbell, Briefcase } from 'lucide-react';
+import { User, LogOut, Dumbbell, Briefcase, ShoppingBag } from 'lucide-react';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -47,6 +47,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, user, closeMenu }) => {
         </NavLink>
         <NavLink to="/community" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
           Community
+        </NavLink>
+        <NavLink to="/marketplace" onClick={closeMenu} className="flex items-center px-3 py-2 hover:bg-gray-100 rounded-md">
+          <ShoppingBag className="h-4 w-4 mr-2" /> Health Marketplace
         </NavLink>
         <NavLink to="/blog" onClick={closeMenu} className="block px-3 py-2 hover:bg-gray-100 rounded-md">
           Blog
