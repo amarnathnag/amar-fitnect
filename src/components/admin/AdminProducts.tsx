@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +22,7 @@ const AdminProducts = () => {
 
   const fetchProducts = async () => {
     try {
+      // Fetch all products for admin, regardless of status
       const { data, error } = await supabase
         .from('products')
         .select('*')

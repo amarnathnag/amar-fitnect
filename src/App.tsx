@@ -32,6 +32,10 @@ import ProfileSetup from '@/pages/ProfileSetup';
 import NotFound from '@/pages/NotFound';
 import Admin from '@/pages/Admin';
 
+// Marketplace Pages
+import Marketplace from '@/pages/Marketplace';
+import ProductDetail from '@/pages/ProductDetail';
+
 // Gym Section Pages
 import Gyms from '@/pages/Gyms';
 import GymDetail from '@/pages/GymDetail';
@@ -78,6 +82,10 @@ function App() {
                 <Route path="/premium-payment" element={<PremiumPayment />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:postId" element={<Blog />} />
+                
+                {/* Marketplace Routes - Public access */}
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/marketplace/product/:id" element={<ProductDetail />} />
                 
                 {/* Admin Route - Requires Admin Privileges */}
                 <Route path="/admin" element={
