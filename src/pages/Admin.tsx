@@ -9,12 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminGyms from '@/components/admin/AdminGyms';
 import AdminDoctors from '@/components/admin/AdminDoctors';
 import AdminAppointments from '@/components/admin/AdminAppointments';
+import AdminProducts from '@/components/admin/AdminProducts';
 import { Loader2 } from 'lucide-react';
 
 const Admin = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('gyms');
+  const [activeTab, setActiveTab] = useState('products');
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -49,11 +50,16 @@ const Admin = () => {
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="products">Products</TabsTrigger>
               <TabsTrigger value="gyms">Gyms</TabsTrigger>
               <TabsTrigger value="doctors">Doctors</TabsTrigger>
               <TabsTrigger value="appointments">Appointments</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="products" className="space-y-4">
+              <AdminProducts />
+            </TabsContent>
             
             <TabsContent value="gyms" className="space-y-4">
               <AdminGyms />
