@@ -53,15 +53,22 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 
 import './App.css';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
-    <Router>
-      <ThemeProvider attribute="class" defaultTheme="light">
-        <QueryClientProvider client={queryClient}>
-          <LanguageProvider>
-            <AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="light">
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
+          <AuthProvider>
+            <Router>
               <Routes>
                 {/* Public Routes - Anyone can access */}
                 <Route path="/" element={<Index />} />
@@ -168,11 +175,11 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster />
-            </AuthProvider>
-          </LanguageProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </Router>
+            </Router>
+          </AuthProvider>
+        </LanguageProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
