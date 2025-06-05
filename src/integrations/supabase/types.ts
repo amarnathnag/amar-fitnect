@@ -628,6 +628,78 @@ export type Database = {
           },
         ]
       }
+      order_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          order_id: string | null
+          price_per_item: number
+          product_id: string | null
+          quantity: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          price_per_item: number
+          product_id?: string | null
+          quantity: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          price_per_item?: number
+          product_id?: string | null
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          delivery_address: Json | null
+          id: string
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_address?: Json | null
+          id?: string
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          delivery_address?: Json | null
+          id?: string
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       period_tracking: {
         Row: {
           created_at: string
@@ -663,6 +735,157 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          product_id: string | null
+          rating: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          rating: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          rating?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          allergens: string[] | null
+          brand: string
+          category: Database["public"]["Enums"]["product_category"]
+          created_at: string | null
+          description: string | null
+          health_impact_summary: string | null
+          health_score: number | null
+          id: string
+          image_urls: string[] | null
+          ingredients: Json | null
+          is_organic: boolean | null
+          is_vegan: boolean | null
+          is_vegetarian: boolean | null
+          name: string
+          nutritional_info: Json | null
+          price: number
+          review_count: number | null
+          seller_id: string | null
+          status: Database["public"]["Enums"]["product_status"] | null
+          stock_quantity: number | null
+          subcategory: string | null
+          updated_at: string | null
+          user_rating: number | null
+        }
+        Insert: {
+          allergens?: string[] | null
+          brand: string
+          category: Database["public"]["Enums"]["product_category"]
+          created_at?: string | null
+          description?: string | null
+          health_impact_summary?: string | null
+          health_score?: number | null
+          id?: string
+          image_urls?: string[] | null
+          ingredients?: Json | null
+          is_organic?: boolean | null
+          is_vegan?: boolean | null
+          is_vegetarian?: boolean | null
+          name: string
+          nutritional_info?: Json | null
+          price: number
+          review_count?: number | null
+          seller_id?: string | null
+          status?: Database["public"]["Enums"]["product_status"] | null
+          stock_quantity?: number | null
+          subcategory?: string | null
+          updated_at?: string | null
+          user_rating?: number | null
+        }
+        Update: {
+          allergens?: string[] | null
+          brand?: string
+          category?: Database["public"]["Enums"]["product_category"]
+          created_at?: string | null
+          description?: string | null
+          health_impact_summary?: string | null
+          health_score?: number | null
+          id?: string
+          image_urls?: string[] | null
+          ingredients?: Json | null
+          is_organic?: boolean | null
+          is_vegan?: boolean | null
+          is_vegetarian?: boolean | null
+          name?: string
+          nutritional_info?: Json | null
+          price?: number
+          review_count?: number | null
+          seller_id?: string | null
+          status?: Database["public"]["Enums"]["product_status"] | null
+          stock_quantity?: number | null
+          subcategory?: string | null
+          updated_at?: string | null
+          user_rating?: number | null
+        }
+        Relationships: []
+      }
+      shopping_cart: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string | null
+          quantity: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_cart_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_profiles: {
         Row: {
@@ -717,7 +940,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      product_category: "food" | "supplements" | "fitness_gear" | "wellness"
+      product_status: "active" | "inactive" | "pending_approval"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -832,6 +1056,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      product_category: ["food", "supplements", "fitness_gear", "wellness"],
+      product_status: ["active", "inactive", "pending_approval"],
+    },
   },
 } as const
