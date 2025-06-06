@@ -132,7 +132,10 @@ const EditableHealthGoalsCard = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Initial Status</label>
-                  <Select value={newGoalStatus} onValueChange={(value: string) => setNewGoalStatus(value as HealthGoal['status'])}>
+                  <Select 
+                    value={newGoalStatus} 
+                    onValueChange={(value: string) => setNewGoalStatus(value as HealthGoal['status'])}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
