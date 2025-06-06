@@ -22,8 +22,14 @@ const Marketplace = () => {
   const search = searchParams.get('search') || '';
   const sortBy = searchParams.get('sort') || 'health_score';
   
+  console.log('Marketplace loading with params:', { category, search, sortBy });
+  
   const { products, loading, categories } = useProducts({ category, search, sortBy });
   const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
+
+  useEffect(() => {
+    console.log('Marketplace mounted, products loaded:', products.length);
+  }, [products]);
 
   const handleFilterChange = (filters: any) => {
     const newParams = new URLSearchParams(searchParams);
