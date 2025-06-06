@@ -3,7 +3,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, ChevronDown, User, Dumbbell, Briefcase, StethoscopeIcon } from 'lucide-react';
+import { LogOut, ChevronDown, User, Dumbbell, Briefcase, ShoppingBag } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -114,12 +114,13 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({ user, openLoginModal }) => {
           <DropdownMenuItem asChild>
             <NavLink to="/community" className="w-full">Community</NavLink>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <NavLink to="/marketplace" className="w-full">Health Marketplace</NavLink>
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <NavLink to="/marketplace" className="px-3 py-2 hover:text-primary inline-flex items-center">
+        <ShoppingBag className="mr-1 h-4 w-4" />
+        Marketplace
+      </NavLink>
 
       {renderPremiumItems()}
 

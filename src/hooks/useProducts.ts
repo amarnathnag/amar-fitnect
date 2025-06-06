@@ -14,6 +14,57 @@ interface UseProductsOptions {
   isVegan?: boolean;
 }
 
+// Fallback dummy data when Supabase fails
+const dummyProducts = [
+  {
+    id: '1',
+    name: 'Organic Protein Powder',
+    brand: 'HealthyLife',
+    price: 2999,
+    health_score: 9,
+    image_urls: ['/placeholder.svg'],
+    health_impact_summary: 'High protein content supports muscle building and recovery',
+    is_organic: true,
+    is_vegetarian: true,
+    is_vegan: false,
+    stock_quantity: 50,
+    category: 'supplements',
+    subcategory: 'protein'
+  },
+  {
+    id: '2',
+    name: 'Fresh Quinoa',
+    brand: 'OrganicFarms',
+    price: 599,
+    health_score: 8,
+    image_urls: ['/placeholder.svg'],
+    health_impact_summary: 'Complete protein grain with essential amino acids',
+    is_organic: true,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 30,
+    category: 'grains',
+    subcategory: 'whole_grains'
+  },
+  {
+    id: '3',
+    name: 'Vitamin D3 Supplements',
+    brand: 'WellnessPro',
+    price: 899,
+    health_score: 9,
+    image_urls: ['/placeholder.svg'],
+    health_impact_summary: 'Essential for bone health and immune system support',
+    is_organic: false,
+    is_vegetarian: true,
+    is_vegan: false,
+    stock_quantity: 75,
+    category: 'supplements',
+    subcategory: 'vitamins'
+  }
+];
+
+const dummyCategories = ['supplements', 'grains', 'fruits', 'vegetables', 'dairy'];
+
 export const useProducts = (options: UseProductsOptions = {}) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -85,21 +136,25 @@ export const useProducts = (options: UseProductsOptions = {}) => {
 
       if (error) {
         console.error('Error fetching products:', error);
+        // Use dummy data as fallback
+        setProducts(dummyProducts);
         toast({
-          title: "Error",
-          description: "Failed to fetch products",
-          variant: "destructive",
+          title: "Using Demo Data",
+          description: "Showing sample products (database connection issue)",
+          variant: "default",
         });
         return;
       }
 
-      setProducts(data || []);
+      setProducts(data || dummyProducts);
     } catch (error) {
       console.error('Error:', error);
+      // Use dummy data as fallback
+      setProducts(dummyProducts);
       toast({
-        title: "Error",
-        description: "Something went wrong",
-        variant: "destructive",
+        title: "Using Demo Data",
+        description: "Showing sample products",
+        variant: "default",
       });
     } finally {
       setLoading(false);
@@ -113,12 +168,17 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         .select('category')
         .eq('status', 'active');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching categories:', error);
+        setCategories(dummyCategories);
+        return;
+      }
 
       const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
-      setCategories(uniqueCategories);
+      setCategories(uniqueCategories.length > 0 ? uniqueCategories : dummyCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setCategories(dummyCategories);
     }
   };
 
