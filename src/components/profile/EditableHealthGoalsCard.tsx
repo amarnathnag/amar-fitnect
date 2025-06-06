@@ -94,7 +94,7 @@ const EditableHealthGoalsCard = () => {
               <span className="text-sm font-medium">{goal.name}</span>
               <Select 
                 value={goal.status} 
-                onValueChange={(value: HealthGoal['status']) => updateGoalStatus(goal.id, value)}
+                onValueChange={(value: string) => updateGoalStatus(goal.id, value as HealthGoal['status'])}
               >
                 <SelectTrigger className="w-auto">
                   <SelectValue />
@@ -132,7 +132,7 @@ const EditableHealthGoalsCard = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Initial Status</label>
-                  <Select value={newGoalStatus} onValueChange={setNewGoalStatus}>
+                  <Select value={newGoalStatus} onValueChange={(value: string) => setNewGoalStatus(value as HealthGoal['status'])}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
