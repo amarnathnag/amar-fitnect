@@ -3,15 +3,42 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Utensils, Activity, Heart, TrendingUp } from 'lucide-react';
+import { Calendar, Utensils, Activity, Heart, TrendingUp, Save } from 'lucide-react';
 import { useDietPlans } from '@/hooks/useDietPlans';
 import { usePeriodTracking } from '@/hooks/usePeriodTracking';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const HealthDataTab = () => {
   const { dietPlans } = useDietPlans();
-  const { periodData } = usePeriodTracking();
+  const { periodData, savePeriodData, isLoading } = usePeriodTracking();
   const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleSavePeriodData = async () => {
+    if (!periodData) {
+      toast({
+        title: "No Data to Save",
+        description: "Please add period tracking data first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await savePeriodData(periodData);
+      toast({
+        title: "Success",
+        description: "Period tracking data saved to your profile",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save period tracking data",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -99,14 +126,31 @@ const HealthDataTab = () => {
                         </div>
                       </div>
                     )}
+
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="flex-1">
+                        View Period Tracker
+                      </Button>
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        onClick={handleSavePeriodData}
+                        disabled={isLoading}
+                        className="flex items-center gap-1"
+                      >
+                        <Save className="h-3 w-3" />
+                        Save to Profile
+                      </Button>
+                    </div>
                   </>
                 ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No period tracking data recorded yet</p>
+                  <>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No period tracking data recorded yet</p>
+                    <Button variant="outline" size="sm" className="w-full">
+                      Start Period Tracking
+                    </Button>
+                  </>
                 )}
-                
-                <Button variant="outline" size="sm" className="w-full">
-                  View Period Tracker
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -180,6 +224,36 @@ const HealthDataTab = () => {
           </Card>
         )}
       </div>
+
+      {/* Data Summary Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Health Data Summary</CardTitle>
+          <CardDescription>All your tracked health information in one place</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div className="text-lg font-bold">{dietPlans.length}</div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Diet Plans</p>
+            </div>
+            {user?.gender === 'female' && (
+              <div className="text-center p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+                <div className="text-lg font-bold">{periodData?.cycle_length || 28}</div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Avg Cycle</p>
+              </div>
+            )}
+            <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-lg font-bold">12</div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Workouts</p>
+            </div>
+            <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="text-lg font-bold">7</div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Day Streak</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

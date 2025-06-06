@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -22,14 +22,15 @@ const Marketplace = () => {
   const search = searchParams.get('search') || '';
   const sortBy = searchParams.get('sort') || 'health_score';
   
-  console.log('Marketplace loading with params:', { category, search, sortBy });
+  // Memoize the options object to prevent unnecessary re-renders
+  const productOptions = useMemo(() => ({
+    category,
+    search,
+    sortBy
+  }), [category, search, sortBy]);
   
-  const { products, loading, categories } = useProducts({ category, search, sortBy });
+  const { products, loading, categories } = useProducts(productOptions);
   const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
-
-  useEffect(() => {
-    console.log('Marketplace mounted, products loaded:', products.length);
-  }, [products]);
 
   const handleFilterChange = (filters: any) => {
     const newParams = new URLSearchParams(searchParams);
