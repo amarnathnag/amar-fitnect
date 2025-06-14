@@ -18,6 +18,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   currentFilters 
 }) => {
   const handleCategoryChange = (category: string) => {
+    console.log('Category changed to:', category);
     onFilterChange({ 
       ...currentFilters, 
       category: category === 'all' ? '' : category 
@@ -25,10 +26,12 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   const handleSortChange = (sort: string) => {
+    console.log('Sort changed to:', sort);
     onFilterChange({ ...currentFilters, sort });
   };
 
   const handleHealthScoreChange = (values: number[]) => {
+    console.log('Health score range changed to:', values);
     onFilterChange({ 
       ...currentFilters, 
       minHealthScore: values[0],
@@ -37,6 +40,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   const handleDietaryChange = (key: string, checked: boolean) => {
+    console.log(`Dietary filter ${key} changed to:`, checked);
     onFilterChange({ ...currentFilters, [key]: checked });
   };
 
@@ -51,11 +55,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     frozen: 'Frozen & Convenience',
     personal_care: 'Personal Care & Wellness',
     household: 'Household Essentials',
-    supplements: 'Supplements',
-    nuts: 'Nuts & Seeds',
-    vegetables: 'Vegetables',
-    fruits: 'Fruits',
-    seafood: 'Seafood'
+    supplements: 'Health Supplements'
   };
 
   return (
@@ -114,7 +114,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         <CardContent>
           <div className="px-2">
             <Slider
-              defaultValue={[0, 10]}
+              value={[currentFilters.minHealthScore || 0, currentFilters.maxHealthScore || 10]}
               max={10}
               min={0}
               step={1}
@@ -122,8 +122,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               className="w-full"
             />
             <div className="flex justify-between text-sm text-gray-500 mt-2">
-              <span>0</span>
-              <span>10</span>
+              <span>{currentFilters.minHealthScore || 0}</span>
+              <span>{currentFilters.maxHealthScore || 10}</span>
             </div>
           </div>
         </CardContent>

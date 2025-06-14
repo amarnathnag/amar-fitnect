@@ -1,241 +1,199 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Heart, Star, Leaf, Award, ShoppingCart } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ProductCard from './ProductCard';
+import { useCart } from '@/hooks/useCart';
 
 const HealthProductsSection = () => {
-  const healthProducts = [
+  const { addToCart } = useCart();
+
+  const healthSupplements = [
     {
-      id: 1,
-      name: "Organic Whey Protein Isolate",
-      brand: "HealthFit Pro",
-      price: 49.99,
-      rating: 4.8,
-      healthScore: 95,
-      category: "Protein Supplements",
-      benefits: ["Muscle Building", "Post-Workout Recovery", "Weight Management"],
-      organic: true,
-      vegetarian: true,
-      description: "25g of pure protein per serving with all essential amino acids",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=80"
+      id: 'sup001',
+      name: 'Premium Multivitamin Complex',
+      brand: 'VitaLife Pro',
+      price: 89900, // ₹899
+      health_score: 9,
+      image_urls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80"],
+      health_impact_summary: 'Complete daily nutrition with 25 essential vitamins and minerals for optimal health',
+      is_organic: true,
+      is_vegetarian: true,
+      is_vegan: true,
+      stock_quantity: 50,
+      category: 'supplements',
+      subcategory: 'multivitamins',
+      description: 'Premium multivitamin complex with bioavailable forms of essential nutrients. Supports immune function, energy metabolism, and overall wellness.',
+      user_rating: 4.7,
+      review_count: 892
     },
     {
-      id: 2,
-      name: "Advanced Multivitamin Complex",
-      brand: "VitalLife",
-      price: 32.99,
-      rating: 4.6,
-      healthScore: 92,
-      category: "Vitamins & Minerals",
-      benefits: ["Immune Support", "Energy Boost", "Antioxidant Protection"],
-      organic: false,
-      vegetarian: true,
-      description: "Complete daily nutrition with 25+ vitamins and minerals",
-      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80"
+      id: 'sup002',
+      name: 'Omega-3 Fish Oil Capsules',
+      brand: 'PureFish',
+      price: 149900, // ₹1499
+      health_score: 9,
+      image_urls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80"],
+      health_impact_summary: 'High-potency EPA/DHA for heart health, brain function, and inflammation support',
+      is_organic: false,
+      is_vegetarian: false,
+      is_vegan: false,
+      stock_quantity: 35,
+      category: 'supplements',
+      subcategory: 'omega_fatty_acids',
+      description: 'Premium fish oil with high concentration of EPA and DHA. Molecularly distilled for purity and potency.',
+      user_rating: 4.8,
+      review_count: 567
     },
     {
-      id: 3,
-      name: "Premium Omega-3 Fish Oil",
-      brand: "PureHealth",
-      price: 28.99,
-      rating: 4.7,
-      healthScore: 89,
-      category: "Essential Fatty Acids",
-      benefits: ["Heart Health", "Brain Function", "Joint Support"],
-      organic: true,
-      vegetarian: false,
-      description: "1000mg EPA/DHA per serving from wild-caught fish",
-      image: "https://plus.unsplash.com/premium_photo-1675798831631-f8238cec7632?auto=format&fit=crop&w=400&q=80"
+      id: 'sup003',
+      name: 'Plant-Based Protein Powder',
+      brand: 'GreenFuel',
+      price: 249900, // ₹2499
+      health_score: 8,
+      image_urls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80"],
+      health_impact_summary: 'Complete amino acid profile from pea, hemp, and rice proteins for muscle building',
+      is_organic: true,
+      is_vegetarian: true,
+      is_vegan: true,
+      stock_quantity: 42,
+      category: 'supplements',
+      subcategory: 'protein_powders',
+      description: 'Organic plant-based protein blend with all essential amino acids. Perfect for post-workout recovery.',
+      user_rating: 4.6,
+      review_count: 423
     },
     {
-      id: 4,
-      name: "50 Billion Probiotic Complex",
-      brand: "GutWell",
-      price: 38.99,
-      rating: 4.5,
-      healthScore: 91,
-      category: "Digestive Health",
-      benefits: ["Digestive Support", "Gut Health", "Immune Function"],
-      organic: true,
-      vegetarian: true,
-      description: "Multi-strain probiotics for optimal digestive wellness",
-      image: "https://images.unsplash.com/photo-1607619056574-7d8d3ee536b2?auto=format&fit=crop&w=400&q=80"
+      id: 'sup004',
+      name: 'Vitamin D3 + K2 Complex',
+      brand: 'SunVitamin',
+      price: 79900, // ₹799
+      health_score: 9,
+      image_urls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80"],
+      health_impact_summary: 'Bone health support with optimal calcium absorption and utilization',
+      is_organic: false,
+      is_vegetarian: true,
+      is_vegan: true,
+      stock_quantity: 67,
+      category: 'supplements',
+      subcategory: 'vitamins',
+      description: 'High-potency Vitamin D3 paired with K2 for enhanced calcium absorption and bone health.',
+      user_rating: 4.5,
+      review_count: 234
     },
     {
-      id: 5,
-      name: "Hydrolyzed Collagen Peptides",
-      brand: "BeautyBoost",
-      price: 42.99,
-      rating: 4.4,
-      healthScore: 86,
-      category: "Beauty & Wellness",
-      benefits: ["Skin Health", "Joint Support", "Hair & Nails"],
-      organic: false,
-      vegetarian: false,
-      description: "Type I & III collagen for youthful skin and strong joints",
-      image: "https://images.unsplash.com/photo-1628882799745-922b9ff99a19?auto=format&fit=crop&w=400&q=80"
+      id: 'sup005',
+      name: 'Probiotic Complex 50 Billion CFU',
+      brand: 'GutHealth Pro',
+      price: 119900, // ₹1199
+      health_score: 9,
+      image_urls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80"],
+      health_impact_summary: 'Advanced probiotic formula for digestive health and immune system support',
+      is_organic: true,
+      is_vegetarian: true,
+      is_vegan: true,
+      stock_quantity: 28,
+      category: 'supplements',
+      subcategory: 'probiotics',
+      description: '15 probiotic strains with 50 billion CFU for comprehensive digestive and immune support.',
+      user_rating: 4.7,
+      review_count: 678
     },
     {
-      id: 6,
-      name: "Organic Green Tea Extract",
-      brand: "NaturePure",
-      price: 24.99,
-      rating: 4.6,
-      healthScore: 88,
-      category: "Herbal Supplements",
-      benefits: ["Antioxidants", "Weight Management", "Energy"],
-      organic: true,
-      vegetarian: true,
-      description: "Standardized EGCG content for maximum antioxidant benefits",
-      image: "https://images.unsplash.com/photo-1597318181353-54b6d3910071?auto=format&fit=crop&w=400&q=80"
+      id: 'sup006',
+      name: 'Ashwagandha Root Extract',
+      brand: 'AdaptaHerb',
+      price: 99900, // ₹999
+      health_score: 8,
+      image_urls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80"],
+      health_impact_summary: 'Adaptogenic herb for stress relief, energy, and hormonal balance',
+      is_organic: true,
+      is_vegetarian: true,
+      is_vegan: true,
+      stock_quantity: 45,
+      category: 'supplements',
+      subcategory: 'adaptogens',
+      description: 'Standardized ashwagandha root extract for stress management and overall vitality.',
+      user_rating: 4.4,
+      review_count: 389
     },
     {
-      id: 7,
-      name: "Magnesium Glycinate 400mg",
-      brand: "MineralsPlus",
-      price: 26.99,
-      rating: 4.3,
-      healthScore: 85,
-      category: "Minerals",
-      benefits: ["Sleep Support", "Muscle Function", "Stress Relief"],
-      organic: false,
-      vegetarian: true,
-      description: "High-absorption magnesium for better sleep and recovery",
-      image: "https://images.unsplash.com/photo-1630526724344-935b018a1a38?auto=format&fit=crop&w=400&q=80"
+      id: 'sup007',
+      name: 'Magnesium Glycinate 400mg',
+      brand: 'MineralMax',
+      price: 69900, // ₹699
+      health_score: 8,
+      image_urls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80"],
+      health_impact_summary: 'Highly bioavailable magnesium for muscle function, sleep, and relaxation',
+      is_organic: false,
+      is_vegetarian: true,
+      is_vegan: true,
+      stock_quantity: 53,
+      category: 'supplements',
+      subcategory: 'minerals',
+      description: 'Chelated magnesium glycinate for superior absorption and muscle relaxation.',
+      user_rating: 4.6,
+      review_count: 445
     },
     {
-      id: 8,
-      name: "Turmeric Curcumin with BioPerine",
-      brand: "HerbalWise",
-      price: 31.99,
-      rating: 4.7,
-      healthScore: 93,
-      category: "Anti-Inflammatory",
-      benefits: ["Anti-Inflammatory", "Joint Health", "Antioxidant"],
-      organic: true,
-      vegetarian: true,
-      description: "95% curcuminoids with black pepper for enhanced absorption",
-      image: "https://images.unsplash.com/photo-1552089123-2d26226fc2b7?auto=format&fit=crop&w=400&q=80"
-    },
-    {
-      id: 9,
-      name: "Plant-Based Protein Blend",
-      brand: "VeganPower",
-      price: 44.99,
-      rating: 4.5,
-      healthScore: 87,
-      category: "Plant Protein",
-      benefits: ["Muscle Building", "Vegan Friendly", "Digestive Health"],
-      organic: true,
-      vegetarian: true,
-      description: "Pea, hemp, and rice protein blend with digestive enzymes",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=80"
-    },
-    {
-      id: 10,
-      name: "Vitamin D3 + K2 Complex",
-      brand: "BoneHealth",
-      price: 29.99,
-      rating: 4.6,
-      healthScore: 90,
-      category: "Bone Health",
-      benefits: ["Bone Strength", "Immune Support", "Calcium Absorption"],
-      organic: false,
-      vegetarian: true,
-      description: "5000 IU D3 with K2 for optimal bone and cardiovascular health",
-      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80"
+      id: 'sup008',
+      name: 'Turmeric Curcumin with BioPerine',
+      brand: 'GoldenRoot',
+      price: 89900, // ₹899
+      health_score: 9,
+      image_urls: ["https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80"],
+      health_impact_summary: 'Powerful anti-inflammatory support with enhanced absorption',
+      is_organic: true,
+      is_vegetarian: true,
+      is_vegan: true,
+      stock_quantity: 37,
+      category: 'supplements',
+      subcategory: 'anti_inflammatory',
+      description: 'Standardized turmeric extract with black pepper for maximum curcumin absorption.',
+      user_rating: 4.5,
+      review_count: 512
     }
   ];
 
-  const getHealthScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600 bg-green-100";
-    if (score >= 80) return "text-yellow-600 bg-yellow-100";
-    return "text-orange-600 bg-orange-100";
-  };
-
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold mb-2">Premium Health Supplements</h2>
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold mb-2">Premium Health Supplements</h2>
         <p className="text-gray-600 dark:text-gray-300">
-          Discover scientifically-backed supplements with AI-powered health insights and detailed nutritional information
+          Scientifically-backed supplements for optimal health and wellness
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {healthProducts.map((product) => (
-          <Card key={product.id} className="hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-            <CardHeader className="pb-3">
-              <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg mb-3 overflow-hidden">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-200" 
-                />
-              </div>
-              <CardTitle className="text-lg line-clamp-2">{product.name}</CardTitle>
-              <CardDescription className="font-medium">{product.brand}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {product.description && (
-                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                  {product.description}
-                </p>
-              )}
-
-              <div className="flex justify-between items-center">
-                <span className="text-2xl font-bold text-primary">${product.price}</span>
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-medium">{product.rating}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="text-xs">
-                  {product.category}
-                </Badge>
-                <Badge className={`text-xs font-semibold ${getHealthScoreColor(product.healthScore)}`}>
-                  Health Score: {product.healthScore}
-                </Badge>
-              </div>
-
-              <div className="flex flex-wrap gap-1">
-                {product.organic && (
-                  <Badge variant="secondary" className="text-xs">
-                    <Leaf className="h-3 w-3 mr-1" />
-                    Organic
-                  </Badge>
-                )}
-                {product.vegetarian && (
-                  <Badge variant="secondary" className="text-xs">
-                    <Award className="h-3 w-3 mr-1" />
-                    Vegetarian
-                  </Badge>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Key Benefits:</p>
-                <div className="flex flex-wrap gap-1">
-                  {product.benefits.map((benefit) => (
-                    <Badge key={benefit} variant="outline" className="text-xs">
-                      {benefit}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <Button className="w-full" size="sm">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Add to Cart
-              </Button>
-            </CardContent>
-          </Card>
+        {healthSupplements.map((supplement) => (
+          <ProductCard 
+            key={supplement.id}
+            product={supplement}
+            onAddToCart={() => addToCart(supplement)}
+          />
         ))}
       </div>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Why Choose Our Health Supplements?</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <h4 className="font-semibold mb-2">Third-Party Tested</h4>
+              <p className="text-sm text-gray-600">All supplements are tested for purity and potency by independent laboratories.</p>
+            </div>
+            <div className="text-center">
+              <h4 className="font-semibold mb-2">Science-Backed</h4>
+              <p className="text-sm text-gray-600">Formulations based on peer-reviewed research and clinical studies.</p>
+            </div>
+            <div className="text-center">
+              <h4 className="font-semibold mb-2">Premium Quality</h4>
+              <p className="text-sm text-gray-600">Made with high-quality ingredients and manufactured in certified facilities.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

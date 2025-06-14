@@ -24,26 +24,39 @@ const Marketplace = () => {
   const category = searchParams.get('category') || '';
   const search = searchParams.get('search') || '';
   const sortBy = searchParams.get('sort') || 'health_score';
+  const minHealthScore = searchParams.get('minHealthScore') ? Number(searchParams.get('minHealthScore')) : undefined;
+  const maxHealthScore = searchParams.get('maxHealthScore') ? Number(searchParams.get('maxHealthScore')) : undefined;
+  const isOrganic = searchParams.get('isOrganic') === 'true';
+  const isVegetarian = searchParams.get('isVegetarian') === 'true';
+  const isVegan = searchParams.get('isVegan') === 'true';
   
   // Memoize the options object to prevent unnecessary re-renders
   const productOptions = useMemo(() => ({
-    category,
+    category: category === 'food' ? '' : category, // Fix 'food' category issue
     search,
-    sortBy
-  }), [category, search, sortBy]);
+    sortBy,
+    minHealthScore,
+    maxHealthScore,
+    isOrganic,
+    isVegetarian,
+    isVegan
+  }), [category, search, sortBy, minHealthScore, maxHealthScore, isOrganic, isVegetarian, isVegan]);
   
   const { products, loading, categories } = useProducts(productOptions);
   const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
 
   const handleFilterChange = (filters: any) => {
+    console.log('Filter change:', filters);
     const newParams = new URLSearchParams(searchParams);
+    
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
+      if (value !== undefined && value !== null && value !== '' && value !== false) {
         newParams.set(key, value as string);
       } else {
         newParams.delete(key);
       }
     });
+    
     setSearchParams(newParams);
   };
 
@@ -71,7 +84,19 @@ const Marketplace = () => {
     spices: 'Organic spices and condiments to enhance flavor and health',
     frozen: 'Convenient frozen foods that retain nutritional value',
     personal_care: 'Natural personal care products for health and wellness',
-    household: 'Eco-friendly household essentials for sustainable living'
+    household: 'Eco-friendly household essentials for sustainable living',
+    supplements: 'Premium vitamins and supplements for optimal health'
+  };
+
+  // Get current filters for display
+  const currentFilters = {
+    category,
+    sort: sortBy,
+    minHealthScore,
+    maxHealthScore,
+    isOrganic,
+    isVegetarian,
+    isVegan
   };
 
   return (
@@ -83,7 +108,7 @@ const Marketplace = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-4">AmarHealth Marketplace</h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Discover 100+ healthy products with AI-powered health insights across 10 categories
+              Discover 100+ healthy products with AI-powered health insights across 10+ categories
             </p>
           </div>
 
@@ -131,10 +156,7 @@ const Marketplace = () => {
                     <ProductFilters 
                       categories={categories}
                       onFilterChange={handleFilterChange}
-                      currentFilters={{
-                        category,
-                        sort: sortBy
-                      }}
+                      currentFilters={currentFilters}
                     />
                   </SheetContent>
                 </Sheet>
@@ -145,10 +167,7 @@ const Marketplace = () => {
                   <ProductFilters 
                     categories={categories}
                     onFilterChange={handleFilterChange}
-                    currentFilters={{
-                      category,
-                      sort: sortBy
-                    }}
+                    currentFilters={currentFilters}
                   />
                 </div>
 

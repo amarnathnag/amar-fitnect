@@ -65,6 +65,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     return (price / 100).toFixed(2);
   };
 
+  const handleAddToCartClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('Adding to cart:', product.name);
+    onAddToCart();
+  };
+
   return (
     <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] h-full flex flex-col">
       <CardContent className="p-4 flex-grow" onClick={handleCardClick}>
@@ -143,10 +149,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       
       <CardFooter className="p-4 pt-0">
         <Button 
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddToCart();
-          }}
+          onClick={handleAddToCartClick}
           disabled={product.stock_quantity === 0}
           className="w-full"
           variant={product.stock_quantity === 0 ? "secondary" : "default"}
