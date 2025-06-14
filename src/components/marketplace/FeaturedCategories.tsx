@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Milk, Bread, Droplet, Wheat, Apple, Leaf, Package, Heart } from 'lucide-react';
+import { ArrowRight, Milk, Cookie, Droplet, Wheat, Apple, Leaf, Package, Heart } from 'lucide-react';
 
 interface FeaturedCategoriesProps {
   onCategorySelect: (category: string) => void;
@@ -24,7 +23,7 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
       id: 'bakery',
       name: 'Bakery & Breads',
       description: 'Wholesome breads, cookies, and baked goods',
-      icon: <Bread className="h-8 w-8" />,
+      icon: <Cookie className="h-8 w-8" />,
       gradient: 'from-amber-400 to-orange-300',
       productCount: '30+ Products',
       featured: ['Whole Wheat Bread', 'Multigrain Cookies', 'Sourdough']
