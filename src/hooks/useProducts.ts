@@ -57,7 +57,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           .select('*')
           .eq('status', 'active');
 
-        // Apply category filter
+        // Apply category filter - handle it as a simple string comparison
         if (options.category && options.category !== 'all' && options.category !== 'food') {
           query = query.eq('category', options.category);
         }
