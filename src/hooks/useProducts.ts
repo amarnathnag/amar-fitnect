@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { productCategories } from '@/data/productCategories';
+import { sampleProducts } from '@/data/sampleProducts';
 
 interface Product {
   id: string;
@@ -21,6 +22,13 @@ interface Product {
   description?: string;
   user_rating?: number;
   review_count?: number;
+  quantity_options?: Array<{
+    value: number;
+    unit: string;
+    price: number;
+  }>;
+  warnings?: string[];
+  allergens?: string[];
 }
 
 interface UseProductsOptions {
@@ -34,7 +42,6 @@ interface UseProductsOptions {
   isVegan?: boolean;
 }
 
-// Map our application categories to database enum values
 const categoryToDbMapping: Record<string, 'supplements' | 'food' | 'fitness_gear' | 'wellness'> = {
   'dairy': 'food',
   'bakery': 'food',
@@ -44,6 +51,9 @@ const categoryToDbMapping: Record<string, 'supplements' | 'food' | 'fitness_gear
   'oils': 'food',
   'spices': 'food',
   'frozen': 'food',
+  'protein': 'food',
+  'breakfast': 'food',
+  'sweeteners': 'food',
   'personal_care': 'wellness',
   'household': 'wellness',
   'supplements': 'supplements'
@@ -79,15 +89,12 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           console.log('Category filter:', options.category, 'DB Category:', dbCategory);
           
           if (dbCategory) {
-            // If we have a mapping, filter by the database category enum
             query = query.eq('category', dbCategory);
           } else {
-            // For direct database enum values or subcategory filtering
             const enumCategories = ['supplements', 'food', 'fitness_gear', 'wellness'];
             if (enumCategories.includes(options.category)) {
               query = query.eq('category', options.category as 'supplements' | 'food' | 'fitness_gear' | 'wellness');
             } else {
-              // Try filtering by subcategory
               query = query.eq('subcategory', options.category);
             }
           }
@@ -147,20 +154,68 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         }
 
         console.log('Fetched products from Supabase:', data?.length || 0, 'products');
-        console.log('Sample product data:', data?.[0]);
+
+        // If no products in database, use sample data for demo
+        let productsToUse = data || [];
+        
+        if (productsToUse.length === 0) {
+          console.log('No products in database, using sample data');
+          productsToUse = sampleProducts.filter(product => {
+            // Apply the same filters to sample data
+            if (options.category && options.category !== 'all' && options.category !== product.subcategory) {
+              return false;
+            }
+            if (options.search) {
+              const searchLower = options.search.toLowerCase();
+              if (!product.name.toLowerCase().includes(searchLower) && 
+                  !product.brand.toLowerCase().includes(searchLower) &&
+                  !product.description?.toLowerCase().includes(searchLower)) {
+                return false;
+              }
+            }
+            if (options.minHealthScore && product.health_score < options.minHealthScore) {
+              return false;
+            }
+            if (options.maxHealthScore && product.health_score > options.maxHealthScore) {
+              return false;
+            }
+            if (options.isOrganic && !product.is_organic) {
+              return false;
+            }
+            if (options.isVegetarian && !product.is_vegetarian) {
+              return false;
+            }
+            if (options.isVegan && !product.is_vegan) {
+              return false;
+            }
+            return true;
+          });
+
+          // Apply sorting to sample data
+          switch (sortBy) {
+            case 'price_low':
+              productsToUse.sort((a, b) => a.price - b.price);
+              break;
+            case 'price_high':
+              productsToUse.sort((a, b) => b.price - a.price);
+              break;
+            case 'name':
+              productsToUse.sort((a, b) => a.name.localeCompare(b.name));
+              break;
+            default:
+              productsToUse.sort((a, b) => b.health_score - a.health_score);
+          }
+        }
 
         if (isMounted) {
-          setProducts(data || []);
+          setProducts(productsToUse);
         }
       } catch (error) {
         console.error('Error fetching products:', error);
         if (isMounted) {
-          toast({
-            title: "Error",
-            description: "Failed to fetch products",
-            variant: "destructive",
-          });
-          setProducts([]);
+          // On error, fall back to sample data
+          console.log('Error fetching from database, using sample data as fallback');
+          setProducts(sampleProducts);
         }
       } finally {
         if (isMounted) {
@@ -184,7 +239,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   }, [options.category, options.search, options.sortBy, options.minHealthScore, options.maxHealthScore, options.isOrganic, options.isVegetarian, options.isVegan, toast]);
 
   const refetch = () => {
-    // Trigger re-fetch by updating a dependency - we can just call the effect again
     setLoading(true);
   };
 

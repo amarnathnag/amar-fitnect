@@ -1,28 +1,28 @@
 
 export const productCategories = [
-  'dairy', 
-  'bakery', 
-  'beverages', 
-  'snacks', 
-  'grains', 
-  'oils', 
-  'spices', 
-  'frozen', 
-  'personal_care', 
-  'household', 
-  'supplements'
+  'all',
+  'dairy',
+  'bakery',
+  'oils',
+  'grains',
+  'protein',
+  'breakfast',
+  'sweeteners',
+  'organic',
+  'vegan',
+  'premium'
 ];
 
-export const categoryLabels: Record<string, string> = {
+export const categoryDisplayNames: Record<string, string> = {
+  all: 'All Products',
   dairy: 'Dairy & Alternatives',
   bakery: 'Bakery & Breads',
-  beverages: 'Beverages',
-  snacks: 'Snacks & Health Bars',
-  grains: 'Cereals & Grains',
-  oils: 'Oils & Fats',
-  spices: 'Spices & Condiments',
-  frozen: 'Frozen & Convenience',
-  personal_care: 'Personal Care & Wellness',
-  household: 'Household Essentials',
-  supplements: 'Health Supplements'
+  oils: 'Healthy Oils',
+  grains: 'Grains & Cereals',
+  protein: 'Protein Sources',
+  breakfast: 'Breakfast & Cereals',
+  sweeteners: 'Natural Sweeteners',
+  organic: 'Organic Products',
+  vegan: 'Vegan Products',
+  premium: 'Premium Selection'
 };
