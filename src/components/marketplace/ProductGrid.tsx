@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ProductCard from './ProductCard';
+import EnhancedProductCard from './EnhancedProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Product {
@@ -17,12 +17,19 @@ interface Product {
   stock_quantity: number;
   category: string;
   subcategory: string;
+  quantity_options?: Array<{
+    value: number;
+    unit: string;
+    price: number;
+  }>;
+  warnings?: string[];
+  allergens?: string[];
 }
 
 interface ProductGridProps {
   products: Product[];
   loading: boolean;
-  onAddToCart: (product: Product) => void;
+  onAddToCart: (product: Product, quantityOption?: any) => void;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products, loading, onAddToCart }) => {
@@ -55,10 +62,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, loading, onAddToCar
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => (
-        <ProductCard 
+        <EnhancedProductCard 
           key={product.id}
           product={product}
-          onAddToCart={() => onAddToCart(product)}
+          onAddToCart={onAddToCart}
         />
       ))}
     </div>

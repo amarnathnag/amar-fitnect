@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedProductForm from './EnhancedProductForm';
 import WorkflowDashboard from './WorkflowDashboard';
+import SampleDataSeeder from './SampleDataSeeder';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -161,9 +161,10 @@ const AdminProducts = () => {
 
   return (
     <Tabs defaultValue="products" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="products">Products Management</TabsTrigger>
         <TabsTrigger value="workflow">Workflow Dashboard</TabsTrigger>
+        <TabsTrigger value="sample-data">Sample Data</TabsTrigger>
       </TabsList>
 
       <TabsContent value="products">
@@ -334,6 +335,10 @@ const AdminProducts = () => {
 
       <TabsContent value="workflow">
         <WorkflowDashboard />
+      </TabsContent>
+
+      <TabsContent value="sample-data">
+        <SampleDataSeeder />
       </TabsContent>
     </Tabs>
   );

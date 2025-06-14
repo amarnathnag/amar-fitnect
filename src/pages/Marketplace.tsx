@@ -60,15 +60,32 @@ const Marketplace = () => {
     setSearchParams(newParams);
   };
 
+  // Enhanced add to cart with quantity support
+  const handleAddToCart = (product: any, quantityOption?: any) => {
+    if (quantityOption) {
+      // Create a modified product with the selected quantity and price
+      const modifiedProduct = {
+        ...product,
+        price: quantityOption.price,
+        quantity_selected: quantityOption.value,
+        unit_selected: quantityOption.unit
+      };
+      addToCart(modifiedProduct);
+    } else {
+      addToCart(product);
+    }
+  };
+
   // Group products by category for featured sections
   const productsByCategory = useMemo(() => {
     const grouped: Record<string, any[]> = {};
     products.forEach(product => {
-      if (product.category) {
-        if (!grouped[product.category]) {
-          grouped[product.category] = [];
+      const cat = product.subcategory || product.category;
+      if (cat) {
+        if (!grouped[cat]) {
+          grouped[cat] = [];
         }
-        grouped[product.category].push(product);
+        grouped[cat].push(product);
       }
     });
     return grouped;
@@ -85,7 +102,10 @@ const Marketplace = () => {
     frozen: 'Convenient frozen foods that retain nutritional value',
     personal_care: 'Natural personal care products for health and wellness',
     household: 'Eco-friendly household essentials for sustainable living',
-    supplements: 'Premium vitamins and supplements for optimal health'
+    supplements: 'Premium vitamins and supplements for optimal health',
+    protein: 'High-quality protein sources for fitness and nutrition',
+    breakfast: 'Nutritious breakfast options to start your day right',
+    sweeteners: 'Natural sweeteners and healthy sugar alternatives'
   };
 
   // Get current filters for display - make sure to map correctly
@@ -175,7 +195,7 @@ const Marketplace = () => {
                   <ProductGrid 
                     products={products}
                     loading={loading}
-                    onAddToCart={addToCart}
+                    onAddToCart={handleAddToCart}
                   />
                 </div>
               </div>
@@ -195,7 +215,7 @@ const Marketplace = () => {
                   title={categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1) + ' & Alternatives'}
                   description={categoryDescriptions[categoryKey] || 'High-quality products for your health and wellness'}
                   products={categoryProducts}
-                  onAddToCart={addToCart}
+                  onAddToCart={handleAddToCart}
                 />
               ))}
             </TabsContent>
