@@ -7,13 +7,13 @@ import ProductGrid from '@/components/marketplace/ProductGrid';
 import ProductFilters from '@/components/marketplace/ProductFilters';
 import ProductSearch from '@/components/marketplace/ProductSearch';
 import CartSidebar from '@/components/marketplace/CartSidebar';
-import HealthProductsSection from '@/components/marketplace/HealthProductsSection';
-import CategorySection from '@/components/marketplace/CategorySection';
+import CategoryHero from '@/components/marketplace/CategoryHero';
+import FeaturedCategories from '@/components/marketplace/FeaturedCategories';
 import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingCart, Filter, Heart, Sparkles, Database } from 'lucide-react';
+import { ShoppingCart, Filter, Grid3X3, Sparkles, Database } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -31,9 +31,8 @@ const Marketplace = () => {
   const isVegetarian = searchParams.get('isVegetarian') === 'true';
   const isVegan = searchParams.get('isVegan') === 'true';
   
-  // Memoize the options object to prevent unnecessary re-renders
   const productOptions = useMemo(() => ({
-    category: category === 'food' ? '' : category, // Fix 'food' category issue
+    category: category === 'food' ? '' : category,
     search,
     sortBy,
     minHealthScore,
@@ -46,11 +45,9 @@ const Marketplace = () => {
   const { products, loading, categories } = useProducts(productOptions);
   const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
 
-  // Show alert if no products are found and database might be empty
   const showDataAlert = !loading && products.length === 0 && !search && !category;
 
   const handleFilterChange = (filters: any) => {
-    console.log('Filter change:', filters);
     const newParams = new URLSearchParams(searchParams);
     
     Object.entries(filters).forEach(([key, value]) => {
@@ -64,10 +61,8 @@ const Marketplace = () => {
     setSearchParams(newParams);
   };
 
-  // Enhanced add to cart with quantity support
   const handleAddToCart = (product: any, quantityOption?: any) => {
     if (quantityOption) {
-      // Create a modified product with the selected quantity and price
       const modifiedProduct = {
         ...product,
         price: quantityOption.price,
@@ -80,39 +75,6 @@ const Marketplace = () => {
     }
   };
 
-  // Group products by category for featured sections
-  const productsByCategory = useMemo(() => {
-    const grouped: Record<string, any[]> = {};
-    products.forEach(product => {
-      const cat = product.subcategory || product.category;
-      if (cat) {
-        if (!grouped[cat]) {
-          grouped[cat] = [];
-        }
-        grouped[cat].push(product);
-      }
-    });
-    return grouped;
-  }, [products]);
-
-  const categoryDescriptions: Record<string, string> = {
-    dairy: 'Fresh dairy products and plant-based alternatives for daily nutrition',
-    bakery: 'Wholesome breads, cookies, and baked goods for every meal',
-    beverages: 'Healthy drinks, teas, and natural beverages to stay hydrated',
-    snacks: 'Nutritious snacks and protein bars for energy on-the-go',
-    grains: 'Whole grains, cereals, and superfoods for sustained energy',
-    oils: 'Premium cooking oils and healthy fats for heart-healthy cooking',
-    spices: 'Organic spices and condiments to enhance flavor and health',
-    frozen: 'Convenient frozen foods that retain nutritional value',
-    personal_care: 'Natural personal care products for health and wellness',
-    household: 'Eco-friendly household essentials for sustainable living',
-    supplements: 'Premium vitamins and supplements for optimal health',
-    protein: 'High-quality protein sources for fitness and nutrition',
-    breakfast: 'Nutritious breakfast options to start your day right',
-    sweeteners: 'Natural sweeteners and healthy sugar alternatives'
-  };
-
-  // Get current filters for display - make sure to map correctly
   const currentFilters = {
     category,
     sortBy,
@@ -124,69 +86,70 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <NavBar />
       
-      <main className="flex-grow py-8">
-        <div className="container-custom">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-4">AmarHealth Marketplace</h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Discover 100+ healthy products with AI-powered health insights across 10+ categories
-            </p>
-          </div>
-
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <CategoryHero />
+        
+        <div className="container-custom py-8">
           {showDataAlert && (
-            <Alert className="mb-6">
-              <Database className="h-4 w-4" />
-              <AlertDescription>
+            <Alert className="mb-8 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20">
+              <Database className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800 dark:text-amber-200">
                 No products found in the database. You may need to seed sample data first. 
                 Go to Admin panel to add products or use the Sample Data Seeder.
               </AlertDescription>
             </Alert>
           )}
 
-          <Tabs defaultValue="all-products" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <TabsList>
-                <TabsTrigger value="all-products">All Products</TabsTrigger>
-                <TabsTrigger value="featured-categories" className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  Featured Categories
+          <Tabs defaultValue="browse" className="space-y-8">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+              <TabsList className="grid w-full lg:w-auto grid-cols-2 bg-white/80 backdrop-blur-sm border border-gray-200 dark:bg-gray-800/80 dark:border-gray-700">
+                <TabsTrigger value="browse" className="flex items-center gap-2 data-[state=active]:bg-green-100 data-[state=active]:text-green-700">
+                  <Grid3X3 className="h-4 w-4" />
+                  Browse Products
                 </TabsTrigger>
-                <TabsTrigger value="health-supplements" className="flex items-center gap-2">
-                  <Heart className="h-4 w-4" />
-                  Health Supplements
+                <TabsTrigger value="categories" className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">
+                  <Sparkles className="h-4 w-4" />
+                  Categories
                 </TabsTrigger>
               </TabsList>
 
               <Button 
                 variant="outline" 
                 onClick={() => setIsCartOpen(true)}
-                className="relative"
+                className="relative bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white dark:bg-gray-800/80 dark:border-gray-700 dark:hover:bg-gray-800"
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Cart ({cartCount})
+                Cart {cartCount > 0 && (
+                  <span className="ml-1 bg-green-500 text-white text-xs rounded-full px-2 py-0.5">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </div>
 
-            <TabsContent value="all-products" className="space-y-6">
-              <div className="mb-6">
+            <TabsContent value="browse" className="space-y-6">
+              {/* Search Bar */}
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 dark:bg-gray-800/80 dark:border-gray-700">
                 <ProductSearch 
                   onSearch={(query) => handleFilterChange({ search: query })}
                   initialValue={search}
                 />
               </div>
 
-              <div className="flex justify-between items-center mb-6">
+              {/* Filters Toggle for Mobile */}
+              <div className="lg:hidden">
                 <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
                   <SheetTrigger asChild>
-                    <Button variant="outline" className="md:hidden">
+                    <Button variant="outline" className="w-full bg-white/80 backdrop-blur-sm">
                       <Filter className="h-4 w-4 mr-2" />
-                      Filters
+                      Filters & Sort
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-80">
+                  <SheetContent side="left" className="w-80 bg-white/95 backdrop-blur-sm">
                     <ProductFilters 
                       categories={categories}
                       onFilterChange={handleFilterChange}
@@ -196,46 +159,42 @@ const Marketplace = () => {
                 </Sheet>
               </div>
 
-              <div className="flex gap-8">
-                <div className="hidden md:block w-64 flex-shrink-0">
-                  <ProductFilters 
-                    categories={categories}
-                    onFilterChange={handleFilterChange}
-                    currentFilters={currentFilters}
-                  />
+              {/* Main Content Grid */}
+              <div className="grid lg:grid-cols-4 gap-8">
+                {/* Sidebar Filters */}
+                <div className="hidden lg:block">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 sticky top-8 dark:bg-gray-800/80 dark:border-gray-700">
+                    <ProductFilters 
+                      categories={categories}
+                      onFilterChange={handleFilterChange}
+                      currentFilters={currentFilters}
+                    />
+                  </div>
                 </div>
 
-                <div className="flex-grow">
-                  <ProductGrid 
-                    products={products}
-                    loading={loading}
-                    onAddToCart={handleAddToCart}
-                  />
+                {/* Products Grid */}
+                <div className="lg:col-span-3">
+                  <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 dark:bg-gray-800/50 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        {category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Products` : 'All Products'}
+                        <span className="ml-2 text-sm font-normal text-gray-500">
+                          ({products.length} items)
+                        </span>
+                      </h2>
+                    </div>
+                    <ProductGrid 
+                      products={products}
+                      loading={loading}
+                      onAddToCart={handleAddToCart}
+                    />
+                  </div>
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="featured-categories" className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">Shop by Category</h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Explore our comprehensive collection organized by product type
-                </p>
-              </div>
-
-              {Object.entries(productsByCategory).map(([categoryKey, categoryProducts]) => (
-                <CategorySection
-                  key={categoryKey}
-                  title={categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1) + ' & Alternatives'}
-                  description={categoryDescriptions[categoryKey] || 'High-quality products for your health and wellness'}
-                  products={categoryProducts}
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
-            </TabsContent>
-
-            <TabsContent value="health-supplements">
-              <HealthProductsSection />
+            <TabsContent value="categories">
+              <FeaturedCategories onCategorySelect={(cat) => handleFilterChange({ category: cat })} />
             </TabsContent>
           </Tabs>
         </div>
