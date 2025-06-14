@@ -3,13 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Package, Calendar, MapPin, RefreshCw } from 'lucide-react';
+import { Package, Calendar, MapPin, User, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface Order {
   id: string;
+  user_id: string;
   total_amount: number;
   status: string;
   created_at: string;
@@ -26,22 +26,18 @@ interface Order {
   }>;
 }
 
-const OrdersSection = () => {
+const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const { user } = useAuth();
+  const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) {
-      fetchOrders();
-    }
-  }, [user]);
+    fetchOrders();
+  }, []);
 
   const fetchOrders = async () => {
     try {
-      setRefreshing(true);
       const { data, error } = await supabase
         .from('orders')
         .select(`
@@ -55,7 +51,6 @@ const OrdersSection = () => {
             )
           )
         `)
-        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -69,7 +64,87 @@ const OrdersSection = () => {
       });
     } finally {
       setLoading(false);
-      setRefreshing(false);
+    }
+  };
+
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      setUpdating(orderId);
+      
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: newStatus })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      // Send email notification if confirming or shipping
+      if (newStatus === 'confirmed' || newStatus === 'shipped') {
+        await sendOrderEmail(orderId, newStatus);
+      }
+
+      await fetchOrders();
+      toast({
+        title: "Success",
+        description: `Order ${newStatus} successfully`,
+      });
+    } catch (error) {
+      console.error('Error updating order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update order",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const sendOrderEmail = async (orderId: string, status: string) => {
+    try {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      // Get user email
+      const { data: userEmail } = await supabase.rpc('get_user_email', {
+        user_uuid: order.user_id
+      });
+
+      if (!userEmail) {
+        console.error('Could not get user email');
+        return;
+      }
+
+      const orderItems = order.order_items.map(item => ({
+        name: item.product.name,
+        quantity: item.quantity,
+        price: item.price_per_item
+      }));
+
+      const response = await fetch('/api/v1/send-order-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: order.id,
+          userEmail: userEmail,
+          userName: 'Customer', // You might want to get actual name from user profile
+          orderTotal: order.total_amount,
+          orderItems: orderItems,
+          deliveryAddress: order.delivery_address,
+          status: status
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
+
+      console.log('Email sent successfully');
+    } catch (error) {
+      console.error('Error sending email:', error);
+      // Don't show error to user as order update was successful
     }
   };
 
@@ -90,57 +165,23 @@ const OrdersSection = () => {
     }
   };
 
-  const getStatusMessage = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Your order is being reviewed by our team';
-      case 'confirmed':
-        return 'Your order has been confirmed and is being prepared';
-      case 'shipped':
-        return 'Your order is on its way to you';
-      case 'delivered':
-        return 'Your order has been delivered';
-      case 'cancelled':
-        return 'This order has been cancelled';
-      default:
-        return '';
-    }
-  };
-
   if (loading) {
     return <div>Loading orders...</div>;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Package className="h-6 w-6" />
-          <h2 className="text-2xl font-bold">My Orders</h2>
-        </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={fetchOrders}
-          disabled={refreshing}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
+      <div className="flex items-center gap-2 mb-6">
+        <Package className="h-6 w-6" />
+        <h2 className="text-2xl font-bold">Order Management</h2>
       </div>
 
       {orders.length === 0 ? (
         <Card>
           <CardContent className="text-center py-8">
             <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No orders yet</h3>
-            <p className="text-gray-500">Start shopping to see your orders here</p>
-            <Button 
-              className="mt-4" 
-              onClick={() => window.location.href = '/marketplace'}
-            >
-              Browse Products
-            </Button>
+            <h3 className="text-lg font-semibold mb-2">No orders found</h3>
+            <p className="text-gray-500">Orders will appear here when customers place them</p>
           </CardContent>
         </Card>
       ) : (
@@ -153,11 +194,19 @@ const OrdersSection = () => {
                     <CardTitle className="text-lg">
                       Order #{order.id.slice(0, 8)}
                     </CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm text-gray-500">
-                        {new Date(order.created_at).toLocaleDateString()}
-                      </span>
+                    <div className="flex items-center gap-4 mt-2">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm text-gray-500">
+                          {new Date(order.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm text-gray-500">
+                          ID: {order.user_id.slice(0, 8)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -170,11 +219,6 @@ const OrdersSection = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Status Message */}
-                  <div className="p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
-                    <p className="text-sm text-blue-700">{getStatusMessage(order.status)}</p>
-                  </div>
-
                   {/* Order Items */}
                   <div>
                     <h4 className="font-medium mb-2">Items:</h4>
@@ -215,6 +259,47 @@ const OrdersSection = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-4">
+                    {order.status === 'pending' && (
+                      <>
+                        <Button
+                          onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                          disabled={updating === order.id}
+                          size="sm"
+                        >
+                          {updating === order.id ? 'Updating...' : 'Confirm Order'}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => updateOrderStatus(order.id, 'cancelled')}
+                          disabled={updating === order.id}
+                          size="sm"
+                        >
+                          Cancel Order
+                        </Button>
+                      </>
+                    )}
+                    {order.status === 'confirmed' && (
+                      <Button
+                        onClick={() => updateOrderStatus(order.id, 'shipped')}
+                        disabled={updating === order.id}
+                        size="sm"
+                      >
+                        {updating === order.id ? 'Updating...' : 'Mark as Shipped'}
+                      </Button>
+                    )}
+                    {order.status === 'shipped' && (
+                      <Button
+                        onClick={() => updateOrderStatus(order.id, 'delivered')}
+                        disabled={updating === order.id}
+                        size="sm"
+                      >
+                        {updating === order.id ? 'Updating...' : 'Mark as Delivered'}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -225,4 +310,4 @@ const OrdersSection = () => {
   );
 };
 
-export default OrdersSection;
+export default AdminOrders;

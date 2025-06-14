@@ -27,7 +27,53 @@ const Checkout = () => {
     phone: ''
   });
 
+  const validateAddress = () => {
+    if (!deliveryAddress.street.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter street address",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!deliveryAddress.city.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter city",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!deliveryAddress.state.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter state",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!deliveryAddress.pincode.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter pincode",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!deliveryAddress.phone.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter phone number",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handlePlaceOrder = async () => {
+    console.log('Starting order placement...');
+    
     if (!user) {
       toast({
         title: "Error",
@@ -46,8 +92,18 @@ const Checkout = () => {
       return;
     }
 
+    if (!validateAddress()) {
+      return;
+    }
+
     try {
       setLoading(true);
+      console.log('Creating order with data:', {
+        user_id: user.id,
+        total_amount: cartTotal,
+        delivery_address: deliveryAddress,
+        status: 'pending'
+      });
 
       // Create order
       const { data: order, error: orderError } = await supabase
@@ -61,7 +117,12 @@ const Checkout = () => {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw orderError;
+      }
+
+      console.log('Order created successfully:', order);
 
       // Create order items
       const orderItems = cart.map(item => ({
@@ -71,21 +132,33 @@ const Checkout = () => {
         price_per_item: item.product.price
       }));
 
+      console.log('Creating order items:', orderItems);
+
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Order items creation error:', itemsError);
+        throw itemsError;
+      }
+
+      console.log('Order items created successfully');
 
       // Clear cart
-      await supabase
+      const { error: clearCartError } = await supabase
         .from('shopping_cart')
         .delete()
         .eq('user_id', user.id);
 
+      if (clearCartError) {
+        console.error('Clear cart error:', clearCartError);
+        // Don't throw here as order is already created
+      }
+
       toast({
         title: "Order Placed Successfully!",
-        description: `Order #${order.id.slice(0, 8)} has been placed`,
+        description: `Order #${order.id.slice(0, 8)} has been placed. You will receive a confirmation email once approved.`,
       });
 
       navigate('/profile');
@@ -93,7 +166,7 @@ const Checkout = () => {
       console.error('Error placing order:', error);
       toast({
         title: "Error",
-        description: "Failed to place order",
+        description: "Failed to place order. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -133,47 +206,52 @@ const Checkout = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="street">Street Address</Label>
+                  <Label htmlFor="street">Street Address *</Label>
                   <Textarea
                     id="street"
                     value={deliveryAddress.street}
                     onChange={(e) => setDeliveryAddress(prev => ({...prev, street: e.target.value}))}
                     placeholder="Enter your full address"
+                    required
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="city">City</Label>
+                    <Label htmlFor="city">City *</Label>
                     <Input
                       id="city"
                       value={deliveryAddress.city}
                       onChange={(e) => setDeliveryAddress(prev => ({...prev, city: e.target.value}))}
+                      required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="state">State</Label>
+                    <Label htmlFor="state">State *</Label>
                     <Input
                       id="state"
                       value={deliveryAddress.state}
                       onChange={(e) => setDeliveryAddress(prev => ({...prev, state: e.target.value}))}
+                      required
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="pincode">Pincode</Label>
+                    <Label htmlFor="pincode">Pincode *</Label>
                     <Input
                       id="pincode"
                       value={deliveryAddress.pincode}
                       onChange={(e) => setDeliveryAddress(prev => ({...prev, pincode: e.target.value}))}
+                      required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone">Phone Number *</Label>
                     <Input
                       id="phone"
                       value={deliveryAddress.phone}
                       onChange={(e) => setDeliveryAddress(prev => ({...prev, phone: e.target.value}))}
+                      required
                     />
                   </div>
                 </div>
