@@ -72,28 +72,22 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           .select('*')
           .eq('status', 'active');
 
-        // Apply category filter - map application category to database enum
+        // Apply category filter
         if (options.category && options.category !== 'all') {
           const dbCategory = categoryToDbMapping[options.category];
           
           if (dbCategory) {
             // If we have a mapping, filter by the database category enum
             query = query.eq('category', dbCategory);
-          } else if (options.category === 'food') {
-            // Direct match for 'food' category
-            query = query.eq('category', 'food');
-          } else if (options.category === 'supplements') {
-            // Direct match for 'supplements' category
-            query = query.eq('category', 'supplements');
-          } else if (options.category === 'fitness_gear') {
-            // Direct match for 'fitness_gear' category
-            query = query.eq('category', 'fitness_gear');
-          } else if (options.category === 'wellness') {
-            // Direct match for 'wellness' category
-            query = query.eq('category', 'wellness');
           } else {
-            // For any other values, try filtering by subcategory
-            query = query.eq('subcategory', options.category);
+            // For direct database enum values or subcategory filtering
+            const enumCategories = ['supplements', 'food', 'fitness_gear', 'wellness'];
+            if (enumCategories.includes(options.category)) {
+              query = query.eq('category', options.category as 'supplements' | 'food' | 'fitness_gear' | 'wellness');
+            } else {
+              // Try filtering by subcategory
+              query = query.eq('subcategory', options.category);
+            }
           }
         }
 
