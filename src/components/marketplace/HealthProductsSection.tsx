@@ -18,7 +18,7 @@ const HealthProductsSection = () => {
       benefits: ["Muscle Building", "Post-Workout Recovery"],
       organic: true,
       vegetarian: true,
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=80"
     },
     {
       id: 2,
@@ -31,7 +31,7 @@ const HealthProductsSection = () => {
       benefits: ["Immune Support", "Energy Boost"],
       organic: false,
       vegetarian: true,
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80"
     },
     {
       id: 3,
@@ -44,7 +44,7 @@ const HealthProductsSection = () => {
       benefits: ["Heart Health", "Brain Function"],
       organic: true,
       vegetarian: false,
-      image: "/placeholder.svg"
+      image: "https://plus.unsplash.com/premium_photo-1675798831631-f8238cec7632?auto=format&fit=crop&w=400&q=80"
     },
     {
       id: 4,
@@ -57,7 +57,7 @@ const HealthProductsSection = () => {
       benefits: ["Digestive Support", "Gut Health"],
       organic: true,
       vegetarian: true,
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1607619056574-7d8d3ee536b2?auto=format&fit=crop&w=400&q=80"
     },
     {
       id: 5,
@@ -70,7 +70,7 @@ const HealthProductsSection = () => {
       benefits: ["Skin Health", "Joint Support"],
       organic: false,
       vegetarian: false,
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1628882799745-922b9ff99a19?auto=format&fit=crop&w=400&q=80"
     },
     {
       id: 6,
@@ -83,7 +83,7 @@ const HealthProductsSection = () => {
       benefits: ["Antioxidants", "Weight Management"],
       organic: true,
       vegetarian: true,
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1597318181353-54b6d3910071?auto=format&fit=crop&w=400&q=80"
     },
     {
       id: 7,
@@ -96,7 +96,7 @@ const HealthProductsSection = () => {
       benefits: ["Sleep Support", "Muscle Function"],
       organic: false,
       vegetarian: true,
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1630526724344-935b018a1a38?auto=format&fit=crop&w=400&q=80"
     },
     {
       id: 8,
@@ -109,7 +109,7 @@ const HealthProductsSection = () => {
       benefits: ["Anti-Inflammatory", "Joint Health"],
       organic: true,
       vegetarian: true,
-      image: "/placeholder.svg"
+      image: "https://images.unsplash.com/photo-1552089123-2d26226fc2b7?auto=format&fit=crop&w=400&q=80"
     }
   ];
 
@@ -132,8 +132,8 @@ const HealthProductsSection = () => {
         {healthProducts.map((product) => (
           <Card key={product.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
-              <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg mb-3 flex items-center justify-center">
-                <Heart className="h-12 w-12 text-gray-400" />
+              <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg mb-3 overflow-hidden">
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
               </div>
               <CardTitle className="text-lg">{product.name}</CardTitle>
               <CardDescription>{product.brand}</CardDescription>
