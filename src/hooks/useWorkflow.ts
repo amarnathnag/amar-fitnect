@@ -5,28 +5,28 @@ import { useToast } from '@/hooks/use-toast';
 
 interface WorkflowTask {
   id: string;
-  task_type: 'review_product' | 'approve_product' | 'update_inventory';
-  product_id: string;
-  assigned_admin_id?: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
-  due_date?: string;
-  created_at: string;
-  completed_at?: string;
+  task_type: string;
+  product_id: string | null;
+  assigned_admin_id: string | null;
+  status: string | null;
+  priority: string | null;
+  due_date: string | null;
+  created_at: string | null;
+  completed_at: string | null;
   product?: {
     name: string;
     workflow_status: string;
-  };
+  } | null;
 }
 
 interface WorkflowHistory {
   id: string;
-  product_id: string;
-  status_from?: string;
+  product_id: string | null;
+  status_from: string | null;
   status_to: string;
-  admin_id?: string;
-  notes?: string;
-  created_at: string;
+  admin_id: string | null;
+  notes: string | null;
+  created_at: string | null;
 }
 
 export const useWorkflow = () => {
