@@ -23,7 +23,7 @@ const Marketplace = () => {
   
   const category = searchParams.get('category') || '';
   const search = searchParams.get('search') || '';
-  const sortBy = searchParams.get('sort') || 'health_score';
+  const sortBy = searchParams.get('sortBy') || 'health_score';
   const minHealthScore = searchParams.get('minHealthScore') ? Number(searchParams.get('minHealthScore')) : undefined;
   const maxHealthScore = searchParams.get('maxHealthScore') ? Number(searchParams.get('maxHealthScore')) : undefined;
   const isOrganic = searchParams.get('isOrganic') === 'true';
@@ -88,10 +88,10 @@ const Marketplace = () => {
     supplements: 'Premium vitamins and supplements for optimal health'
   };
 
-  // Get current filters for display
+  // Get current filters for display - make sure to map correctly
   const currentFilters = {
     category,
-    sort: sortBy,
+    sortBy,
     minHealthScore,
     maxHealthScore,
     isOrganic,

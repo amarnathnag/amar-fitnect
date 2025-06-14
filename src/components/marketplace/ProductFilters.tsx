@@ -27,7 +27,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   const handleSortChange = (sort: string) => {
     console.log('Sort changed to:', sort);
-    onFilterChange({ ...currentFilters, sort });
+    onFilterChange({ ...currentFilters, sortBy: sort });
   };
 
   const handleHealthScoreChange = (values: number[]) => {
@@ -90,7 +90,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         </CardHeader>
         <CardContent>
           <Select 
-            value={currentFilters.sort || 'health_score'} 
+            value={currentFilters.sortBy || 'health_score'} 
             onValueChange={handleSortChange}
           >
             <SelectTrigger>
