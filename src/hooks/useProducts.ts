@@ -34,6 +34,21 @@ interface UseProductsOptions {
   isVegan?: boolean;
 }
 
+// Map our application categories to database enum values
+const categoryToDbMapping: Record<string, string> = {
+  'dairy': 'food',
+  'bakery': 'food',
+  'beverages': 'food',
+  'snacks': 'food',
+  'grains': 'food',
+  'oils': 'food',
+  'spices': 'food',
+  'frozen': 'food',
+  'personal_care': 'wellness',
+  'household': 'wellness',
+  'supplements': 'supplements'
+};
+
 export const useProducts = (options: UseProductsOptions = {}) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -57,9 +72,10 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           .select('*')
           .eq('status', 'active');
 
-        // Apply category filter - use exact string matching for category
+        // Apply category filter using subcategory for more specific filtering
         if (options.category && options.category !== 'all' && options.category !== 'food') {
-          query = query.eq('category', options.category);
+          // Use subcategory filtering which should match our app categories better
+          query = query.eq('subcategory', options.category);
         }
 
         // Apply search filter
