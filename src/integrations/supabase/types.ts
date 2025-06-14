@@ -30,6 +30,50 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_workflow_tasks: {
+        Row: {
+          assigned_admin_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          product_id: string | null
+          status: string | null
+          task_type: string
+        }
+        Insert: {
+          assigned_admin_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          product_id?: string | null
+          status?: string | null
+          task_type: string
+        }
+        Update: {
+          assigned_admin_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          product_id?: string | null
+          status?: string | null
+          task_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_workflow_tasks_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           created_at: string | null
@@ -116,6 +160,27 @@ export type Database = {
           read_time?: string
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -816,9 +881,49 @@ export type Database = {
           },
         ]
       }
+      product_workflow_history: {
+        Row: {
+          admin_id: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          product_id: string | null
+          status_from: string | null
+          status_to: string
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          status_from?: string | null
+          status_to: string
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          status_from?: string | null
+          status_to?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_workflow_history_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
+          admin_notes: string | null
           allergens: string[] | null
+          auto_health_score: number | null
           brand: string
           category: Database["public"]["Enums"]["product_category"]
           created_at: string | null
@@ -831,6 +936,7 @@ export type Database = {
           is_organic: boolean | null
           is_vegan: boolean | null
           is_vegetarian: boolean | null
+          manual_override: boolean | null
           name: string
           nutritional_info: Json | null
           price: number
@@ -841,9 +947,12 @@ export type Database = {
           subcategory: string | null
           updated_at: string | null
           user_rating: number | null
+          workflow_status: string | null
         }
         Insert: {
+          admin_notes?: string | null
           allergens?: string[] | null
+          auto_health_score?: number | null
           brand: string
           category: Database["public"]["Enums"]["product_category"]
           created_at?: string | null
@@ -856,6 +965,7 @@ export type Database = {
           is_organic?: boolean | null
           is_vegan?: boolean | null
           is_vegetarian?: boolean | null
+          manual_override?: boolean | null
           name: string
           nutritional_info?: Json | null
           price: number
@@ -866,9 +976,12 @@ export type Database = {
           subcategory?: string | null
           updated_at?: string | null
           user_rating?: number | null
+          workflow_status?: string | null
         }
         Update: {
+          admin_notes?: string | null
           allergens?: string[] | null
+          auto_health_score?: number | null
           brand?: string
           category?: Database["public"]["Enums"]["product_category"]
           created_at?: string | null
@@ -881,6 +994,7 @@ export type Database = {
           is_organic?: boolean | null
           is_vegan?: boolean | null
           is_vegetarian?: boolean | null
+          manual_override?: boolean | null
           name?: string
           nutritional_info?: Json | null
           price?: number
@@ -891,6 +1005,7 @@ export type Database = {
           subcategory?: string | null
           updated_at?: string | null
           user_rating?: number | null
+          workflow_status?: string | null
         }
         Relationships: []
       }
@@ -979,6 +1094,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_auto_health_score: {
+        Args: { ingredients_list: Json }
+        Returns: number
+      }
       get_user_email: {
         Args: { user_uuid: string }
         Returns: string
