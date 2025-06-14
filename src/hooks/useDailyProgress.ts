@@ -53,7 +53,7 @@ export const useDailyProgress = () => {
         return;
       }
 
-      setProgressData(data || []);
+      setProgressData((data as DailyProgressData[]) || []);
     } catch (error) {
       console.error('Error in fetchDailyProgress:', error);
     } finally {

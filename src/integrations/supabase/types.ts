@@ -216,6 +216,48 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_progress: {
+        Row: {
+          created_at: string
+          date: string
+          exercises: Json | null
+          id: string
+          mood: string | null
+          notes: string | null
+          sleep_hours: number | null
+          updated_at: string
+          user_id: string
+          water_intake: number | null
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          exercises?: Json | null
+          id?: string
+          mood?: string | null
+          notes?: string | null
+          sleep_hours?: number | null
+          updated_at?: string
+          user_id: string
+          water_intake?: number | null
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          exercises?: Json | null
+          id?: string
+          mood?: string | null
+          notes?: string | null
+          sleep_hours?: number | null
+          updated_at?: string
+          user_id?: string
+          water_intake?: number | null
+          weight?: number | null
+        }
+        Relationships: []
+      }
       diet_plan_meals: {
         Row: {
           calories: number | null
