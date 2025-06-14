@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -21,20 +22,32 @@ const ProductDetail = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!id) {
+      navigate('/marketplace');
+      return;
+    }
+    
     fetchProduct();
     fetchReviews();
   }, [id]);
 
   const fetchProduct = async () => {
     try {
+      console.log('Fetching product with ID:', id);
+      
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .eq('id', id)
-        .eq('status', 'active' as any)
+        .eq('status', 'active')
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching product:', error);
+        throw error;
+      }
+      
+      console.log('Fetched product:', data);
       setProduct(data);
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -70,8 +83,18 @@ const ProductDetail = () => {
     return 'text-red-600 bg-red-100';
   };
 
+  const formatPrice = (price: number) => {
+    // Convert from paise to rupees if price is in paise format (> 1000)
+    const displayPrice = price > 1000 ? price / 100 : price;
+    return displayPrice.toFixed(2);
+  };
+
   const handleAddToCart = () => {
     addToCart(product);
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart`,
+    });
   };
 
   if (loading) {
@@ -147,7 +170,7 @@ const ProductDetail = () => {
               </div>
 
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-primary">₹{product.price}</div>
+                <div className="text-3xl font-bold text-primary">₹{formatPrice(product.price)}</div>
                 <p className="text-sm text-gray-500">
                   {product.stock_quantity > 0 ? `${product.stock_quantity} in stock` : 'Out of stock'}
                 </p>

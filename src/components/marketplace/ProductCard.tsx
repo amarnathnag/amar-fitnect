@@ -58,11 +58,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   };
 
   const handleCardClick = () => {
+    console.log('Navigating to product:', product.id);
     navigate(`/marketplace/product/${product.id}`);
   };
 
   const formatPrice = (price: number) => {
-    return (price / 100).toFixed(2);
+    // Convert from paise to rupees if price is in paise format (> 1000)
+    const displayPrice = price > 1000 ? price / 100 : price;
+    return displayPrice.toFixed(2);
   };
 
   const handleAddToCartClick = (e: React.MouseEvent) => {
