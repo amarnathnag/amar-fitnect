@@ -35,7 +35,7 @@ interface UseProductsOptions {
 }
 
 // Map our application categories to database enum values
-const categoryToDbMapping: Record<string, string> = {
+const categoryToDbMapping: Record<string, 'supplements' | 'food' | 'fitness_gear' | 'wellness'> = {
   'dairy': 'food',
   'bakery': 'food',
   'beverages': 'food',
@@ -72,10 +72,18 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           .select('*')
           .eq('status', 'active');
 
-        // Apply category filter using subcategory for more specific filtering
-        if (options.category && options.category !== 'all' && options.category !== 'food') {
-          // Use subcategory filtering which should match our app categories better
-          query = query.eq('subcategory', options.category);
+        // Apply category filter - map application category to database enum
+        if (options.category && options.category !== 'all') {
+          if (options.category === 'food') {
+            // For 'food' category, filter by the database enum value
+            query = query.eq('category', 'food');
+          } else if (categoryToDbMapping[options.category]) {
+            // For specific subcategories, filter by subcategory
+            query = query.eq('subcategory', options.category);
+          } else {
+            // For direct enum matches
+            query = query.eq('category', options.category as 'supplements' | 'food' | 'fitness_gear' | 'wellness');
+          }
         }
 
         // Apply search filter
