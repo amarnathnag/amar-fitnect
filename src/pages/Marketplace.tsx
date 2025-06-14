@@ -8,11 +8,12 @@ import ProductFilters from '@/components/marketplace/ProductFilters';
 import ProductSearch from '@/components/marketplace/ProductSearch';
 import CartSidebar from '@/components/marketplace/CartSidebar';
 import HealthProductsSection from '@/components/marketplace/HealthProductsSection';
+import CategorySection from '@/components/marketplace/CategorySection';
 import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingCart, Filter, Heart } from 'lucide-react';
+import { ShoppingCart, Filter, Heart, Sparkles } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const Marketplace = () => {
@@ -46,6 +47,33 @@ const Marketplace = () => {
     setSearchParams(newParams);
   };
 
+  // Group products by category for featured sections
+  const productsByCategory = useMemo(() => {
+    const grouped: Record<string, any[]> = {};
+    products.forEach(product => {
+      if (product.category) {
+        if (!grouped[product.category]) {
+          grouped[product.category] = [];
+        }
+        grouped[product.category].push(product);
+      }
+    });
+    return grouped;
+  }, [products]);
+
+  const categoryDescriptions: Record<string, string> = {
+    dairy: 'Fresh dairy products and plant-based alternatives for daily nutrition',
+    bakery: 'Wholesome breads, cookies, and baked goods for every meal',
+    beverages: 'Healthy drinks, teas, and natural beverages to stay hydrated',
+    snacks: 'Nutritious snacks and protein bars for energy on-the-go',
+    grains: 'Whole grains, cereals, and superfoods for sustained energy',
+    oils: 'Premium cooking oils and healthy fats for heart-healthy cooking',
+    spices: 'Organic spices and condiments to enhance flavor and health',
+    frozen: 'Convenient frozen foods that retain nutritional value',
+    personal_care: 'Natural personal care products for health and wellness',
+    household: 'Eco-friendly household essentials for sustainable living'
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
@@ -53,9 +81,9 @@ const Marketplace = () => {
       <main className="flex-grow py-8">
         <div className="container-custom">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-4">Health Marketplace</h1>
+            <h1 className="text-3xl font-bold mb-4">AmarHealth Marketplace</h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Discover healthy products with AI-powered health insights
+              Discover 100+ healthy products with AI-powered health insights across 10 categories
             </p>
           </div>
 
@@ -63,6 +91,10 @@ const Marketplace = () => {
             <div className="flex justify-between items-center">
               <TabsList>
                 <TabsTrigger value="all-products">All Products</TabsTrigger>
+                <TabsTrigger value="featured-categories" className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Featured Categories
+                </TabsTrigger>
                 <TabsTrigger value="health-supplements" className="flex items-center gap-2">
                   <Heart className="h-4 w-4" />
                   Health Supplements
@@ -128,6 +160,25 @@ const Marketplace = () => {
                   />
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="featured-categories" className="space-y-6">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold mb-2">Shop by Category</h2>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Explore our comprehensive collection organized by product type
+                </p>
+              </div>
+
+              {Object.entries(productsByCategory).map(([categoryKey, categoryProducts]) => (
+                <CategorySection
+                  key={categoryKey}
+                  title={categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1) + ' & Alternatives'}
+                  description={categoryDescriptions[categoryKey] || 'High-quality products for your health and wellness'}
+                  products={categoryProducts}
+                  onAddToCart={addToCart}
+                />
+              ))}
             </TabsContent>
 
             <TabsContent value="health-supplements">

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Leaf, Heart, Star } from 'lucide-react';
+import { ShoppingCart, Leaf, Heart, Star, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Product {
@@ -21,6 +21,8 @@ interface Product {
   description?: string;
   user_rating?: number;
   review_count?: number;
+  category?: string;
+  subcategory?: string;
 }
 
 interface ProductCardProps {
@@ -38,6 +40,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     return 'text-red-600 bg-red-50 border-red-200';
   };
 
+  const getCategoryLabel = (category: string) => {
+    const labels: Record<string, string> = {
+      dairy: 'Dairy',
+      bakery: 'Bakery',
+      beverages: 'Beverages',
+      snacks: 'Snacks',
+      grains: 'Grains',
+      oils: 'Oils',
+      spices: 'Spices',
+      frozen: 'Frozen',
+      personal_care: 'Personal Care',
+      household: 'Household',
+      supplements: 'Supplements'
+    };
+    return labels[category] || category;
+  };
+
   const handleCardClick = () => {
     navigate(`/marketplace/product/${product.id}`);
   };
@@ -47,8 +66,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   };
 
   return (
-    <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-      <CardContent className="p-4" onClick={handleCardClick}>
+    <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] h-full flex flex-col">
+      <CardContent className="p-4 flex-grow" onClick={handleCardClick}>
         <div className="aspect-square mb-4 overflow-hidden rounded-lg bg-gray-100">
           <img 
             src={product.image_urls?.[0] || '/placeholder.svg'}
@@ -60,6 +79,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Badge className={`text-xs font-semibold ${getHealthScoreColor(product.health_score)}`}>
+              <Award className="h-3 w-3 mr-1" />
               Health Score: {product.health_score}/10
             </Badge>
             {product.user_rating && (
@@ -70,6 +90,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
               </div>
             )}
           </div>
+
+          {product.category && (
+            <Badge variant="outline" className="text-xs">
+              {getCategoryLabel(product.category)}
+            </Badge>
+          )}
           
           <div>
             <h3 className="font-semibold text-lg line-clamp-2 mb-1">{product.name}</h3>
