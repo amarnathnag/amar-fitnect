@@ -33,6 +33,8 @@ interface ProductGridProps {
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products, loading, onAddToCart }) => {
+  console.log('ProductGrid - Loading:', loading, 'Products count:', products.length);
+  
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -52,9 +54,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, loading, onAddToCar
     return (
       <div className="text-center py-12">
         <h3 className="text-lg font-semibold mb-2">No products found</h3>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-gray-600 dark:text-gray-300 mb-4">
           Try adjusting your filters or search terms
         </p>
+        <div className="text-sm text-gray-500">
+          <p>Debugging info:</p>
+          <p>• Loading state: {loading ? 'true' : 'false'}</p>
+          <p>• Products array length: {products.length}</p>
+          <p>• Current URL filters may be filtering out all products</p>
+        </div>
       </div>
     );
   }

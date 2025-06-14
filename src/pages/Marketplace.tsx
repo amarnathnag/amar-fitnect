@@ -13,8 +13,9 @@ import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingCart, Filter, Heart, Sparkles } from 'lucide-react';
+import { ShoppingCart, Filter, Heart, Sparkles, Database } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Marketplace = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,6 +45,9 @@ const Marketplace = () => {
   
   const { products, loading, categories } = useProducts(productOptions);
   const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
+
+  // Show alert if no products are found and database might be empty
+  const showDataAlert = !loading && products.length === 0 && !search && !category;
 
   const handleFilterChange = (filters: any) => {
     console.log('Filter change:', filters);
@@ -131,6 +135,16 @@ const Marketplace = () => {
               Discover 100+ healthy products with AI-powered health insights across 10+ categories
             </p>
           </div>
+
+          {showDataAlert && (
+            <Alert className="mb-6">
+              <Database className="h-4 w-4" />
+              <AlertDescription>
+                No products found in the database. You may need to seed sample data first. 
+                Go to Admin panel to add products or use the Sample Data Seeder.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <Tabs defaultValue="all-products" className="space-y-6">
             <div className="flex justify-between items-center">

@@ -76,6 +76,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         if (options.category && options.category !== 'all') {
           const dbCategory = categoryToDbMapping[options.category];
           
+          console.log('Category filter:', options.category, 'DB Category:', dbCategory);
+          
           if (dbCategory) {
             // If we have a mapping, filter by the database category enum
             query = query.eq('category', dbCategory);
@@ -144,7 +146,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           throw error;
         }
 
-        console.log('Fetched products from Supabase:', data?.length || 0);
+        console.log('Fetched products from Supabase:', data?.length || 0, 'products');
+        console.log('Sample product data:', data?.[0]);
 
         if (isMounted) {
           setProducts(data || []);
