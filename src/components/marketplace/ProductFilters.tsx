@@ -5,6 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
+import { Heart, Leaf, Award, Star } from 'lucide-react';
+import { healthScoreRanges, dietaryPreferences } from '@/data/productCategories';
 
 interface ProductFiltersProps {
   categories: string[];
@@ -30,6 +33,25 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     onFilterChange({ ...currentFilters, sortBy: sort });
   };
 
+  const handleHealthScoreRangeChange = (range: string) => {
+    if (range === 'all') {
+      onFilterChange({ 
+        ...currentFilters, 
+        minHealthScore: undefined,
+        maxHealthScore: undefined 
+      });
+    } else {
+      const selectedRange = healthScoreRanges.find(r => r.label === range);
+      if (selectedRange) {
+        onFilterChange({ 
+          ...currentFilters, 
+          minHealthScore: selectedRange.min,
+          maxHealthScore: selectedRange.max
+        });
+      }
+    }
+  };
+
   const handleHealthScoreChange = (values: number[]) => {
     console.log('Health score range changed to:', values);
     onFilterChange({ 
@@ -50,7 +72,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     beverages: 'Beverages',
     snacks: 'Snacks & Health Bars',
     grains: 'Cereals & Grains',
-    oils: 'Oils & Fats',
+    oils: 'Healthy Oils',
     spices: 'Spices & Condiments',
     frozen: 'Frozen & Convenience',
     personal_care: 'Personal Care & Wellness',
@@ -58,11 +80,22 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     supplements: 'Health Supplements'
   };
 
+  const getCurrentHealthScoreRange = () => {
+    const min = currentFilters.minHealthScore || 0;
+    const max = currentFilters.maxHealthScore || 10;
+    
+    const range = healthScoreRanges.find(r => r.min === min && r.max === max);
+    return range ? range.label : 'Custom Range';
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Categories</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Star className="h-5 w-5 text-yellow-500" />
+            Categories
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Select 
@@ -97,7 +130,12 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="health_score">Health Score</SelectItem>
+              <SelectItem value="health_score">
+                <div className="flex items-center gap-2">
+                  <Award className="h-4 w-4 text-green-600" />
+                  Health Score
+                </div>
+              </SelectItem>
               <SelectItem value="price_low">Price: Low to High</SelectItem>
               <SelectItem value="price_high">Price: High to Low</SelectItem>
               <SelectItem value="name">Name A-Z</SelectItem>
@@ -109,21 +147,47 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Health Score Range</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Award className="h-5 w-5 text-green-600" />
+            Health Score Filter
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="px-2">
-            <Slider
-              value={[currentFilters.minHealthScore || 0, currentFilters.maxHealthScore || 10]}
-              max={10}
-              min={0}
-              step={1}
-              onValueChange={handleHealthScoreChange}
-              className="w-full"
-            />
-            <div className="flex justify-between text-sm text-gray-500 mt-2">
-              <span>{currentFilters.minHealthScore || 0}</span>
-              <span>{currentFilters.maxHealthScore || 10}</span>
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Quick Select</Label>
+            <Select 
+              value={getCurrentHealthScoreRange()} 
+              onValueChange={handleHealthScoreRangeChange}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Health Scores</SelectItem>
+                {healthScoreRanges.slice(1).map((range) => (
+                  <SelectItem key={range.label} value={range.label}>
+                    {range.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Custom Range</Label>
+            <div className="px-2">
+              <Slider
+                value={[currentFilters.minHealthScore || 0, currentFilters.maxHealthScore || 10]}
+                max={10}
+                min={0}
+                step={1}
+                onValueChange={handleHealthScoreChange}
+                className="w-full"
+              />
+              <div className="flex justify-between text-sm text-gray-500 mt-2">
+                <span>{currentFilters.minHealthScore || 0}/10</span>
+                <span>{currentFilters.maxHealthScore || 10}/10</span>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -131,37 +195,64 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Dietary Preferences</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Heart className="h-5 w-5 text-red-500" />
+            Health & Dietary
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="organic"
-              checked={currentFilters.isOrganic || false}
-              onCheckedChange={(checked) => handleDietaryChange('isOrganic', checked as boolean)}
-            />
-            <Label htmlFor="organic">Organic</Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="vegetarian"
-              checked={currentFilters.isVegetarian || false}
-              onCheckedChange={(checked) => handleDietaryChange('isVegetarian', checked as boolean)}
-            />
-            <Label htmlFor="vegetarian">Vegetarian</Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="vegan"
-              checked={currentFilters.isVegan || false}
-              onCheckedChange={(checked) => handleDietaryChange('isVegan', checked as boolean)}
-            />
-            <Label htmlFor="vegan">Vegan</Label>
-          </div>
+          {dietaryPreferences.map((pref) => (
+            <div key={pref.key} className="flex items-center space-x-3">
+              <Checkbox 
+                id={pref.key}
+                checked={currentFilters[pref.key] || false}
+                onCheckedChange={(checked) => handleDietaryChange(pref.key, checked as boolean)}
+              />
+              <Label htmlFor={pref.key} className="flex items-center gap-2 cursor-pointer">
+                <span>{pref.icon}</span>
+                {pref.label}
+              </Label>
+              {currentFilters[pref.key] && (
+                <Badge variant="secondary" className="text-xs">
+                  Active
+                </Badge>
+              )}
+            </div>
+          ))}
         </CardContent>
       </Card>
+
+      {/* Filter Summary */}
+      {(currentFilters.minHealthScore > 0 || currentFilters.maxHealthScore < 10 || 
+        currentFilters.isOrganic || currentFilters.isVegan || currentFilters.isVegetarian) && (
+        <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-green-700 dark:text-green-300">Active Filters</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {(currentFilters.minHealthScore > 0 || currentFilters.maxHealthScore < 10) && (
+              <Badge variant="outline" className="text-green-700 border-green-300">
+                Health: {currentFilters.minHealthScore || 0}-{currentFilters.maxHealthScore || 10}
+              </Badge>
+            )}
+            {currentFilters.isOrganic && (
+              <Badge variant="outline" className="text-green-700 border-green-300">
+                🌱 Organic
+              </Badge>
+            )}
+            {currentFilters.isVegan && (
+              <Badge variant="outline" className="text-green-700 border-green-300">
+                🌿 Vegan
+              </Badge>
+            )}
+            {currentFilters.isVegetarian && (
+              <Badge variant="outline" className="text-green-700 border-green-300">
+                🥬 Vegetarian
+              </Badge>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ShoppingCart, Leaf, Heart, Star, Award, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, Leaf, Heart, Star, Award, AlertTriangle, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface QuantityOption {
@@ -47,10 +47,21 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({ product, onAd
   );
 
   const getHealthScoreColor = (score: number) => {
-    if (score >= 9) return 'text-green-700 bg-green-100 border-green-200';
-    if (score >= 7) return 'text-green-600 bg-green-50 border-green-200';
-    if (score >= 5) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    return 'text-red-600 bg-red-50 border-red-200';
+    if (score >= 95) return 'text-emerald-700 bg-emerald-100 border-emerald-200';
+    if (score >= 90) return 'text-green-700 bg-green-100 border-green-200';
+    if (score >= 85) return 'text-lime-700 bg-lime-100 border-lime-200';
+    if (score >= 80) return 'text-yellow-700 bg-yellow-100 border-yellow-200';
+    if (score >= 70) return 'text-orange-700 bg-orange-100 border-orange-200';
+    return 'text-red-700 bg-red-100 border-red-200';
+  };
+
+  const getHealthScoreLabel = (score: number) => {
+    if (score >= 95) return 'Exceptional';
+    if (score >= 90) return 'Excellent';
+    if (score >= 85) return 'Very Good';
+    if (score >= 80) return 'Good';
+    if (score >= 70) return 'Fair';
+    return 'Needs Improvement';
   };
 
   const getCategoryLabel = (category: string) => {
@@ -60,7 +71,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({ product, onAd
       beverages: 'Beverages',
       snacks: 'Snacks',
       grains: 'Grains',
-      oils: 'Oils',
+      oils: 'Healthy Oils',
       spices: 'Spices',
       frozen: 'Frozen',
       personal_care: 'Personal Care',
@@ -90,22 +101,51 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({ product, onAd
   };
 
   return (
-    <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] h-full flex flex-col">
+    <Card className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] h-full flex flex-col group relative overflow-hidden">
+      {/* Health Score Badge - Floating */}
+      <div className="absolute top-3 right-3 z-10">
+        <Badge className={`text-xs font-bold shadow-lg ${getHealthScoreColor(product.health_score)}`}>
+          <Award className="h-3 w-3 mr-1" />
+          {product.health_score}/10
+        </Badge>
+      </div>
+
+      {/* Premium/Organic Badge */}
+      {(product.is_organic || product.health_score >= 90) && (
+        <div className="absolute top-3 left-3 z-10">
+          <Badge className="bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-bold shadow-lg">
+            {product.is_organic ? (
+              <>
+                <Leaf className="h-3 w-3 mr-1" />
+                Organic
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-3 w-3 mr-1" />
+                Premium
+              </>
+            )}
+          </Badge>
+        </div>
+      )}
+
       <CardContent className="p-4 flex-grow" onClick={handleCardClick}>
-        <div className="aspect-square mb-4 overflow-hidden rounded-lg bg-gray-100">
+        <div className="aspect-square mb-4 overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-gray-100 group-hover:to-gray-200 transition-all duration-300">
           <img 
             src={product.image_urls?.[0] || '/placeholder.svg'}
             alt={product.name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+            className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
           />
         </div>
         
         <div className="space-y-3">
+          {/* Health Score Details */}
           <div className="flex items-center justify-between">
-            <Badge className={`text-xs font-semibold ${getHealthScoreColor(product.health_score)}`}>
-              <Award className="h-3 w-3 mr-1" />
-              Health Score: {product.health_score}/10
-            </Badge>
+            <div className="flex items-center gap-2">
+              <div className={`text-xs px-2 py-1 rounded-full font-medium ${getHealthScoreColor(product.health_score)}`}>
+                {getHealthScoreLabel(product.health_score)}
+              </div>
+            </div>
             {product.user_rating && (
               <div className="flex items-center gap-1">
                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -122,40 +162,47 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({ product, onAd
           )}
           
           <div>
-            <h3 className="font-semibold text-lg line-clamp-2 mb-1">{product.name}</h3>
+            <h3 className="font-bold text-lg line-clamp-2 mb-1 group-hover:text-green-700 transition-colors">
+              {product.name}
+            </h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">{product.brand}</p>
+          </div>
+
+          {/* Health Impact Summary */}
+          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2">
+            <p className="text-xs text-green-700 dark:text-green-300 font-medium line-clamp-2">
+              💚 {product.health_impact_summary}
+            </p>
           </div>
 
           {/* Warnings */}
           {product.warnings && product.warnings.length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {product.warnings.slice(0, 2).map((warning, index) => (
+              {product.warnings.slice(0, 1).map((warning, index) => (
                 <Badge key={index} variant="destructive" className="text-xs">
                   <AlertTriangle className="h-3 w-3 mr-1" />
-                  {warning.length > 20 ? `${warning.substring(0, 20)}...` : warning}
+                  {warning.length > 15 ? `${warning.substring(0, 15)}...` : warning}
                 </Badge>
               ))}
             </div>
           )}
           
-          <p className="text-xs text-gray-600 line-clamp-2 font-medium">{product.health_impact_summary}</p>
-          
           <div className="flex flex-wrap gap-1">
             {product.is_organic && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge className="bg-green-100 text-green-700 text-xs border-green-200 hover:bg-green-200">
                 <Leaf className="h-3 w-3 mr-1" />
                 Organic
               </Badge>
             )}
             {product.is_vegan && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge className="bg-purple-100 text-purple-700 text-xs border-purple-200 hover:bg-purple-200">
                 <Heart className="h-3 w-3 mr-1" />
                 Vegan
               </Badge>
             )}
             {product.is_vegetarian && !product.is_vegan && (
-              <Badge variant="outline" className="text-xs">
-                Vegetarian
+              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-xs">
+                🥬 Vegetarian
               </Badge>
             )}
           </div>
@@ -187,7 +234,13 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({ product, onAd
               )}
             </div>
             <div className="text-right">
-              <span className={`text-sm font-medium ${product.stock_quantity > 10 ? 'text-green-600' : product.stock_quantity > 0 ? 'text-orange-600' : 'text-red-600'}`}>
+              <span className={`text-sm font-medium ${
+                product.stock_quantity > 10 
+                  ? 'text-green-600' 
+                  : product.stock_quantity > 0 
+                    ? 'text-orange-600' 
+                    : 'text-red-600'
+              }`}>
                 {product.stock_quantity > 0 ? `${product.stock_quantity} in stock` : 'Out of stock'}
               </span>
             </div>
@@ -199,7 +252,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({ product, onAd
         <Button 
           onClick={handleAddToCartClick}
           disabled={product.stock_quantity === 0}
-          className="w-full"
+          className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all duration-300"
           variant={product.stock_quantity === 0 ? "secondary" : "default"}
         >
           <ShoppingCart className="h-4 w-4 mr-2" />

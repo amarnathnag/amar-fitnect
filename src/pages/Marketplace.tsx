@@ -8,12 +8,13 @@ import ProductFilters from '@/components/marketplace/ProductFilters';
 import ProductSearch from '@/components/marketplace/ProductSearch';
 import CartSidebar from '@/components/marketplace/CartSidebar';
 import CategoryHero from '@/components/marketplace/CategoryHero';
+import HealthFocusedHero from '@/components/marketplace/HealthFocusedHero';
 import FeaturedCategories from '@/components/marketplace/FeaturedCategories';
 import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingCart, Filter, Grid3X3, Sparkles, Database } from 'lucide-react';
+import { ShoppingCart, Filter, Grid3X3, Sparkles, Database, Heart } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -46,6 +47,7 @@ const Marketplace = () => {
   const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
 
   const showDataAlert = !loading && products.length === 0 && !search && !category;
+  const hasHealthFilters = minHealthScore > 0 || maxHealthScore < 10 || isOrganic || isVegan || isVegetarian;
 
   const handleFilterChange = (filters: any) => {
     const newParams = new URLSearchParams(searchParams);
@@ -91,7 +93,11 @@ const Marketplace = () => {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <CategoryHero />
+        {!hasHealthFilters && !search && !category ? (
+          <HealthFocusedHero />
+        ) : (
+          <CategoryHero />
+        )}
         
         <div className="container-custom py-8">
           {showDataAlert && (
@@ -146,7 +152,10 @@ const Marketplace = () => {
                   <SheetTrigger asChild>
                     <Button variant="outline" className="w-full bg-white/80 backdrop-blur-sm">
                       <Filter className="h-4 w-4 mr-2" />
-                      Filters & Sort
+                      Health & Filters
+                      {hasHealthFilters && (
+                        <Heart className="h-4 w-4 ml-2 text-green-600" />
+                      )}
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="w-80 bg-white/95 backdrop-blur-sm">
@@ -177,11 +186,17 @@ const Marketplace = () => {
                   <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 dark:bg-gray-800/50 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-6">
                       <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                        {category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Products` : 'All Products'}
+                        {category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Products` : 'Health-Focused Products'}
                         <span className="ml-2 text-sm font-normal text-gray-500">
                           ({products.length} items)
                         </span>
                       </h2>
+                      {hasHealthFilters && (
+                        <div className="flex items-center gap-2 text-green-600">
+                          <Heart className="h-4 w-4" />
+                          <span className="text-sm font-medium">Health Filtered</span>
+                        </div>
+                      )}
                     </div>
                     <ProductGrid 
                       products={products}
