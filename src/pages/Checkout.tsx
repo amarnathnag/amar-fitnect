@@ -13,16 +13,19 @@ import CheckoutHeader from '@/components/checkout/CheckoutHeader';
 import CheckoutAlert from '@/components/checkout/CheckoutAlert';
 import CheckoutActions from '@/components/checkout/CheckoutActions';
 import CheckoutErrorState from '@/components/checkout/CheckoutErrorState';
+import CouponSection from '@/components/checkout/CouponSection';
 import { useCheckoutValidation } from '@/components/checkout/CheckoutValidation';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cart, cartTotal } = useCart();
+  const { cart, cartTotal, updateQuantity, removeFromCart } = useCart();
   const { user } = useAuth();
   const { createOrder } = useOrders();
   const { toast } = useToast();
   const { validateAddress } = useCheckoutValidation();
   const [loading, setLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<string>('');
+  const [couponDiscount, setCouponDiscount] = useState<number>(0);
   const [deliveryAddress, setDeliveryAddress] = useState({
     street: '',
     city: '',
@@ -54,6 +57,18 @@ const Checkout = () => {
     );
   }
 
+  const finalTotal = Math.max(0, cartTotal - couponDiscount);
+
+  const handleCouponApply = (discount: number, couponCode: string) => {
+    setCouponDiscount(discount);
+    setAppliedCoupon(couponCode);
+  };
+
+  const handleCouponRemove = () => {
+    setCouponDiscount(0);
+    setAppliedCoupon('');
+  };
+
   const handlePlaceOrder = async () => {
     console.log('🚀 Starting order placement process...');
     
@@ -65,15 +80,17 @@ const Checkout = () => {
       setLoading(true);
       console.log('📋 Order data preparation:', {
         user_id: user.id,
-        total_amount: cartTotal,
+        total_amount: finalTotal,
         delivery_address: deliveryAddress,
-        cart_items: cart.length
+        cart_items: cart.length,
+        coupon_discount: couponDiscount
       });
 
       const order = await createOrder({
-        total_amount: cartTotal,
+        total_amount: finalTotal,
         delivery_address: deliveryAddress,
-        cart: cart
+        cart: cart,
+        coupon_discount: couponDiscount
       });
 
       console.log('✅ Order placed successfully:', order.id);
@@ -107,22 +124,37 @@ const Checkout = () => {
           <CheckoutAlert />
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Delivery Address Form */}
-            <DeliveryAddressForm 
-              deliveryAddress={deliveryAddress}
-              setDeliveryAddress={setDeliveryAddress}
-            />
-
-            {/* Order Summary */}
+            {/* Left Column - Address & Coupon */}
             <div className="space-y-6">
-              <OrderSummary cart={cart} cartTotal={cartTotal} />
+              <DeliveryAddressForm 
+                deliveryAddress={deliveryAddress}
+                setDeliveryAddress={setDeliveryAddress}
+              />
               
-              {/* Place Order Button */}
+              <CouponSection
+                onCouponApply={handleCouponApply}
+                onCouponRemove={handleCouponRemove}
+                appliedCoupon={appliedCoupon}
+                discount={couponDiscount}
+              />
+            </div>
+
+            {/* Right Column - Order Summary & Actions */}
+            <div className="space-y-6">
+              <OrderSummary 
+                cart={cart} 
+                cartTotal={cartTotal}
+                onUpdateQuantity={updateQuantity}
+                onRemoveItem={removeFromCart}
+                couponDiscount={couponDiscount}
+                appliedCoupon={appliedCoupon}
+              />
+              
               <CheckoutActions
                 onPlaceOrder={handlePlaceOrder}
                 loading={loading}
                 cartLength={cart.length}
-                cartTotal={cartTotal}
+                cartTotal={finalTotal}
               />
             </div>
           </div>

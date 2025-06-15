@@ -45,6 +45,7 @@ export const useOrders = () => {
       setLoading(true);
       console.log('🔍 Fetching orders for user:', user.id);
 
+      // Fixed query - removed the nested product lookup that was causing the users table access error
       const { data, error } = await supabase
         .from('orders')
         .select(`
@@ -60,13 +61,7 @@ export const useOrders = () => {
             order_id,
             product_id,
             quantity,
-            price_per_item,
-            product:product_id (
-              id,
-              name,
-              brand,
-              image_urls
-            )
+            price_per_item
           )
         `)
         .eq('user_id', user.id)
@@ -77,8 +72,51 @@ export const useOrders = () => {
         throw error;
       }
 
-      console.log('✅ Orders fetched successfully:', data?.length || 0, 'orders');
-      setOrders(data || []);
+      // Fetch product details separately for each order item
+      const ordersWithProducts = await Promise.all(
+        (data || []).map(async (order) => {
+          const orderItemsWithProducts = await Promise.all(
+            order.order_items.map(async (item) => {
+              const { data: product, error: productError } = await supabase
+                .from('products')
+                .select('id, name, brand, image_urls')
+                .eq('id', item.product_id)
+                .single();
+
+              if (productError) {
+                console.error('❌ Error fetching product:', productError);
+                return {
+                  ...item,
+                  product: {
+                    id: item.product_id,
+                    name: 'Unknown Product',
+                    brand: 'Unknown Brand',
+                    image_urls: []
+                  }
+                };
+              }
+
+              return {
+                ...item,
+                product: product || {
+                  id: item.product_id,
+                  name: 'Unknown Product',
+                  brand: 'Unknown Brand',
+                  image_urls: []
+                }
+              };
+            })
+          );
+
+          return {
+            ...order,
+            order_items: orderItemsWithProducts
+          };
+        })
+      );
+
+      console.log('✅ Orders fetched successfully:', ordersWithProducts.length, 'orders');
+      setOrders(ordersWithProducts);
     } catch (error) {
       console.error('❌ Failed to fetch orders:', error);
       toast({
@@ -95,6 +133,7 @@ export const useOrders = () => {
     total_amount: number;
     delivery_address: any;
     cart: any[];
+    coupon_discount?: number;
   }) => {
     if (!user) {
       throw new Error('User not authenticated');
@@ -149,7 +188,6 @@ export const useOrders = () => {
 
       if (clearCartError) {
         console.error('⚠️ Warning: Failed to clear cart:', clearCartError);
-        // Don't throw here as order is already created
       }
 
       // Refresh orders
