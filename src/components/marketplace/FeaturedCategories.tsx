@@ -1,19 +1,15 @@
 
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Milk, Cookie, Droplet, Wheat, Apple, Leaf, Package, Heart } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface FeaturedCategoriesProps {
   onCategorySelect: (category: string) => void;
 }
 
 const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelect }) => {
-  const navigate = useNavigate();
-
   const categories = [
     {
       id: 'dairy',
@@ -82,21 +78,13 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
 
   const handleCategoryClick = (categoryId: string) => {
     console.log('Category clicked:', categoryId);
-    
-    // Navigate to marketplace with category filter and switch to browse tab
-    navigate(`/marketplace?category=${categoryId}`);
-    
-    // Also call the original callback for any additional logic
+    // Call the parent callback to handle category selection
     onCategorySelect(categoryId);
   };
 
   const handleSpecialCollectionClick = (collectionType: string) => {
     console.log('Special collection clicked:', collectionType);
-    
-    // Navigate to marketplace with special collection filter
-    navigate(`/marketplace?category=${collectionType}`);
-    
-    // Also call the original callback
+    // Call the parent callback to handle special collection selection
     onCategorySelect(collectionType);
   };
 
@@ -193,4 +181,3 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
 };
 
 export default FeaturedCategories;
-

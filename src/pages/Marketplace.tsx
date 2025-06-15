@@ -22,6 +22,7 @@ const Marketplace = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('browse');
   
   const category = searchParams.get('category') || '';
   const search = searchParams.get('search') || '';
@@ -31,6 +32,13 @@ const Marketplace = () => {
   const isOrganic = searchParams.get('isOrganic') === 'true';
   const isVegetarian = searchParams.get('isVegetarian') === 'true';
   const isVegan = searchParams.get('isVegan') === 'true';
+  
+  // Switch to browse tab when category is selected
+  useEffect(() => {
+    if (category) {
+      setActiveTab('browse');
+    }
+  }, [category]);
   
   const productOptions = useMemo(() => ({
     category: category === 'food' ? '' : category,
@@ -50,6 +58,7 @@ const Marketplace = () => {
   const hasHealthFilters = minHealthScore > 0 || maxHealthScore < 10 || isOrganic || isVegan || isVegetarian;
 
   const handleFilterChange = (filters: any) => {
+    console.log('Filter change requested:', filters);
     const newParams = new URLSearchParams(searchParams);
     
     Object.entries(filters).forEach(([key, value]) => {
@@ -63,7 +72,15 @@ const Marketplace = () => {
     setSearchParams(newParams);
   };
 
+  const handleCategorySelect = (selectedCategory: string) => {
+    console.log('Category selected in Marketplace:', selectedCategory);
+    // This will trigger the filter change and switch to browse tab
+    handleFilterChange({ category: selectedCategory });
+    setActiveTab('browse');
+  };
+
   const handleAddToCart = (product: any, quantityOption?: any) => {
+    console.log('Adding to cart:', product, quantityOption);
     if (quantityOption) {
       const modifiedProduct = {
         ...product,
@@ -85,6 +102,22 @@ const Marketplace = () => {
     isOrganic,
     isVegetarian,
     isVegan
+  };
+
+  const getCategoryDisplayName = (cat: string) => {
+    const categoryNames: Record<string, string> = {
+      dairy: 'Dairy & Alternatives',
+      bakery: 'Bakery & Breads',
+      oils: 'Healthy Oils',
+      grains: 'Grains & Cereals',
+      grocery: 'Grocery Essentials',
+      healthy_snacks: 'Healthy Snacks',
+      health_supplements: 'Health Supplements',
+      organic: 'Organic Products',
+      vegan: 'Vegan Products',
+      premium: 'Premium Selection'
+    };
+    return categoryNames[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
   };
 
   return (
@@ -110,7 +143,7 @@ const Marketplace = () => {
             </Alert>
           )}
 
-          <Tabs defaultValue="browse" className="space-y-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
               <TabsList className="grid w-full lg:w-auto grid-cols-2 bg-white/80 backdrop-blur-sm border border-gray-200 dark:bg-gray-800/80 dark:border-gray-700">
                 <TabsTrigger value="browse" className="flex items-center gap-2 data-[state=active]:bg-green-100 data-[state=active]:text-green-700">
@@ -145,6 +178,29 @@ const Marketplace = () => {
                   initialValue={search}
                 />
               </div>
+
+              {/* Category Banner */}
+              {category && (
+                <div className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 rounded-2xl p-6 border border-green-200 dark:border-green-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {getCategoryDisplayName(category)}
+                      </h2>
+                      <p className="text-gray-600 dark:text-gray-300 mt-1">
+                        Showing {products.length} products in this category
+                      </p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => handleFilterChange({ category: '' })}
+                      className="bg-white/80 backdrop-blur-sm"
+                    >
+                      Clear Filter
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Filters Toggle for Mobile */}
               <div className="lg:hidden">
@@ -186,7 +242,7 @@ const Marketplace = () => {
                   <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 dark:bg-gray-800/50 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-6">
                       <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                        {category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Products` : 'Health-Focused Products'}
+                        {category ? `${getCategoryDisplayName(category)}` : 'Health-Focused Products'}
                         <span className="ml-2 text-sm font-normal text-gray-500">
                           ({products.length} items)
                         </span>
@@ -209,7 +265,7 @@ const Marketplace = () => {
             </TabsContent>
 
             <TabsContent value="categories">
-              <FeaturedCategories onCategorySelect={(cat) => handleFilterChange({ category: cat })} />
+              <FeaturedCategories onCategorySelect={handleCategorySelect} />
             </TabsContent>
           </Tabs>
         </div>
