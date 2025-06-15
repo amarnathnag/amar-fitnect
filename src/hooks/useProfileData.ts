@@ -44,7 +44,25 @@ export const useProfileData = () => {
 
       if (data) {
         console.log("Profile data retrieved:", data);
-        setProfileData(data as ProfileData);
+        
+        // Parse period_tracking JSON if it exists
+        let periodTracking = null;
+        if (data.period_tracking) {
+          try {
+            periodTracking = typeof data.period_tracking === 'string' 
+              ? JSON.parse(data.period_tracking) 
+              : data.period_tracking;
+          } catch (e) {
+            console.error('Error parsing period tracking data:', e);
+          }
+        }
+
+        const profileData = {
+          ...data,
+          period_tracking: periodTracking
+        } as ProfileData;
+
+        setProfileData(profileData);
         
         // Check if profile is complete by verifying required fields
         const hasRequiredFields = 
@@ -92,6 +110,12 @@ export const useProfileData = () => {
 
       const userId = sessionData.session.user.id;
       console.log('Updating profile for user ID:', userId);
+
+      // Prepare the data for update, stringify period_tracking if present
+      const updateData = { ...data };
+      if (updateData.period_tracking) {
+        updateData.period_tracking = JSON.stringify(updateData.period_tracking);
+      }
       
       // Check if profile exists
       const { data: existingProfile, error: profileCheckError } = await supabase
@@ -112,7 +136,7 @@ export const useProfileData = () => {
         console.log('Updating existing profile');
         result = await supabase
           .from('user_profiles')
-          .update(data)
+          .update(updateData)
           .eq('user_id', userId);
       } else {
         // Insert new profile
@@ -121,7 +145,7 @@ export const useProfileData = () => {
           .from('user_profiles')
           .insert([{ 
             user_id: userId,
-            ...data 
+            ...updateData 
           }]);
       }
       
