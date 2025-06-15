@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -50,48 +51,50 @@ function App() {
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <div className="App">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} />
-              <Route path="/workouts" element={<Workouts />} />
-              <Route path="/workout/:id" element={<WorkoutDetail />} />
-              <Route path="/exercise/:id" element={<ExerciseDetails />} />
-              <Route path="/womens-health" element={<WomensHealth />} />
-              <Route path="/diet-plans" element={<DietPlans />} />
-              <Route path="/bmi-calculator" element={<BmiCalculator />} />
-              <Route path="/doctor-consultation" element={<DoctorConsultation />} />
-              <Route path="/gyms" element={<Gyms />} />
-              <Route path="/gym/:id" element={<GymDetail />} />
-              <Route path="/gym-registration" element={<GymRegistration />} />
-              <Route path="/jobs" element={<Jobs />} />
-              <Route path="/job/:id" element={<JobDetails />} />
-              <Route path="/job/:id/apply" element={<JobApplication />} />
-              <Route path="/job-application-success" element={<JobApplicationSuccess />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/disease-management" element={<DiseaseManagement />} />
-              <Route path="/disease/:id" element={<DiseaseDetail />} />
-              <Route path="/daily-routine" element={<DailyRoutine />} />
-              <Route path="/marketplace" element={<Marketplace />} />
-              <Route path="/marketplace/product/:id" element={<ProductDetail />} />
-              <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-              <Route path="/subscription" element={<Subscription />} />
-              <Route path="/premium-ai" element={<PremiumAi />} />
-              <Route path="/premium-payment" element={<PremiumPayment />} />
-              <Route path="/premium-unlocked" element={<PremiumUnlocked />} />
-              <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </div>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <div className="App">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} />
+                <Route path="/workouts" element={<Workouts />} />
+                <Route path="/workout/:id" element={<WorkoutDetail />} />
+                <Route path="/exercise/:id" element={<ExerciseDetails />} />
+                <Route path="/womens-health" element={<WomensHealth />} />
+                <Route path="/diet-plans" element={<DietPlans />} />
+                <Route path="/bmi-calculator" element={<BmiCalculator />} />
+                <Route path="/doctor-consultation" element={<DoctorConsultation />} />
+                <Route path="/gyms" element={<Gyms />} />
+                <Route path="/gym/:id" element={<GymDetail />} />
+                <Route path="/gym-registration" element={<GymRegistration />} />
+                <Route path="/jobs" element={<Jobs />} />
+                <Route path="/job/:id" element={<JobDetails />} />
+                <Route path="/job/:id/apply" element={<JobApplication />} />
+                <Route path="/job-application-success" element={<JobApplicationSuccess />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/disease-management" element={<DiseaseManagement />} />
+                <Route path="/disease/:id" element={<DiseaseDetail />} />
+                <Route path="/daily-routine" element={<DailyRoutine />} />
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/marketplace/product/:id" element={<ProductDetail />} />
+                <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                <Route path="/subscription" element={<Subscription />} />
+                <Route path="/premium-ai" element={<PremiumAi />} />
+                <Route path="/premium-payment" element={<PremiumPayment />} />
+                <Route path="/premium-unlocked" element={<PremiumUnlocked />} />
+                <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+            </div>
+          </AuthProvider>
+        </LanguageProvider>
       </QueryClientProvider>
     </Router>
   );
