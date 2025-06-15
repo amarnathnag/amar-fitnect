@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { ProfileData } from '@/types/auth';
+import { ProfileData, PeriodTrackingData } from '@/types/auth';
 import { useToast } from "@/hooks/use-toast";
 
 export const useProfileData = () => {
@@ -46,7 +46,7 @@ export const useProfileData = () => {
         console.log("Profile data retrieved:", data);
         
         // Parse period_tracking JSON if it exists
-        let periodTracking = null;
+        let periodTracking: PeriodTrackingData | null = null;
         if (data.period_tracking) {
           try {
             periodTracking = typeof data.period_tracking === 'string' 
@@ -112,7 +112,7 @@ export const useProfileData = () => {
       console.log('Updating profile for user ID:', userId);
 
       // Prepare the data for update, stringify period_tracking if present
-      const updateData = { ...data };
+      const updateData: any = { ...data };
       if (updateData.period_tracking) {
         updateData.period_tracking = JSON.stringify(updateData.period_tracking);
       }
@@ -139,7 +139,7 @@ export const useProfileData = () => {
           .update(updateData)
           .eq('user_id', userId);
       } else {
-        // Insert new profile
+        // Insert new profile with user_id
         console.log('Creating new profile with user ID:', userId);
         result = await supabase
           .from('user_profiles')

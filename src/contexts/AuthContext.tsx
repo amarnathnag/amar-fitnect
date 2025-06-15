@@ -86,7 +86,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (data) {
         console.log("Profile data retrieved:", data);
-        setProfileData(data as ProfileData);
+        
+        // Parse period_tracking JSON if it exists
+        let periodTracking = null;
+        if (data.period_tracking) {
+          try {
+            periodTracking = typeof data.period_tracking === 'string' 
+              ? JSON.parse(data.period_tracking) 
+              : data.period_tracking;
+          } catch (e) {
+            console.error('Error parsing period tracking data:', e);
+          }
+        }
+
+        const profileData = {
+          ...data,
+          period_tracking: periodTracking
+        } as ProfileData;
+
+        setProfileData(profileData);
         
         const hasRequiredFields = 
           data.full_name && 
@@ -125,6 +143,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const userId = sessionData.session.user.id;
       
+      // Prepare the data for update, stringify period_tracking if present
+      const updateData: any = { ...data };
+      if (updateData.period_tracking) {
+        updateData.period_tracking = JSON.stringify(updateData.period_tracking);
+      }
+      
       const { data: existingProfile, error: profileCheckError } = await supabase
         .from('user_profiles')
         .select('id')
@@ -141,14 +165,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (existingProfile) {
         result = await supabase
           .from('user_profiles')
-          .update(data)
+          .update(updateData)
           .eq('user_id', userId);
       } else {
         result = await supabase
           .from('user_profiles')
           .insert([{ 
             user_id: userId,
-            ...data 
+            ...updateData 
           }]);
       }
       
