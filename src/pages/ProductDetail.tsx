@@ -10,7 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Star, Award, Leaf, Heart, AlertTriangle, Package } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { sampleProducts } from '@/data/sampleProducts';
+import { supabase } from '@/integrations/supabase/client';
+import { convertDbProductToProduct } from '@/utils/productMapping';
 import { useToast } from '@/hooks/use-toast';
+import type { Product } from '@/types/product';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -18,14 +21,78 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [selectedQuantity, setSelectedQuantity] = useState(0);
-  
-  const product = sampleProducts.find(p => p.id === id);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log('Fetching product with ID:', id);
+        
+        // First try to get from Supabase
+        const { data: dbProduct, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .eq('status', 'active')
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching product from database:', error);
+        }
+
+        if (dbProduct) {
+          console.log('Found product in database:', dbProduct);
+          const convertedProduct = convertDbProductToProduct(dbProduct);
+          setProduct(convertedProduct);
+        } else {
+          // Fallback to sample data
+          console.log('Product not found in database, checking sample data');
+          const sampleProduct = sampleProducts.find(p => p.id === id);
+          if (sampleProduct) {
+            console.log('Found product in sample data:', sampleProduct);
+            setProduct(sampleProduct);
+          } else {
+            console.log('Product not found in sample data either');
+            setProduct(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
 
   useEffect(() => {
     if (product?.quantity_options && product.quantity_options.length > 0) {
       setSelectedQuantity(0);
     }
   }, [product]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+            <p className="mt-4 text-lg">Loading product...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -34,6 +101,7 @@ const ProductDetail = () => {
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
+            <p className="text-gray-600 mb-6">The product you're looking for doesn't exist or has been removed.</p>
             <Button onClick={() => navigate('/marketplace')}>
               Back to Marketplace
             </Button>
@@ -236,7 +304,10 @@ const ProductDetail = () => {
                   <div className="space-y-2">
                     <h3 className="font-semibold">Ingredients</h3>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {product.ingredients.join(', ')}
+                      {Array.isArray(product.ingredients) 
+                        ? product.ingredients.join(', ')
+                        : JSON.stringify(product.ingredients)
+                      }
                     </div>
                   </div>
                 )}
