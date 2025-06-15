@@ -35,6 +35,7 @@ export const useCart = () => {
     if (!user) return;
 
     try {
+      console.log('🛒 Fetching cart for user:', user.id);
       const { data, error } = await supabase
         .from('shopping_cart')
         .select(`
@@ -53,18 +54,24 @@ export const useCart = () => {
 
       if (error) throw error;
 
-      setCart(data?.map(item => ({
+      const cartItems = data?.map(item => ({
         id: item.id,
         product: item.product as any,
         quantity: item.quantity
-      })) || []);
+      })) || [];
+
+      console.log('🛒 Cart fetched successfully:', cartItems.length, 'items');
+      setCart(cartItems);
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      console.error('❌ Error fetching cart:', error);
     }
   };
 
   const addToCart = async (product: any) => {
+    console.log('🛒 Adding product to cart:', product.name);
+    
     if (!user) {
+      console.log('❌ User not logged in');
       toast({
         title: "Login Required",
         description: "Please login to add items to cart",
@@ -78,10 +85,15 @@ export const useCart = () => {
 
       // Check if item already exists in cart
       const existingItem = cart.find(item => item.product.id === product.id);
+      console.log('🔍 Checking existing item:', existingItem ? 'Found' : 'Not found');
 
       if (existingItem) {
+        // Update quantity if item exists
+        console.log('📈 Updating quantity for existing item');
         await updateQuantity(product.id, existingItem.quantity + 1);
       } else {
+        // Add new item to cart
+        console.log('➕ Adding new item to cart');
         const { error } = await supabase
           .from('shopping_cart')
           .insert([{
@@ -93,13 +105,14 @@ export const useCart = () => {
         if (error) throw error;
 
         await fetchCart();
+        console.log('✅ Product added to cart successfully');
         toast({
           title: "Added to Cart",
           description: `${product.name} added to cart`,
         });
       }
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('❌ Error adding to cart:', error);
       toast({
         title: "Error",
         description: "Failed to add item to cart",
@@ -114,6 +127,8 @@ export const useCart = () => {
     if (!user) return;
 
     try {
+      console.log('🔄 Updating quantity:', productId, 'to', quantity);
+      
       if (quantity <= 0) {
         await removeFromCart(productId);
         return;
@@ -127,9 +142,18 @@ export const useCart = () => {
 
       if (error) throw error;
 
-      await fetchCart();
+      // Update local state immediately for better UX
+      setCart(prevCart => 
+        prevCart.map(item => 
+          item.product.id === productId 
+            ? { ...item, quantity }
+            : item
+        )
+      );
+
+      console.log('✅ Quantity updated successfully');
     } catch (error) {
-      console.error('Error updating quantity:', error);
+      console.error('❌ Error updating quantity:', error);
       toast({
         title: "Error",
         description: "Failed to update quantity",
@@ -142,6 +166,8 @@ export const useCart = () => {
     if (!user) return;
 
     try {
+      console.log('🗑️ Removing item from cart:', productId);
+      
       const { error } = await supabase
         .from('shopping_cart')
         .delete()
@@ -150,13 +176,16 @@ export const useCart = () => {
 
       if (error) throw error;
 
-      await fetchCart();
+      // Update local state immediately
+      setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
+
+      console.log('✅ Item removed from cart successfully');
       toast({
         title: "Removed from Cart",
         description: "Item removed from cart",
       });
     } catch (error) {
-      console.error('Error removing from cart:', error);
+      console.error('❌ Error removing from cart:', error);
       toast({
         title: "Error",
         description: "Failed to remove item",
@@ -167,6 +196,8 @@ export const useCart = () => {
 
   const cartTotal = cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
+
+  console.log('🛒 Cart stats - Total:', cartTotal, 'Count:', cartCount);
 
   return {
     cart,

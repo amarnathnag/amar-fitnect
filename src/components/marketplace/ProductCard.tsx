@@ -70,7 +70,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
 
   const handleAddToCartClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Adding to cart:', product.name);
+    console.log('🛒 Add to cart button clicked for:', product.name);
+    
+    if (product.stock_quantity <= 0) {
+      console.log('❌ Product out of stock');
+      return;
+    }
+    
+    console.log('✅ Calling onAddToCart callback');
     onAddToCart();
   };
 

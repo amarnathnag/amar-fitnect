@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -17,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShoppingCart, Filter, Grid3X3, Sparkles, Database, Heart } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 
 const Marketplace = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -98,17 +98,21 @@ const Marketplace = () => {
 
   const handleAddToCart = (product: any, quantityOption?: any) => {
     console.log('🛒 Adding to cart:', product.name, quantityOption);
+    
+    let productToAdd = product;
+    
     if (quantityOption) {
-      const modifiedProduct = {
+      // If quantity option is provided, modify the product with selected options
+      productToAdd = {
         ...product,
         price: quantityOption.price,
         quantity_selected: quantityOption.value,
         unit_selected: quantityOption.unit
       };
-      addToCart(modifiedProduct);
-    } else {
-      addToCart(product);
+      console.log('📦 Modified product with quantity option:', productToAdd);
     }
+    
+    addToCart(productToAdd);
   };
 
   const currentFilters = {
@@ -189,10 +193,11 @@ const Marketplace = () => {
                 className="relative bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-white dark:bg-gray-800/80 dark:border-gray-700 dark:hover:bg-gray-800"
               >
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Cart {cartCount > 0 && (
-                  <span className="ml-1 bg-green-500 text-white text-xs rounded-full px-2 py-0.5">
+                Cart 
+                {cartCount > 0 && (
+                  <Badge className="ml-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
                     {cartCount}
-                  </span>
+                  </Badge>
                 )}
               </Button>
             </div>
