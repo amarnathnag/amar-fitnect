@@ -77,13 +77,17 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
   ];
 
   const handleCategoryClick = (categoryId: string) => {
-    console.log('Category clicked:', categoryId);
+    console.log('📂 Category button clicked:', categoryId);
+    console.log('🔗 Triggering category selection...');
+    
     // Call the parent callback to handle category selection
     onCategorySelect(categoryId);
   };
 
   const handleSpecialCollectionClick = (collectionType: string) => {
-    console.log('Special collection clicked:', collectionType);
+    console.log('⭐ Special collection clicked:', collectionType);
+    console.log('🔗 Triggering special collection selection...');
+    
     // Call the parent callback to handle special collection selection
     onCategorySelect(collectionType);
   };

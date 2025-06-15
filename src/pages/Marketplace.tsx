@@ -35,21 +35,27 @@ const Marketplace = () => {
   
   // Switch to browse tab when category is selected
   useEffect(() => {
+    console.log('🔄 Category effect triggered:', { category, activeTab });
     if (category) {
+      console.log('📂 Category detected, switching to browse tab');
       setActiveTab('browse');
     }
   }, [category]);
   
-  const productOptions = useMemo(() => ({
-    category: category === 'food' ? '' : category,
-    search,
-    sortBy,
-    minHealthScore,
-    maxHealthScore,
-    isOrganic,
-    isVegetarian,
-    isVegan
-  }), [category, search, sortBy, minHealthScore, maxHealthScore, isOrganic, isVegetarian, isVegan]);
+  const productOptions = useMemo(() => {
+    const options = {
+      category: category === 'food' ? '' : category,
+      search,
+      sortBy,
+      minHealthScore,
+      maxHealthScore,
+      isOrganic,
+      isVegetarian,
+      isVegan
+    };
+    console.log('🔍 Product options updated:', options);
+    return options;
+  }, [category, search, sortBy, minHealthScore, maxHealthScore, isOrganic, isVegetarian, isVegan]);
   
   const { products, loading, categories } = useProducts(productOptions);
   const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
@@ -58,29 +64,40 @@ const Marketplace = () => {
   const hasHealthFilters = minHealthScore > 0 || maxHealthScore < 10 || isOrganic || isVegan || isVegetarian;
 
   const handleFilterChange = (filters: any) => {
-    console.log('Filter change requested:', filters);
+    console.log('🔧 Filter change requested:', filters);
     const newParams = new URLSearchParams(searchParams);
     
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '' && value !== false) {
         newParams.set(key, value as string);
+        console.log(`✅ Setting filter: ${key} = ${value}`);
       } else {
         newParams.delete(key);
+        console.log(`❌ Removing filter: ${key}`);
       }
     });
     
+    console.log('🔗 Updating URL with new filters:', newParams.toString());
     setSearchParams(newParams);
   };
 
   const handleCategorySelect = (selectedCategory: string) => {
-    console.log('Category selected in Marketplace:', selectedCategory);
-    // This will trigger the filter change and switch to browse tab
-    handleFilterChange({ category: selectedCategory });
+    console.log('🎯 Category selection handler called:', selectedCategory);
+    console.log('📊 Current state:', { activeTab, category });
+    
+    // Clear other filters when selecting a category
+    const newParams = new URLSearchParams();
+    newParams.set('category', selectedCategory);
+    
+    console.log('🔄 Setting new category and switching to browse tab');
+    setSearchParams(newParams);
     setActiveTab('browse');
+    
+    console.log('✅ Category selection complete. New category:', selectedCategory);
   };
 
   const handleAddToCart = (product: any, quantityOption?: any) => {
-    console.log('Adding to cart:', product, quantityOption);
+    console.log('🛒 Adding to cart:', product.name, quantityOption);
     if (quantityOption) {
       const modifiedProduct = {
         ...product,
@@ -119,6 +136,16 @@ const Marketplace = () => {
     };
     return categoryNames[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
   };
+
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 Marketplace Debug Info:');
+    console.log('- Active Tab:', activeTab);
+    console.log('- Category:', category);
+    console.log('- Products Count:', products.length);
+    console.log('- Loading:', loading);
+    console.log('- Current URL:', window.location.href);
+  }, [activeTab, category, products.length, loading]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
