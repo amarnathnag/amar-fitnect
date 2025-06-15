@@ -3,74 +3,70 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Package, Calendar, MapPin, User, Mail } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
+import { Package, Calendar, User, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface Order {
-  id: string;
-  user_id: string;
-  total_amount: number;
-  status: string;
-  created_at: string;
-  delivery_address: any;
-  order_items: Array<{
-    id: string;
-    quantity: number;
-    price_per_item: number;
-    product: {
-      id: string;
-      name: string;
-      image_urls: string[];
-    };
-  }>;
-}
+const ORDER_STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
 const AdminOrders = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
+  const [dateRange, setDateRange] = useState({ from: '', to: '' });
   const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchOrders();
+    // eslint-disable-next-line
   }, []);
 
   const fetchOrders = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
+    setLoading(true);
+    let query = supabase
+      .from('orders')
+      .select(`
+        *,
+        order_items (
           *,
-          order_items (
-            *,
-            product:product_id (
-              id,
-              name,
-              image_urls
-            )
+          product:product_id (
+            id, name, image_urls
           )
-        `)
-        .order('created_at', { ascending: false });
+        )
+      `)
+      .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setOrders(data || []);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+    if (statusFilter) query = query.eq('status', statusFilter);
+    if (search) query = query
+      .or([
+        `id.ilike.%${search}%`,
+        `user_id.ilike.%${search}%`
+      ]);
+
+    if (dateRange.from) query = query.gte('created_at', dateRange.from);
+    if (dateRange.to) query = query.lte('created_at', dateRange.to);
+
+    const { data, error } = await query;
+    if (error) {
       toast({
         title: "Error",
         description: "Failed to fetch orders",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
+      setOrders([]);
+    } else {
+      setOrders(data || []);
     }
+    setLoading(false);
   };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       setUpdating(orderId);
-      
       const { error } = await supabase
         .from('orders')
         .update({ status: newStatus })
@@ -78,234 +74,115 @@ const AdminOrders = () => {
 
       if (error) throw error;
 
-      // Send email notification if confirming or shipping
-      if (newStatus === 'confirmed' || newStatus === 'shipped') {
-        await sendOrderEmail(orderId, newStatus);
-      }
-
       await fetchOrders();
-      toast({
-        title: "Success",
-        description: `Order ${newStatus} successfully`,
-      });
-    } catch (error) {
-      console.error('Error updating order:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update order",
-        variant: "destructive",
-      });
+      toast({ title: "Order status updated" });
+    } catch {
+      toast({ title: "Error", description: "Could not update status", variant: "destructive" });
     } finally {
       setUpdating(null);
     }
   };
 
-  const sendOrderEmail = async (orderId: string, status: string) => {
-    try {
-      const order = orders.find(o => o.id === orderId);
-      if (!order) return;
-
-      // Get user email
-      const { data: userEmail } = await supabase.rpc('get_user_email', {
-        user_uuid: order.user_id
-      });
-
-      if (!userEmail) {
-        console.error('Could not get user email');
-        return;
-      }
-
-      const orderItems = order.order_items.map(item => ({
-        name: item.product.name,
-        quantity: item.quantity,
-        price: item.price_per_item
-      }));
-
-      const response = await fetch('/api/v1/send-order-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderId: order.id,
-          userEmail: userEmail,
-          userName: 'Customer', // You might want to get actual name from user profile
-          orderTotal: order.total_amount,
-          orderItems: orderItems,
-          deliveryAddress: order.delivery_address,
-          status: status
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send email');
-      }
-
-      console.log('Email sent successfully');
-    } catch (error) {
-      console.error('Error sending email:', error);
-      // Don't show error to user as order update was successful
+  const handleBulkStatusUpdate = async (status: string) => {
+    const selected = orders.filter(o => o._checked);
+    if (selected.length === 0) return;
+    for (const order of selected) {
+      await updateOrderStatus(order.id, status);
     }
+    fetchOrders();
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed':
-        return 'bg-blue-100 text-blue-800';
-      case 'shipped':
-        return 'bg-purple-100 text-purple-800';
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'shipped': return 'bg-purple-100 text-purple-800';
+      case 'delivered': return 'bg-green-100 text-green-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  if (loading) {
-    return <div>Loading orders...</div>;
-  }
+  if (loading) return <div>Loading orders...</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Package className="h-6 w-6" />
-        <h2 className="text-2xl font-bold">Order Management</h2>
+    <div className="space-y-4">
+      <div className="flex items-center gap-4 flex-wrap mb-4">
+        <Input placeholder="Search by order ID or user ID" value={search}
+          onChange={e => setSearch(e.target.value)} className="w-[200px]" />
+        <Select value={statusFilter} onValueChange={v => setStatusFilter(v)}>
+          <SelectTrigger className="w-[150px]">{statusFilter ? statusFilter : "Status"}</SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Status</SelectItem>
+            {ORDER_STATUSES.map(s =>
+              <SelectItem key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+        <Input type="date" value={dateRange.from} onChange={e => setDateRange(d => ({ ...d, from: e.target.value }))} />
+        <Input type="date" value={dateRange.to} onChange={e => setDateRange(d => ({ ...d, to: e.target.value }))} />
+        <Button variant="outline" onClick={fetchOrders}>
+          <Search className="h-4 w-4" /> Filter
+        </Button>
+        <Select onValueChange={handleBulkStatusUpdate}>
+          <SelectTrigger className="w-[180px]">Bulk Status Update</SelectTrigger>
+          <SelectContent>
+            {ORDER_STATUSES.map(s =>
+              <SelectItem key={s} value={s}>Set All to {s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
       </div>
-
-      {orders.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-8">
-            <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No orders found</h3>
-            <p className="text-gray-500">Orders will appear here when customers place them</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {orders.map((order) => (
+      {orders.length === 0 ?
+        <div className="text-gray-500 text-center">No orders found</div>
+        :
+        <div className="space-y-3">
+          {orders.map((order, idx) => (
             <Card key={order.id}>
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">
-                      Order #{order.id.slice(0, 8)}
-                    </CardTitle>
-                    <div className="flex items-center gap-4 mt-2">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-500">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-500">
-                          ID: {order.user_id.slice(0, 8)}
-                        </span>
-                      </div>
-                    </div>
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                  <div className="flex gap-2 items-center">
+                    <input type="checkbox"
+                      checked={!!order._checked} onChange={e => {
+                        setOrders(os => os.map((o, i) => i === idx ? { ...o, _checked: e.target.checked } : o));
+                      }} />
+                    <CardTitle>Order #{order.id.slice(0, 8)}</CardTitle>
+                    <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
                   </div>
-                  <div className="text-right">
-                    <Badge className={getStatusColor(order.status)}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </Badge>
-                    <p className="text-lg font-bold mt-2">₹{order.total_amount}</p>
+                  <div>
+                    <span className="mr-2 text-gray-500 text-xs">{new Date(order.created_at).toLocaleString()}</span>
+                    <span className="font-bold text-lg">₹{order.total_amount}</span>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {/* Order Items */}
-                  <div>
-                    <h4 className="font-medium mb-2">Items:</h4>
-                    <div className="space-y-2">
-                      {order.order_items?.map((item) => (
-                        <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded">
-                          <img
-                            src={item.product?.image_urls?.[0] || '/placeholder.svg'}
-                            alt={item.product?.name}
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                          <div className="flex-grow">
-                            <p className="font-medium text-sm">{item.product?.name}</p>
-                            <p className="text-xs text-gray-500">
-                              Qty: {item.quantity} × ₹{item.price_per_item}
-                            </p>
-                          </div>
-                          <p className="font-semibold">
-                            ₹{(item.quantity * item.price_per_item).toFixed(2)}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2 items-center">
+                    <User className="h-4 w-4" />
+                    <span className="text-sm text-gray-500">{order.user_id.slice(0, 8)}</span>
                   </div>
-
-                  {/* Delivery Address */}
-                  {order.delivery_address && (
-                    <div>
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Delivery Address:
-                      </h4>
-                      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                        <p>{order.delivery_address.street}</p>
-                        <p>{order.delivery_address.city}, {order.delivery_address.state}</p>
-                        <p>Pincode: {order.delivery_address.pincode}</p>
-                        <p>Phone: {order.delivery_address.phone}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 pt-4">
-                    {order.status === 'pending' && (
-                      <>
-                        <Button
-                          onClick={() => updateOrderStatus(order.id, 'confirmed')}
-                          disabled={updating === order.id}
-                          size="sm"
-                        >
-                          {updating === order.id ? 'Updating...' : 'Confirm Order'}
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() => updateOrderStatus(order.id, 'cancelled')}
-                          disabled={updating === order.id}
-                          size="sm"
-                        >
-                          Cancel Order
-                        </Button>
-                      </>
-                    )}
-                    {order.status === 'confirmed' && (
+                  <div>
+                    <span className="font-bold">Items:</span> {order.order_items?.length || 0}
+                  </div>
+                  <div className="flex flex-wrap gap-2 py-1">
+                    {ORDER_STATUSES.filter(s => s !== order.status).map(s => (
                       <Button
-                        onClick={() => updateOrderStatus(order.id, 'shipped')}
-                        disabled={updating === order.id}
+                        key={s}
+                        onClick={() => updateOrderStatus(order.id, s)}
                         size="sm"
-                      >
-                        {updating === order.id ? 'Updating...' : 'Mark as Shipped'}
-                      </Button>
-                    )}
-                    {order.status === 'shipped' && (
-                      <Button
-                        onClick={() => updateOrderStatus(order.id, 'delivered')}
+                        variant="outline"
                         disabled={updating === order.id}
-                        size="sm"
                       >
-                        {updating === order.id ? 'Updating...' : 'Mark as Delivered'}
+                        Mark as {s}
                       </Button>
-                    )}
+                    ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
-      )}
+      }
     </div>
   );
 };
