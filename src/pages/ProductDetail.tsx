@@ -51,7 +51,15 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product, currentQuantityOption);
+    // Create a modified product with the selected quantity option details
+    const productWithQuantity = {
+      ...product,
+      price: currentQuantityOption.price,
+      quantity_selected: currentQuantityOption.value,
+      unit_selected: currentQuantityOption.unit
+    };
+    
+    addToCart(productWithQuantity);
     toast({
       title: "Added to Cart",
       description: `${product.name} (${currentQuantityOption.unit}) added to cart`,

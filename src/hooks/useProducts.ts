@@ -29,6 +29,17 @@ interface Product {
   }>;
   warnings?: string[];
   allergens?: string[];
+  ingredients?: string[];
+  nutritional_info?: Record<string, any>;
+  // Database-specific fields (optional for sample data)
+  admin_notes?: string;
+  auto_health_score?: number;
+  created_at?: string;
+  updated_at?: string;
+  manual_override?: boolean;
+  seller_id?: string;
+  status?: string;
+  workflow_status?: string;
 }
 
 interface UseProductsOptions {
