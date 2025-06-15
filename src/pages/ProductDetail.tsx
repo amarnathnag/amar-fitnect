@@ -6,8 +6,10 @@ import Footer from '@/components/Footer';
 import ProductInfo from '@/components/product-detail/ProductInfo';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Star, Award, Leaf, Heart, AlertTriangle, Package } from 'lucide-react';
+import { ArrowLeft, Star, Award, Leaf, Heart, AlertTriangle, Package, Minus, Plus, Tag } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { sampleProducts } from '@/data/sampleProducts';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +25,17 @@ const ProductDetail = () => {
   const [selectedQuantity, setSelectedQuantity] = useState(0);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
+
+  // Sample coupons (in real app, these would come from backend)
+  const availableCoupons = [
+    { code: 'HEALTH10', discount: 10, type: 'percentage' as const, minAmount: 100 },
+    { code: 'ORGANIC15', discount: 15, type: 'percentage' as const, minAmount: 200 },
+    { code: 'SAVE50', discount: 50, type: 'fixed' as const, minAmount: 300 },
+    { code: 'WELCOME20', discount: 20, type: 'percentage' as const, minAmount: 150 }
+  ];
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -79,6 +92,70 @@ const ProductDetail = () => {
     }
   }, [product]);
 
+  const currentQuantityOption = product?.quantity_options?.[selectedQuantity] || {
+    value: 1,
+    unit: 'unit',
+    price: product?.price || 0
+  };
+
+  const basePrice = currentQuantityOption.price * quantity;
+  
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+    
+    if (appliedCoupon.type === 'percentage') {
+      return (basePrice * appliedCoupon.discount) / 100;
+    } else {
+      return appliedCoupon.discount;
+    }
+  };
+
+  const discountAmount = calculateDiscount();
+  const finalPrice = Math.max(0, basePrice - discountAmount);
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity >= 1 && newQuantity <= (product?.stock_quantity || 1)) {
+      setQuantity(newQuantity);
+    }
+  };
+
+  const handleApplyCoupon = () => {
+    const coupon = availableCoupons.find(c => c.code.toLowerCase() === couponCode.toLowerCase());
+    
+    if (!coupon) {
+      toast({
+        title: "Invalid Coupon",
+        description: "The coupon code you entered is not valid.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (basePrice < coupon.minAmount) {
+      toast({
+        title: "Minimum Amount Not Met",
+        description: `This coupon requires a minimum purchase of ₹${coupon.minAmount}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAppliedCoupon(coupon);
+    toast({
+      title: "Coupon Applied!",
+      description: `You saved ₹${coupon.type === 'percentage' ? (basePrice * coupon.discount / 100).toFixed(2) : coupon.discount} with coupon ${coupon.code}`,
+    });
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    toast({
+      title: "Coupon Removed",
+      description: "Coupon has been removed from your order.",
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -112,25 +189,24 @@ const ProductDetail = () => {
     );
   }
 
-  const currentQuantityOption = product.quantity_options?.[selectedQuantity] || {
-    value: 1,
-    unit: 'unit',
-    price: product.price
-  };
-
   const handleAddToCart = () => {
     // Create a modified product with the selected quantity option details
     const productWithQuantity = {
       ...product,
-      price: currentQuantityOption.price,
-      quantity_selected: currentQuantityOption.value,
-      unit_selected: currentQuantityOption.unit
+      price: finalPrice / quantity, // Adjusted price per unit including discount
+      quantity_selected: currentQuantityOption.value * quantity,
+      unit_selected: currentQuantityOption.unit,
+      appliedDiscount: discountAmount,
+      appliedCoupon: appliedCoupon?.code
     };
     
-    addToCart(productWithQuantity);
+    for (let i = 0; i < quantity; i++) {
+      addToCart(productWithQuantity);
+    }
+    
     toast({
       title: "Added to Cart",
-      description: `${product.name} (${currentQuantityOption.unit}) added to cart`,
+      description: `${quantity}x ${product.name} (${currentQuantityOption.unit}) added to cart`,
     });
   };
 
@@ -228,7 +304,7 @@ const ProductDetail = () => {
               {/* Quantity Selection */}
               {product.quantity_options && product.quantity_options.length > 1 && (
                 <div className="space-y-3">
-                  <label className="text-lg font-medium">Select Quantity:</label>
+                  <label className="text-lg font-medium">Select Package:</label>
                   <Select 
                     value={selectedQuantity.toString()} 
                     onValueChange={(value) => setSelectedQuantity(parseInt(value))}
@@ -247,14 +323,108 @@ const ProductDetail = () => {
                 </div>
               )}
 
-              {/* Price and Stock */}
-              <div className="space-y-2">
-                <div className="text-4xl font-bold text-primary">
-                  ₹{currentQuantityOption.price}
-                  {currentQuantityOption.unit !== 'unit' && (
-                    <span className="text-lg text-gray-500 ml-2">({currentQuantityOption.unit})</span>
-                  )}
+              {/* Quantity Selector */}
+              <div className="space-y-3">
+                <Label className="text-lg font-medium">Quantity:</Label>
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="text-xl font-semibold min-w-[3rem] text-center">{quantity}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    disabled={quantity >= (product.stock_quantity || 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-gray-500">
+                    (Max: {product.stock_quantity})
+                  </span>
                 </div>
+              </div>
+
+              {/* Coupon Section */}
+              <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <Label className="text-lg font-medium flex items-center gap-2">
+                  <Tag className="h-5 w-5" />
+                  Apply Coupon
+                </Label>
+                
+                {!appliedCoupon ? (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter coupon code"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      className="flex-1"
+                    />
+                    <Button onClick={handleApplyCoupon} variant="outline">
+                      Apply
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <div>
+                      <Badge className="bg-green-600 text-white">
+                        {appliedCoupon.code}
+                      </Badge>
+                      <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                        {appliedCoupon.type === 'percentage' 
+                          ? `${appliedCoupon.discount}% off` 
+                          : `₹${appliedCoupon.discount} off`
+                        }
+                      </p>
+                    </div>
+                    <Button onClick={handleRemoveCoupon} variant="ghost" size="sm">
+                      Remove
+                    </Button>
+                  </div>
+                )}
+
+                <div className="text-xs text-gray-500">
+                  <p>Available coupons: HEALTH10, ORGANIC15, SAVE50, WELCOME20</p>
+                </div>
+              </div>
+
+              {/* Price and Stock */}
+              <div className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg border">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg">Base Price:</span>
+                    <span className="text-lg">₹{basePrice.toFixed(2)}</span>
+                  </div>
+                  
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between items-center text-green-600">
+                      <span>Discount:</span>
+                      <span>-₹{discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-2xl font-bold">Total:</span>
+                      <div className="text-right">
+                        {discountAmount > 0 && (
+                          <div className="text-lg text-gray-500 line-through">
+                            ₹{basePrice.toFixed(2)}
+                          </div>
+                        )}
+                        <div className="text-2xl font-bold text-primary">
+                          ₹{finalPrice.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   <span className={`text-sm font-medium ${
@@ -281,7 +451,7 @@ const ProductDetail = () => {
               >
                 {product.stock_quantity === 0 
                   ? 'Out of Stock' 
-                  : `Add ${currentQuantityOption.unit} to Cart - ₹${currentQuantityOption.price}`
+                  : `Add ${quantity}x ${currentQuantityOption.unit} to Cart - ₹${finalPrice.toFixed(2)}`
                 }
               </Button>
 
