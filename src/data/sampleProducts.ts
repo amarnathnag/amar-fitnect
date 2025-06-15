@@ -1,3 +1,4 @@
+import { newCategoryProducts } from './newCategoryProducts';
 
 export const sampleProducts = [
   {
@@ -315,5 +316,7 @@ export const sampleProducts = [
     warnings: ["Not suitable for children under 1 year", "High in natural sugars"],
     status: "active",
     workflow_status: "published"
-  }
+  },
+  // Add all new category products
+  ...newCategoryProducts
 ];

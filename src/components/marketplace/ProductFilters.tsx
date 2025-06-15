@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -77,7 +76,13 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     frozen: 'Frozen & Convenience',
     personal_care: 'Personal Care & Wellness',
     household: 'Household Essentials',
-    supplements: 'Health Supplements'
+    supplements: 'Health Supplements',
+    healthy_snacks: 'Healthy Snacks',
+    health_supplements: 'Health Supplements',
+    special_collections: 'Special Collections',
+    protein: 'Protein Sources',
+    breakfast: 'Breakfast & Cereals',
+    sweeteners: 'Natural Sweeteners'
   };
 
   const getCurrentHealthScoreRange = () => {

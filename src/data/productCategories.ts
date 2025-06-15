@@ -10,7 +10,10 @@ export const productCategories = [
   'sweeteners',
   'organic',
   'vegan',
-  'premium'
+  'premium',
+  'healthy_snacks',
+  'health_supplements',
+  'special_collections'
 ];
 
 export const categoryDisplayNames: Record<string, string> = {
@@ -24,7 +27,10 @@ export const categoryDisplayNames: Record<string, string> = {
   sweeteners: 'Natural Sweeteners',
   organic: 'Organic Products',
   vegan: 'Vegan Products',
-  premium: 'Premium Selection'
+  premium: 'Premium Selection',
+  healthy_snacks: 'Healthy Snacks',
+  health_supplements: 'Health Supplements',
+  special_collections: 'Special Collections'
 };
 
 // Health-focused filter options
