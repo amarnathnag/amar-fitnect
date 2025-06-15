@@ -158,7 +158,7 @@ export const additionalProducts = [
     workflow_status: "published"
   },
 
-  // Health Supplements
+  // Health Supplements - using supplements category
   {
     id: "supplements-001",
     name: "Multivitamin Tablets",

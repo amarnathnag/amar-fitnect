@@ -26,12 +26,35 @@ export const seedSampleProducts = async () => {
       return { success: true, message: 'Products already exist' };
     }
     
+    // Transform products to match database schema
+    const productsForDb = allProducts.map(product => ({
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      category: 'food' as const, // Force to the correct type
+      subcategory: product.subcategory,
+      description: product.description,
+      price: product.price,
+      health_score: product.health_score,
+      image_urls: product.image_urls,
+      health_impact_summary: product.health_impact_summary,
+      is_organic: product.is_organic,
+      is_vegetarian: product.is_vegetarian,
+      is_vegan: product.is_vegan,
+      stock_quantity: product.stock_quantity,
+      ingredients: product.ingredients,
+      allergens: product.allergens,
+      nutritional_info: product.nutritional_info,
+      status: 'active' as const,
+      workflow_status: 'published'
+    }));
+    
     // Insert products in batches
     const batchSize = 5;
     let insertedCount = 0;
     
-    for (let i = 0; i < allProducts.length; i += batchSize) {
-      const batch = allProducts.slice(i, i + batchSize);
+    for (let i = 0; i < productsForDb.length; i += batchSize) {
+      const batch = productsForDb.slice(i, i + batchSize);
       
       const { data, error } = await supabase
         .from('products')
