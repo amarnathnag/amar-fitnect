@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,7 +48,7 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
       featured: ['Quinoa', 'Oats', 'Brown Rice']
     },
     {
-      id: 'snacks',
+      id: 'healthy_snacks',
       name: 'Healthy Snacks',
       description: 'Nutritious snacks and energy bars',
       icon: <Apple className="h-8 w-8" />,
@@ -56,7 +57,7 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
       featured: ['Protein Bars', 'Nuts', 'Dried Fruits']
     },
     {
-      id: 'supplements',
+      id: 'health_supplements',
       name: 'Health Supplements',
       description: 'Vitamins, minerals, and wellness products',
       icon: <Heart className="h-8 w-8" />,
@@ -74,6 +75,11 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
       featured: ['Desi Ghee', 'Turmeric Powder', 'Chakki Atta']
     }
   ];
+
+  const handleCategoryClick = (categoryId: string) => {
+    console.log('Category clicked:', categoryId);
+    onCategorySelect(categoryId);
+  };
 
   return (
     <div className="space-y-8">
@@ -123,7 +129,7 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
 
                 {/* Browse Button */}
                 <Button 
-                  onClick={() => onCategorySelect(category.id)}
+                  onClick={() => handleCategoryClick(category.id)}
                   className="w-full group-hover:bg-primary/90 transition-colors"
                 >
                   Browse {category.name}
@@ -135,7 +141,7 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
         ))}
       </div>
 
-      {/* Special Categories Section */}
+      {/* Special Collections Section */}
       <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 border border-gray-200 dark:border-gray-600">
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-r from-green-400 to-blue-500 text-white shadow-lg">
@@ -148,15 +154,15 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
             Discover curated collections for specific dietary needs and health goals
           </p>
           <div className="flex flex-wrap justify-center gap-3 mt-6">
-            <Button variant="outline" onClick={() => onCategorySelect('organic')} className="bg-white/80 backdrop-blur-sm">
+            <Button variant="outline" onClick={() => handleCategoryClick('organic')} className="bg-white/80 backdrop-blur-sm">
               <Leaf className="h-4 w-4 mr-2" />
               Organic Only
             </Button>
-            <Button variant="outline" onClick={() => onCategorySelect('vegan')} className="bg-white/80 backdrop-blur-sm">
+            <Button variant="outline" onClick={() => handleCategoryClick('vegan')} className="bg-white/80 backdrop-blur-sm">
               <Heart className="h-4 w-4 mr-2" />
               Vegan Products
             </Button>
-            <Button variant="outline" onClick={() => onCategorySelect('premium')} className="bg-white/80 backdrop-blur-sm">
+            <Button variant="outline" onClick={() => handleCategoryClick('premium')} className="bg-white/80 backdrop-blur-sm">
               <Package className="h-4 w-4 mr-2" />
               Premium Selection
             </Button>
