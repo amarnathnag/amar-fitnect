@@ -1,4 +1,5 @@
 import { newCategoryProducts } from './newCategoryProducts';
+import { groceryProducts } from './groceryProducts';
 
 export const sampleProducts = [
   {
@@ -318,5 +319,7 @@ export const sampleProducts = [
     workflow_status: "published"
   },
   // Add all new category products
-  ...newCategoryProducts
+  ...newCategoryProducts,
+  // Add all grocery products
+  ...groceryProducts
 ];

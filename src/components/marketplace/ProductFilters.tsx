@@ -82,7 +82,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     special_collections: 'Special Collections',
     protein: 'Protein Sources',
     breakfast: 'Breakfast & Cereals',
-    sweeteners: 'Natural Sweeteners'
+    sweeteners: 'Natural Sweeteners',
+    grocery: 'Grocery Essentials'
   };
 
   const getCurrentHealthScoreRange = () => {

@@ -63,6 +63,15 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
       gradient: 'from-purple-400 to-indigo-300',
       productCount: '12+ Products',
       featured: ['Multivitamins', 'Protein Powder', 'Omega-3']
+    },
+    {
+      id: 'grocery',
+      name: 'Grocery Essentials',
+      description: 'Daily cooking essentials and pantry staples',
+      icon: <Package className="h-8 w-8" />,
+      gradient: 'from-emerald-400 to-teal-300',
+      productCount: '10+ Products',
+      featured: ['Desi Ghee', 'Turmeric Powder', 'Chakki Atta']
     }
   ];
 

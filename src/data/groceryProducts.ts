@@ -1,0 +1,326 @@
+
+export const groceryProducts = [
+  {
+    id: "grocery-001",
+    name: "Cold-Pressed Groundnut Oil",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Cold-pressed groundnut oil is a heart-healthy, nutrient-rich cooking oil that retains natural antioxidants and essential fatty acids. Unlike refined oils, it is minimally processed, thus preserving vitamin E, monounsaturated fats, and plant sterols. Its mild nutty flavor makes it ideal for Indian cooking, frying, sautéing, and even salad dressings. Regular use may support cholesterol control and provide anti-inflammatory benefits. AmarHealth ensures chemical-free, non-GMO oil from ethically sourced peanuts.",
+    price: 320,
+    health_score: 9.3,
+    image_urls: ["https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400"],
+    health_impact_summary: "Heart-healthy oil with vitamin E and natural antioxidants for cholesterol control",
+    is_organic: false,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 85,
+    ingredients: ["Cold-pressed groundnut oil"],
+    allergens: ["Peanuts"],
+    nutritional_info: {
+      calories_per_100ml: 884,
+      vitamin_e: "15mg",
+      monounsaturated_fats: "46g"
+    },
+    quantity_options: [
+      { value: 1, unit: "1L", price: 320 },
+      { value: 2, unit: "2L", price: 620 },
+      { value: 5, unit: "5L", price: 1500 }
+    ],
+    warnings: ["Contains peanuts"],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-002",
+    name: "Whole Moong Dal (Unpolished)",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Whole Moong Dal is a rich source of plant protein and dietary fiber. Unpolished means it retains its natural outer layer, which is loaded with antioxidants, B-vitamins, and trace minerals. It is easy to digest, promotes satiety, and helps manage weight and blood sugar levels. Perfect for sprouts, khichdi, or traditional dal curry, this lentil is essential for a healthy vegetarian diet.",
+    price: 155,
+    health_score: 9.1,
+    image_urls: ["https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400"],
+    health_impact_summary: "High-protein legume with fiber for weight management and blood sugar control",
+    is_organic: false,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 120,
+    ingredients: ["Whole moong dal"],
+    allergens: [],
+    nutritional_info: {
+      calories_per_100g: 347,
+      protein: "24g",
+      fiber: "16g",
+      iron: "6.7mg"
+    },
+    quantity_options: [
+      { value: 1, unit: "1kg", price: 155 },
+      { value: 2, unit: "2kg", price: 300 },
+      { value: 5, unit: "5kg", price: 725 }
+    ],
+    warnings: [],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-003",
+    name: "Rock Salt (Sendha Namak)",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Rock salt is a natural mineral salt packed with trace minerals like potassium, magnesium, and calcium. It aids digestion, balances pH, and supports hydration. It is a better alternative to refined iodized salt for those with high blood pressure or thyroid issues. Ideal for daily use or fasting days, AmarHealth ensures food-grade rock salt sourced from Himalayan regions.",
+    price: 45,
+    health_score: 9.0,
+    image_urls: ["https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400"],
+    health_impact_summary: "Natural mineral salt with trace minerals for better digestion and hydration",
+    is_organic: true,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 200,
+    ingredients: ["Himalayan rock salt"],
+    allergens: [],
+    nutritional_info: {
+      sodium: "38g",
+      potassium: "2.8mg",
+      magnesium: "1.06mg",
+      calcium: "1.6mg"
+    },
+    quantity_options: [
+      { value: 1, unit: "500g", price: 45 },
+      { value: 2, unit: "1kg", price: 85 },
+      { value: 5, unit: "5kg", price: 400 }
+    ],
+    warnings: [],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-004",
+    name: "Organic Turmeric Powder (Haldi)",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Turmeric, known for its powerful antioxidant and anti-inflammatory properties, is a staple in Indian cooking and Ayurveda. AmarHealth's turmeric contains high curcumin content (5%+), which helps fight infections, supports joint health, and boosts immunity. It can be used in curries, golden milk, and health tonics. Our turmeric is certified organic and processed without additives or colorants.",
+    price: 80,
+    health_score: 9.4,
+    image_urls: ["https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=400"],
+    health_impact_summary: "High-curcumin turmeric with powerful anti-inflammatory and immunity-boosting properties",
+    is_organic: true,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 150,
+    ingredients: ["Organic turmeric powder"],
+    allergens: [],
+    nutritional_info: {
+      curcumin_content: "5%+",
+      calories_per_100g: 312,
+      iron: "55mg",
+      manganese: "19.8mg"
+    },
+    quantity_options: [
+      { value: 1, unit: "100g", price: 80 },
+      { value: 2, unit: "200g", price: 150 },
+      { value: 5, unit: "500g", price: 375 }
+    ],
+    warnings: [],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-005",
+    name: "Red Rajma (Kidney Beans)",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Red kidney beans are a protein-rich, low-fat legume that's also high in iron, folate, and dietary fiber. It supports muscle growth, gut health, and blood sugar regulation. Soak and boil thoroughly before cooking to neutralize anti-nutrients. Perfect for classic North Indian rajma curry or Mexican dishes. AmarHealth provides hand-sorted, pesticide-free beans.",
+    price: 165,
+    health_score: 8.8,
+    image_urls: ["https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=400"],
+    health_impact_summary: "Protein-rich legume with iron and fiber for muscle growth and gut health",
+    is_organic: false,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 95,
+    ingredients: ["Red kidney beans"],
+    allergens: [],
+    nutritional_info: {
+      calories_per_100g: 333,
+      protein: "23.6g",
+      fiber: "25g",
+      iron: "8.2mg",
+      folate: "394mcg"
+    },
+    quantity_options: [
+      { value: 1, unit: "1kg", price: 165 },
+      { value: 2, unit: "2kg", price: 320 },
+      { value: 5, unit: "5kg", price: 775 }
+    ],
+    warnings: ["Soak and boil thoroughly before cooking"],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-006",
+    name: "Brown Basmati Rice",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Brown basmati rice offers the aromatic richness of basmati with the added health benefits of whole grain. It's a great source of fiber, selenium, and magnesium. It supports digestive health, reduces blood sugar spikes, and is gluten-free. Cooks slightly longer than white rice but delivers superior satiety and flavor.",
+    price: 190,
+    health_score: 9.0,
+    image_urls: ["https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400"],
+    health_impact_summary: "Aromatic whole grain rice with fiber and selenium for digestive health",
+    is_organic: true,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 110,
+    ingredients: ["Organic brown basmati rice"],
+    allergens: [],
+    nutritional_info: {
+      calories_per_100g: 370,
+      protein: "7.9g",
+      fiber: "3.5g",
+      selenium: "23mcg",
+      magnesium: "143mg"
+    },
+    quantity_options: [
+      { value: 1, unit: "1kg", price: 190 },
+      { value: 5, unit: "5kg", price: 900 },
+      { value: 10, unit: "10kg", price: 1750 }
+    ],
+    warnings: [],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-007",
+    name: "Organic Jaggery (Gur) Blocks",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Jaggery is a natural sweetener made from sugarcane without refining or bleaching. It contains iron, potassium, and antioxidants. It's beneficial for digestion, especially after meals, and is a healthy substitute for refined sugar. Our jaggery is sourced from certified organic farms and has no added chemicals.",
+    price: 95,
+    health_score: 9.1,
+    image_urls: ["https://images.unsplash.com/photo-1587049633312-d628ae50a8ae?w=400"],
+    health_impact_summary: "Natural unrefined sweetener with iron and antioxidants for healthy digestion",
+    is_organic: true,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 80,
+    ingredients: ["Organic sugarcane jaggery"],
+    allergens: [],
+    nutritional_info: {
+      calories_per_100g: 383,
+      iron: "11mg",
+      potassium: "1056mg",
+      calcium: "80mg"
+    },
+    quantity_options: [
+      { value: 1, unit: "500g", price: 95 },
+      { value: 2, unit: "1kg", price: 180 },
+      { value: 5, unit: "5kg", price: 850 }
+    ],
+    warnings: ["High in natural sugars"],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-008",
+    name: "Desi Ghee (Cow Milk Based)",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Traditional Indian desi ghee made from cow milk is packed with fat-soluble vitamins A, D, E, and K. It boosts immunity, supports gut health, and improves the absorption of nutrients. Ghee made using the bilona method is also a powerful Ayurvedic superfood. AmarHealth offers lab-tested, preservative-free ghee with authentic aroma and taste.",
+    price: 620,
+    health_score: 9.5,
+    image_urls: ["https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400"],
+    health_impact_summary: "Traditional bilona ghee with fat-soluble vitamins for immunity and gut health",
+    is_organic: true,
+    is_vegetarian: true,
+    is_vegan: false,
+    stock_quantity: 65,
+    ingredients: ["Pure cow milk ghee"],
+    allergens: ["Milk"],
+    nutritional_info: {
+      calories_per_100ml: 900,
+      vitamin_a: "840mcg",
+      vitamin_d: "1.5mcg",
+      vitamin_e: "2.8mg",
+      vitamin_k: "8.6mcg"
+    },
+    quantity_options: [
+      { value: 1, unit: "500ml", price: 620 },
+      { value: 2, unit: "1L", price: 1200 }
+    ],
+    warnings: ["Contains dairy"],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-009",
+    name: "Whole Wheat Flour (Stone Ground - Chakki Atta)",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "This flour is milled using traditional stone grinding which retains bran and germ, preserving all essential nutrients like fiber, iron, and B-vitamins. It aids in digestion and helps control blood sugar. Unlike factory-produced flour, AmarHealth's chakki atta is unbleached, soft, and ideal for chapatis, parathas, and breads.",
+    price: 220,
+    health_score: 9.0,
+    image_urls: ["https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400"],
+    health_impact_summary: "Stone-ground whole wheat flour with bran and germ for better digestion",
+    is_organic: false,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 140,
+    ingredients: ["Stone-ground whole wheat flour"],
+    allergens: ["Gluten"],
+    nutritional_info: {
+      calories_per_100g: 340,
+      protein: "12g",
+      fiber: "11g",
+      iron: "4.6mg",
+      b_vitamins: "High"
+    },
+    quantity_options: [
+      { value: 1, unit: "5kg", price: 220 },
+      { value: 2, unit: "10kg", price: 420 },
+      { value: 4, unit: "20kg", price: 800 }
+    ],
+    warnings: ["Contains gluten"],
+    status: "active",
+    workflow_status: "published"
+  },
+  {
+    id: "grocery-010",
+    name: "Toor Dal (Split Pigeon Pea)",
+    brand: "AmarHealth",
+    category: "food",
+    subcategory: "grocery",
+    description: "Toor dal is a daily protein staple in Indian households. It is high in folic acid, iron, and plant-based protein. It helps in tissue repair, muscle development, and supporting healthy pregnancy. AmarHealth ensures that the dal is unpolished and hygienically packed to preserve its nutrition.",
+    price: 135,
+    health_score: 9.0,
+    image_urls: ["https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=400"],
+    health_impact_summary: "Daily protein staple with folic acid and iron for tissue repair and development",
+    is_organic: false,
+    is_vegetarian: true,
+    is_vegan: true,
+    stock_quantity: 125,
+    ingredients: ["Split pigeon pea (toor dal)"],
+    allergens: [],
+    nutritional_info: {
+      calories_per_100g: 335,
+      protein: "22g",
+      folic_acid: "173mcg",
+      iron: "2.8mg",
+      fiber: "15g"
+    },
+    quantity_options: [
+      { value: 1, unit: "1kg", price: 135 },
+      { value: 2, unit: "2kg", price: 260 },
+      { value: 5, unit: "5kg", price: 625 }
+    ],
+    warnings: [],
+    status: "active",
+    workflow_status: "published"
+  }
+];
