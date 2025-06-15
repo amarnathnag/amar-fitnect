@@ -1,15 +1,19 @@
 
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Milk, Cookie, Droplet, Wheat, Apple, Leaf, Package, Heart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface FeaturedCategoriesProps {
   onCategorySelect: (category: string) => void;
 }
 
 const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelect }) => {
+  const navigate = useNavigate();
+
   const categories = [
     {
       id: 'dairy',
@@ -78,7 +82,22 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
 
   const handleCategoryClick = (categoryId: string) => {
     console.log('Category clicked:', categoryId);
+    
+    // Navigate to marketplace with category filter and switch to browse tab
+    navigate(`/marketplace?category=${categoryId}`);
+    
+    // Also call the original callback for any additional logic
     onCategorySelect(categoryId);
+  };
+
+  const handleSpecialCollectionClick = (collectionType: string) => {
+    console.log('Special collection clicked:', collectionType);
+    
+    // Navigate to marketplace with special collection filter
+    navigate(`/marketplace?category=${collectionType}`);
+    
+    // Also call the original callback
+    onCategorySelect(collectionType);
   };
 
   return (
@@ -154,15 +173,15 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
             Discover curated collections for specific dietary needs and health goals
           </p>
           <div className="flex flex-wrap justify-center gap-3 mt-6">
-            <Button variant="outline" onClick={() => handleCategoryClick('organic')} className="bg-white/80 backdrop-blur-sm">
+            <Button variant="outline" onClick={() => handleSpecialCollectionClick('organic')} className="bg-white/80 backdrop-blur-sm">
               <Leaf className="h-4 w-4 mr-2" />
               Organic Only
             </Button>
-            <Button variant="outline" onClick={() => handleCategoryClick('vegan')} className="bg-white/80 backdrop-blur-sm">
+            <Button variant="outline" onClick={() => handleSpecialCollectionClick('vegan')} className="bg-white/80 backdrop-blur-sm">
               <Heart className="h-4 w-4 mr-2" />
               Vegan Products
             </Button>
-            <Button variant="outline" onClick={() => handleCategoryClick('premium')} className="bg-white/80 backdrop-blur-sm">
+            <Button variant="outline" onClick={() => handleSpecialCollectionClick('premium')} className="bg-white/80 backdrop-blur-sm">
               <Package className="h-4 w-4 mr-2" />
               Premium Selection
             </Button>
@@ -174,3 +193,4 @@ const FeaturedCategories: React.FC<FeaturedCategoriesProps> = ({ onCategorySelec
 };
 
 export default FeaturedCategories;
+
