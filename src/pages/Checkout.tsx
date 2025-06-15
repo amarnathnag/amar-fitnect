@@ -28,6 +28,45 @@ const Checkout = () => {
     phone: ''
   });
 
+  // Early returns for error states
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-grow flex items-center justify-center p-8">
+          <div className="text-center max-w-md">
+            <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">Login Required</h2>
+            <p className="text-gray-600 mb-6">You need to be logged in to proceed with checkout</p>
+            <Button onClick={() => navigate('/auth')} size="lg">
+              Login to Continue
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!cart || cart.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-grow flex items-center justify-center p-8">
+          <div className="text-center max-w-md">
+            <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">Cart is Empty</h2>
+            <p className="text-gray-600 mb-6">Add some healthy products to your cart before checkout</p>
+            <Button onClick={() => navigate('/marketplace')} size="lg">
+              Continue Shopping
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   const validateAddress = () => {
     const requiredFields = [
       { field: 'street', label: 'Street Address' },
@@ -74,26 +113,6 @@ const Checkout = () => {
   const handlePlaceOrder = async () => {
     console.log('🚀 Starting order placement process...');
     
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please login to place your order",
-        variant: "destructive",
-      });
-      navigate('/auth');
-      return;
-    }
-
-    if (cart.length === 0) {
-      toast({
-        title: "Empty Cart",
-        description: "Please add items to your cart before checkout",
-        variant: "destructive",
-      });
-      navigate('/marketplace');
-      return;
-    }
-
     if (!validateAddress()) {
       return;
     }
@@ -134,43 +153,10 @@ const Checkout = () => {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <NavBar />
-        <div className="flex-grow flex items-center justify-center p-8">
-          <div className="text-center max-w-md">
-            <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-            <p className="text-gray-600 mb-6">You need to be logged in to proceed with checkout</p>
-            <Button onClick={() => navigate('/auth')} size="lg">
-              Login to Continue
-            </Button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (cart.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <NavBar />
-        <div className="flex-grow flex items-center justify-center p-8">
-          <div className="text-center max-w-md">
-            <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-4">Cart is Empty</h2>
-            <p className="text-gray-600 mb-6">Add some healthy products to your cart before checkout</p>
-            <Button onClick={() => navigate('/marketplace')} size="lg">
-              Continue Shopping
-            </Button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  const formatPrice = (price: number) => {
+    const displayPrice = price > 1000 ? price / 100 : price;
+    return displayPrice.toFixed(2);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 to-blue-50">
@@ -217,7 +203,7 @@ const Checkout = () => {
                 ) : (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    Place Order - ₹{(cartTotal > 1000 ? cartTotal / 100 : cartTotal).toFixed(2)}
+                    Place Order - ₹{formatPrice(cartTotal)}
                   </>
                 )}
               </Button>

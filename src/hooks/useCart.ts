@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -23,16 +23,11 @@ export const useCart = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (user) {
-      fetchCart();
-    } else {
+  const fetchCart = useCallback(async () => {
+    if (!user) {
       setCart([]);
+      return;
     }
-  }, [user]);
-
-  const fetchCart = async () => {
-    if (!user) return;
 
     try {
       console.log('🛒 Fetching cart for user:', user.id);
@@ -65,7 +60,11 @@ export const useCart = () => {
     } catch (error) {
       console.error('❌ Error fetching cart:', error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   const addToCart = async (product: any) => {
     console.log('🛒 Adding product to cart:', product.name);
