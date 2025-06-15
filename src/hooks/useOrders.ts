@@ -38,6 +38,7 @@ export const useOrders = () => {
   const fetchOrders = async () => {
     if (!user) {
       console.log('No user found, cannot fetch orders');
+      setOrders([]);
       return;
     }
 
@@ -45,39 +46,46 @@ export const useOrders = () => {
       setLoading(true);
       console.log('🔍 Fetching orders for user:', user.id);
 
-      // Fixed query - removed the nested product lookup that was causing the users table access error
-      const { data, error } = await supabase
+      // First, fetch orders without any joins
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select(`
-          id,
-          user_id,
-          total_amount,
-          delivery_address,
-          status,
-          created_at,
-          updated_at,
-          order_items (
-            id,
-            order_id,
-            product_id,
-            quantity,
-            price_per_item
-          )
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('❌ Error fetching orders:', error);
-        throw error;
+      if (ordersError) {
+        console.error('❌ Error fetching orders:', ordersError);
+        throw ordersError;
       }
 
-      // Fetch product details separately for each order item
-      const ordersWithProducts = await Promise.all(
-        (data || []).map(async (order) => {
-          const orderItemsWithProducts = await Promise.all(
-            order.order_items.map(async (item) => {
-              const { data: product, error: productError } = await supabase
+      console.log('✅ Orders fetched:', ordersData?.length || 0);
+
+      if (!ordersData || ordersData.length === 0) {
+        setOrders([]);
+        return;
+      }
+
+      // Fetch order items for each order
+      const ordersWithItems = await Promise.all(
+        ordersData.map(async (order) => {
+          // Get order items
+          const { data: itemsData, error: itemsError } = await supabase
+            .from('order_items')
+            .select('*')
+            .eq('order_id', order.id);
+
+          if (itemsError) {
+            console.error('❌ Error fetching order items:', itemsError);
+            return {
+              ...order,
+              order_items: []
+            };
+          }
+
+          // Get product details for each item
+          const itemsWithProducts = await Promise.all(
+            (itemsData || []).map(async (item) => {
+              const { data: productData, error: productError } = await supabase
                 .from('products')
                 .select('id, name, brand, image_urls')
                 .eq('id', item.product_id)
@@ -89,8 +97,8 @@ export const useOrders = () => {
                   ...item,
                   product: {
                     id: item.product_id,
-                    name: 'Unknown Product',
-                    brand: 'Unknown Brand',
+                    name: 'Product not found',
+                    brand: 'Unknown',
                     image_urls: []
                   }
                 };
@@ -98,10 +106,10 @@ export const useOrders = () => {
 
               return {
                 ...item,
-                product: product || {
+                product: productData || {
                   id: item.product_id,
-                  name: 'Unknown Product',
-                  brand: 'Unknown Brand',
+                  name: 'Product not found',
+                  brand: 'Unknown',
                   image_urls: []
                 }
               };
@@ -110,13 +118,13 @@ export const useOrders = () => {
 
           return {
             ...order,
-            order_items: orderItemsWithProducts
+            order_items: itemsWithProducts
           };
         })
       );
 
-      console.log('✅ Orders fetched successfully:', ordersWithProducts.length, 'orders');
-      setOrders(ordersWithProducts);
+      console.log('✅ Orders with items fetched successfully:', ordersWithItems.length);
+      setOrders(ordersWithItems);
     } catch (error) {
       console.error('❌ Failed to fetch orders:', error);
       toast({
@@ -124,6 +132,7 @@ export const useOrders = () => {
         description: "Failed to fetch your orders. Please try again.",
         variant: "destructive",
       });
+      setOrders([]);
     } finally {
       setLoading(false);
     }
