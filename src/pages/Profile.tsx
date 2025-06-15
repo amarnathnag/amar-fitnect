@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +11,7 @@ import OrdersSection from '@/components/profile/OrdersSection';
 import NotificationsSection from '@/components/profile/NotificationsSection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchParams } from 'react-router-dom';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -44,6 +44,10 @@ const Profile = () => {
       streakDays: 7
     }
   });
+
+  // Get tab from URL params
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'personal';
 
   if (!user) {
     navigate('/auth');
@@ -102,7 +106,7 @@ const Profile = () => {
             </p>
           </div>
 
-          <Tabs defaultValue="personal" className="space-y-6">
+          <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="personal">Personal</TabsTrigger>
               <TabsTrigger value="health">Health Data</TabsTrigger>

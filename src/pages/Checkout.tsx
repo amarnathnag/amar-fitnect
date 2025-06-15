@@ -4,19 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useOrders } from '@/hooks/useOrders';
 import { useToast } from '@/hooks/use-toast';
+import OrderSummary from '@/components/checkout/OrderSummary';
+import DeliveryAddressForm from '@/components/checkout/DeliveryAddressForm';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, AlertTriangle } from 'lucide-react';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cart, cartTotal } = useCart();
   const { user } = useAuth();
+  const { createOrder } = useOrders();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState({
@@ -28,67 +29,68 @@ const Checkout = () => {
   });
 
   const validateAddress = () => {
-    if (!deliveryAddress.street.trim()) {
+    const requiredFields = [
+      { field: 'street', label: 'Street Address' },
+      { field: 'city', label: 'City' },
+      { field: 'state', label: 'State' },
+      { field: 'pincode', label: 'Pincode' },
+      { field: 'phone', label: 'Phone Number' }
+    ];
+
+    for (const { field, label } of requiredFields) {
+      if (!deliveryAddress[field as keyof typeof deliveryAddress].trim()) {
+        toast({
+          title: "Missing Information",
+          description: `Please enter ${label}`,
+          variant: "destructive",
+        });
+        return false;
+      }
+    }
+
+    // Validate pincode format
+    if (!/^\d{6}$/.test(deliveryAddress.pincode)) {
       toast({
-        title: "Error",
-        description: "Please enter street address",
+        title: "Invalid Pincode",
+        description: "Please enter a valid 6-digit pincode",
         variant: "destructive",
       });
       return false;
     }
-    if (!deliveryAddress.city.trim()) {
+
+    // Validate phone format
+    if (!/^\d{10}$/.test(deliveryAddress.phone)) {
       toast({
-        title: "Error",
-        description: "Please enter city",
+        title: "Invalid Phone Number",
+        description: "Please enter a valid 10-digit phone number",
         variant: "destructive",
       });
       return false;
     }
-    if (!deliveryAddress.state.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter state",
-        variant: "destructive",
-      });
-      return false;
-    }
-    if (!deliveryAddress.pincode.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter pincode",
-        variant: "destructive",
-      });
-      return false;
-    }
-    if (!deliveryAddress.phone.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter phone number",
-        variant: "destructive",
-      });
-      return false;
-    }
+
     return true;
   };
 
   const handlePlaceOrder = async () => {
-    console.log('Starting order placement...');
+    console.log('🚀 Starting order placement process...');
     
     if (!user) {
       toast({
-        title: "Error",
-        description: "Please login to place order",
+        title: "Authentication Required",
+        description: "Please login to place your order",
         variant: "destructive",
       });
+      navigate('/auth');
       return;
     }
 
     if (cart.length === 0) {
       toast({
-        title: "Error",
-        description: "Cart is empty",
+        title: "Empty Cart",
+        description: "Please add items to your cart before checkout",
         variant: "destructive",
       });
+      navigate('/marketplace');
       return;
     }
 
@@ -98,75 +100,33 @@ const Checkout = () => {
 
     try {
       setLoading(true);
-      console.log('Creating order with data:', {
+      console.log('📋 Order data preparation:', {
         user_id: user.id,
         total_amount: cartTotal,
         delivery_address: deliveryAddress,
-        status: 'pending'
+        cart_items: cart.length
       });
 
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert([{
-          user_id: user.id,
-          total_amount: cartTotal,
-          delivery_address: deliveryAddress,
-          status: 'pending'
-        }])
-        .select()
-        .single();
+      const order = await createOrder({
+        total_amount: cartTotal,
+        delivery_address: deliveryAddress,
+        cart: cart
+      });
 
-      if (orderError) {
-        console.error('Order creation error:', orderError);
-        throw orderError;
-      }
-
-      console.log('Order created successfully:', order);
-
-      // Create order items
-      const orderItems = cart.map(item => ({
-        order_id: order.id,
-        product_id: item.product.id,
-        quantity: item.quantity,
-        price_per_item: item.product.price
-      }));
-
-      console.log('Creating order items:', orderItems);
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
-      if (itemsError) {
-        console.error('Order items creation error:', itemsError);
-        throw itemsError;
-      }
-
-      console.log('Order items created successfully');
-
-      // Clear cart
-      const { error: clearCartError } = await supabase
-        .from('shopping_cart')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (clearCartError) {
-        console.error('Clear cart error:', clearCartError);
-        // Don't throw here as order is already created
-      }
+      console.log('✅ Order placed successfully:', order.id);
 
       toast({
-        title: "Order Placed Successfully!",
-        description: `Order #${order.id.slice(0, 8)} has been placed. You will receive a confirmation email once approved.`,
+        title: "Order Placed Successfully! 🎉",
+        description: `Order #${order.id.slice(0, 8)} has been confirmed. You can track it in your profile.`,
       });
 
-      navigate('/profile');
+      // Navigate to profile orders tab
+      navigate('/profile?tab=orders');
     } catch (error) {
-      console.error('Error placing order:', error);
+      console.error('❌ Order placement failed:', error);
       toast({
-        title: "Error",
-        description: "Failed to place order. Please try again.",
+        title: "Order Failed",
+        description: "Unable to place your order. Please try again or contact support.",
         variant: "destructive",
       });
     } finally {
@@ -178,11 +138,33 @@ const Checkout = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <NavBar />
-        <div className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Please Login</h2>
-            <p className="text-gray-600 mb-4">You need to be logged in to checkout</p>
-            <Button onClick={() => navigate('/auth')}>Login</Button>
+        <div className="flex-grow flex items-center justify-center p-8">
+          <div className="text-center max-w-md">
+            <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">Login Required</h2>
+            <p className="text-gray-600 mb-6">You need to be logged in to proceed with checkout</p>
+            <Button onClick={() => navigate('/auth')} size="lg">
+              Login to Continue
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (cart.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-grow flex items-center justify-center p-8">
+          <div className="text-center max-w-md">
+            <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-4">Cart is Empty</h2>
+            <p className="text-gray-600 mb-6">Add some healthy products to your cart before checkout</p>
+            <Button onClick={() => navigate('/marketplace')} size="lg">
+              Continue Shopping
+            </Button>
           </div>
         </div>
         <Footer />
@@ -191,107 +173,60 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 to-blue-50">
       <NavBar />
       
       <main className="flex-grow py-8">
         <div className="container-custom">
-          <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Checkout</h1>
+            <p className="text-gray-600">Review your order and complete your purchase</p>
+          </div>
+
+          {/* Success Alert */}
+          <Alert className="mb-6 border-green-200 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              All items are in stock and ready for delivery. FREE delivery on this order!
+            </AlertDescription>
+          </Alert>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Delivery Address */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Delivery Address</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="street">Street Address *</Label>
-                  <Textarea
-                    id="street"
-                    value={deliveryAddress.street}
-                    onChange={(e) => setDeliveryAddress(prev => ({...prev, street: e.target.value}))}
-                    placeholder="Enter your full address"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="city">City *</Label>
-                    <Input
-                      id="city"
-                      value={deliveryAddress.city}
-                      onChange={(e) => setDeliveryAddress(prev => ({...prev, city: e.target.value}))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="state">State *</Label>
-                    <Input
-                      id="state"
-                      value={deliveryAddress.state}
-                      onChange={(e) => setDeliveryAddress(prev => ({...prev, state: e.target.value}))}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="pincode">Pincode *</Label>
-                    <Input
-                      id="pincode"
-                      value={deliveryAddress.pincode}
-                      onChange={(e) => setDeliveryAddress(prev => ({...prev, pincode: e.target.value}))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      value={deliveryAddress.phone}
-                      onChange={(e) => setDeliveryAddress(prev => ({...prev, phone: e.target.value}))}
-                      required
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Delivery Address Form */}
+            <DeliveryAddressForm 
+              deliveryAddress={deliveryAddress}
+              setDeliveryAddress={setDeliveryAddress}
+            />
 
             {/* Order Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {cart.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">{item.product.name}</p>
-                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                      </div>
-                      <p className="font-semibold">₹{(item.product.price * item.quantity).toFixed(2)}</p>
-                    </div>
-                  ))}
-                  
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center text-lg font-bold">
-                      <span>Total:</span>
-                      <span>₹{cartTotal.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    onClick={handlePlaceOrder} 
-                    disabled={loading || cart.length === 0}
-                    className="w-full"
-                  >
-                    {loading ? 'Placing Order...' : 'Place Order'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <OrderSummary cart={cart} cartTotal={cartTotal} />
+              
+              {/* Place Order Button */}
+              <Button 
+                onClick={handlePlaceOrder} 
+                disabled={loading || cart.length === 0}
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                size="lg"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Placing Order...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Place Order - ₹{(cartTotal > 1000 ? cartTotal / 100 : cartTotal).toFixed(2)}
+                  </>
+                )}
+              </Button>
+
+              <p className="text-xs text-gray-500 text-center">
+                By placing this order, you agree to our terms and conditions. 
+                You will receive order confirmation via email.
+              </p>
+            </div>
           </div>
         </div>
       </main>
