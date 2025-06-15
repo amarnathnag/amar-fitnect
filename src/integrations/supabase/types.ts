@@ -1055,6 +1055,7 @@ export type Database = {
           health_issues: string | null
           height: number | null
           id: string
+          period_tracking: Json | null
           updated_at: string | null
           user_id: string
           weight: number | null
@@ -1069,6 +1070,7 @@ export type Database = {
           health_issues?: string | null
           height?: number | null
           id?: string
+          period_tracking?: Json | null
           updated_at?: string | null
           user_id: string
           weight?: number | null
@@ -1083,6 +1085,7 @@ export type Database = {
           health_issues?: string | null
           height?: number | null
           id?: string
+          period_tracking?: Json | null
           updated_at?: string | null
           user_id?: string
           weight?: number | null
