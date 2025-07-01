@@ -523,10 +523,13 @@ const diseaseData = {
 };
 
 const DiseaseDetail = () => {
-  const { diseaseId } = useParams();
+  const { diseaseId, id } = useParams();
+  
+  // Use diseaseId from /disease-management/:diseaseId or id from /disease/:id
+  const currentDiseaseId = diseaseId || id;
   
   // Check if disease exists in our data
-  if (!diseaseId || !diseaseData[diseaseId as keyof typeof diseaseData]) {
+  if (!currentDiseaseId || !diseaseData[currentDiseaseId as keyof typeof diseaseData]) {
     return (
       <div className="min-h-screen flex flex-col">
         <NavBar />
@@ -549,7 +552,7 @@ const DiseaseDetail = () => {
     );
   }
 
-  const disease = diseaseData[diseaseId as keyof typeof diseaseData];
+  const disease = diseaseData[currentDiseaseId as keyof typeof diseaseData];
 
   return (
     <div className="min-h-screen flex flex-col">
