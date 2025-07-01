@@ -1055,6 +1055,7 @@ export type Database = {
           health_issues: string | null
           height: number | null
           id: string
+          is_banned: boolean | null
           period_tracking: Json | null
           updated_at: string | null
           user_id: string
@@ -1070,6 +1071,7 @@ export type Database = {
           health_issues?: string | null
           height?: number | null
           id?: string
+          is_banned?: boolean | null
           period_tracking?: Json | null
           updated_at?: string | null
           user_id: string
@@ -1085,6 +1087,7 @@ export type Database = {
           health_issues?: string | null
           height?: number | null
           id?: string
+          is_banned?: boolean | null
           period_tracking?: Json | null
           updated_at?: string | null
           user_id?: string

@@ -7,8 +7,25 @@ import { Table, TableHead, TableBody, TableRow, TableCell } from '@/components/u
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface UserProfile {
+  id: string;
+  user_id: string;
+  full_name?: string;
+  gender?: string;
+  is_banned?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  date_of_birth?: string;
+  height?: number;
+  weight?: number;
+  fitness_goal?: string;
+  food_preference?: string;
+  health_issues?: string;
+  period_tracking?: any;
+}
+
 const AdminUsers = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -21,7 +38,7 @@ const AdminUsers = () => {
     setLoading(true);
     let query = supabase.from('user_profiles').select('*');
     if (search) {
-      query = query.ilike('full_name', `%${search}%`).or(`user_id.ilike.%${search}%`);
+      query = query.or(`full_name.ilike.%${search}%,user_id.ilike.%${search}%`);
     }
     const { data, error } = await query;
     if (error) {
@@ -84,16 +101,15 @@ const AdminUsers = () => {
           <TableBody>
             {users.map(user =>
               <TableRow key={user.user_id}>
-                <TableCell>{user.full_name}</TableCell>
+                <TableCell>{user.full_name || 'N/A'}</TableCell>
                 <TableCell className="text-xs">{user.user_id.slice(0,8)}</TableCell>
-                <TableCell>{user.gender}</TableCell>
+                <TableCell>{user.gender || 'N/A'}</TableCell>
                 <TableCell>{user.is_banned ? <span className="text-red-600">Banned</span> : <span className="text-green-600">Active</span>}</TableCell>
                 <TableCell>
                   {user.is_banned ?
                     <Button size="sm" onClick={() => unbanUser(user.user_id)}>Unban</Button> :
                     <Button size="sm" variant="destructive" onClick={() => banUser(user.user_id)}>Ban</Button>
                   }
-                  {/* Profile view, notification etc could go here */}
                 </TableCell>
               </TableRow>
             )}

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { Package, Calendar, User, Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -41,11 +41,9 @@ const AdminOrders = () => {
       .order('created_at', { ascending: false });
 
     if (statusFilter) query = query.eq('status', statusFilter);
-    if (search) query = query
-      .or([
-        `id.ilike.%${search}%`,
-        `user_id.ilike.%${search}%`
-      ]);
+    if (search) {
+      query = query.or(`id.ilike.%${search}%,user_id.ilike.%${search}%`);
+    }
 
     if (dateRange.from) query = query.gte('created_at', dateRange.from);
     if (dateRange.to) query = query.lte('created_at', dateRange.to);
@@ -111,7 +109,9 @@ const AdminOrders = () => {
         <Input placeholder="Search by order ID or user ID" value={search}
           onChange={e => setSearch(e.target.value)} className="w-[200px]" />
         <Select value={statusFilter} onValueChange={v => setStatusFilter(v)}>
-          <SelectTrigger className="w-[150px]">{statusFilter ? statusFilter : "Status"}</SelectTrigger>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="">All Status</SelectItem>
             {ORDER_STATUSES.map(s =>
@@ -125,7 +125,9 @@ const AdminOrders = () => {
           <Search className="h-4 w-4" /> Filter
         </Button>
         <Select onValueChange={handleBulkStatusUpdate}>
-          <SelectTrigger className="w-[180px]">Bulk Status Update</SelectTrigger>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Bulk Status Update" />
+          </SelectTrigger>
           <SelectContent>
             {ORDER_STATUSES.map(s =>
               <SelectItem key={s} value={s}>Set All to {s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
