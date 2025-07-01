@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -90,15 +89,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data) {
-        setProfileData(data);
+        // Transform the database data to match our ProfileData interface
+        const transformedData: ProfileData = {
+          id: data.id,
+          full_name: data.full_name,
+          date_of_birth: data.date_of_birth,
+          gender: data.gender as 'male' | 'female' | 'other' | null,
+          height: data.height,
+          weight: data.weight,
+          fitness_goal: data.fitness_goal as ProfileData['fitness_goal'],
+          food_preference: data.food_preference as ProfileData['food_preference'],
+          health_issues: data.health_issues,
+          period_tracking: data.period_tracking ? 
+            (typeof data.period_tracking === 'string' ? 
+              JSON.parse(data.period_tracking) : 
+              data.period_tracking
+            ) : null
+        };
+
+        setProfileData(transformedData);
         const isComplete = !!(
-          data.full_name &&
-          data.date_of_birth &&
-          data.gender &&
-          data.height &&
-          data.weight &&
-          data.fitness_goal &&
-          data.food_preference
+          transformedData.full_name &&
+          transformedData.date_of_birth &&
+          transformedData.gender &&
+          transformedData.height &&
+          transformedData.weight &&
+          transformedData.fitness_goal &&
+          transformedData.food_preference
         );
         setIsProfileComplete(isComplete);
         console.log('Profile fetched successfully:', { isComplete });
@@ -130,12 +147,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw checkError;
       }
 
+      // Prepare data for database - convert types as needed
+      const dbData: any = { ...data };
+      
+      // Convert period_tracking to JSON if it exists
+      if (dbData.period_tracking) {
+        dbData.period_tracking = JSON.stringify(dbData.period_tracking);
+      }
+
       let result;
       if (existingProfile) {
         // Update existing profile
         result = await supabase
           .from('user_profiles')
-          .update(data)
+          .update(dbData)
           .eq('user_id', session.user.id)
           .select()
           .single();
@@ -143,7 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Create new profile
         result = await supabase
           .from('user_profiles')
-          .insert([{ ...data, user_id: session.user.id }])
+          .insert([{ ...dbData, user_id: session.user.id }])
           .select()
           .single();
       }
@@ -153,17 +178,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw result.error;
       }
 
-      setProfileData(result.data);
+      // Transform the returned data back to our interface
+      const transformedResult: ProfileData = {
+        id: result.data.id,
+        full_name: result.data.full_name,
+        date_of_birth: result.data.date_of_birth,
+        gender: result.data.gender as 'male' | 'female' | 'other' | null,
+        height: result.data.height,
+        weight: result.data.weight,
+        fitness_goal: result.data.fitness_goal as ProfileData['fitness_goal'],
+        food_preference: result.data.food_preference as ProfileData['food_preference'],
+        health_issues: result.data.health_issues,
+        period_tracking: result.data.period_tracking ? 
+          (typeof result.data.period_tracking === 'string' ? 
+            JSON.parse(result.data.period_tracking) : 
+            result.data.period_tracking
+          ) : null
+      };
+
+      setProfileData(transformedResult);
       
       // Check if profile is now complete
       const isComplete = !!(
-        result.data.full_name &&
-        result.data.date_of_birth &&
-        result.data.gender &&
-        result.data.height &&
-        result.data.weight &&
-        result.data.fitness_goal &&
-        result.data.food_preference
+        transformedResult.full_name &&
+        transformedResult.date_of_birth &&
+        transformedResult.gender &&
+        transformedResult.height &&
+        transformedResult.weight &&
+        transformedResult.fitness_goal &&
+        transformedResult.food_preference
       );
       setIsProfileComplete(isComplete);
       
