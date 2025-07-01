@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,8 +26,8 @@ const profileFormSchema = z.object({
   full_name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   date_of_birth: z.date({ required_error: "Date of birth is required" }),
   gender: z.enum(["male", "female", "other"], { required_error: "Gender is required" }),
-  height: z.string().refine((val) => !isNaN(parseFloat(val)), { message: "Height must be a number" }),
-  weight: z.string().refine((val) => !isNaN(parseFloat(val)), { message: "Weight must be a number" }),
+  height: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, { message: "Height must be a positive number" }),
+  weight: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, { message: "Weight must be a positive number" }),
   fitness_goal: z.enum(["weight_loss", "weight_gain", "muscle_gain", "maintain_fitness"], { required_error: "Fitness goal is required" }),
   food_preference: z.enum(["vegetarian", "non_vegetarian"], { required_error: "Food preference is required" }),
   health_issues: z.string().optional(),
@@ -39,7 +38,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 const ProfileSetup = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, isLoading: authLoading, updateProfile } = useAuth();
+  const { user, isLoading: authLoading, updateProfile, profileData } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check authentication status
@@ -58,22 +57,53 @@ const ProfileSetup = () => {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      full_name: user?.name || "",
-      health_issues: "",
+      full_name: user?.name || profileData?.full_name || "",
+      health_issues: profileData?.health_issues || "",
     },
   });
 
+  // Update form with existing profile data
   useEffect(() => {
-    if (user?.name && form.getValues('full_name') === "") {
-      form.setValue('full_name', user.name);
+    if (profileData) {
+      form.setValue('full_name', profileData.full_name || user?.name || "");
+      if (profileData.date_of_birth) {
+        form.setValue('date_of_birth', new Date(profileData.date_of_birth));
+      }
+      if (profileData.gender) {
+        form.setValue('gender', profileData.gender);
+      }
+      if (profileData.height) {
+        form.setValue('height', profileData.height.toString());
+      }
+      if (profileData.weight) {
+        form.setValue('weight', profileData.weight.toString());
+      }
+      if (profileData.fitness_goal) {
+        form.setValue('fitness_goal', profileData.fitness_goal);
+      }
+      if (profileData.food_preference) {
+        form.setValue('food_preference', profileData.food_preference);
+      }
+      if (profileData.health_issues) {
+        form.setValue('health_issues', profileData.health_issues);
+      }
     }
-  }, [user, form]);
+  }, [profileData, user, form]);
 
   const onSubmit = async (data: ProfileFormValues) => {
+    if (!user) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to update your profile.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       
-      console.log("Submitting profile data with authenticated user");
+      console.log("Submitting profile data:", data);
       await updateProfile({
         full_name: data.full_name,
         date_of_birth: format(data.date_of_birth, 'yyyy-MM-dd'),
@@ -104,7 +134,14 @@ const ProfileSetup = () => {
   };
 
   if (authLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-health-primary"></div>
+          <p className="mt-4">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {

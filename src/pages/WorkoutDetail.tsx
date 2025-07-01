@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translateText } from '@/utils/translations';
 import NavBar from '@/components/NavBar';
@@ -13,13 +12,13 @@ import { workouts } from '@/data/workouts';
 import { WorkoutPlan } from '@/types/workout';
 
 const WorkoutDetail = () => {
-  const [searchParams] = useSearchParams();
-  const workoutId = searchParams.get('id');
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { language } = useLanguage();
   const [progress, setProgress] = useState(0);
   const [currentExercise, setCurrentExercise] = useState(-1); // -1 means not started
   
-  const workout: WorkoutPlan | undefined = workouts.find(w => w.id === workoutId);
+  const workout: WorkoutPlan | undefined = workouts.find(w => w.id === id);
   
   if (!workout) {
     return (
@@ -28,8 +27,8 @@ const WorkoutDetail = () => {
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Workout not found</h1>
-            <Button asChild>
-              <a href="/workouts">Back to Workouts</a>
+            <Button onClick={() => navigate('/workouts')}>
+              Back to Workouts
             </Button>
           </div>
         </main>
@@ -66,10 +65,8 @@ const WorkoutDetail = () => {
       <main className="flex-grow py-6">
         <div className="container-custom">
           <div className="mb-8">
-            <Button variant="outline" className="mb-4" asChild>
-              <a href="/workouts">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Workouts
-              </a>
+            <Button variant="outline" className="mb-4" onClick={() => navigate('/workouts')}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Workouts
             </Button>
             
             <div className="grid md:grid-cols-2 gap-8">

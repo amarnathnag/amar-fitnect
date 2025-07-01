@@ -17,9 +17,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { user, isLoading, isProfileComplete } = useAuth();
   const location = useLocation();
   
+  console.log('ProtectedRoute - User:', user?.id, 'Loading:', isLoading, 'Profile Complete:', isProfileComplete);
+  
   // Show loading state while authentication is being verified
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-health-primary"></div>
+          <p className="mt-4">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   // Check for admin requirement
@@ -45,8 +54,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/premium-ai" replace />;
   }
   
-  // Redirect to profile setup if profile is not complete
-  if (!isProfileComplete && location.pathname !== '/profile-setup') {
+  // Redirect to profile setup if profile is not complete (but allow access to profile-setup page itself)
+  if (!isProfileComplete && location.pathname !== '/profile-setup' && location.pathname !== '/profile') {
     console.log("ProtectedRoute: Profile not complete, redirecting to profile setup page");
     return <Navigate to="/profile-setup" replace />;
   }
