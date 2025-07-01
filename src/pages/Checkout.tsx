@@ -14,6 +14,7 @@ import CheckoutAlert from '@/components/checkout/CheckoutAlert';
 import CheckoutActions from '@/components/checkout/CheckoutActions';
 import CheckoutErrorState from '@/components/checkout/CheckoutErrorState';
 import CouponSection from '@/components/checkout/CouponSection';
+import WhatsAppOrderButton from '@/components/checkout/WhatsAppOrderButton';
 import { useCheckoutValidation } from '@/components/checkout/CheckoutValidation';
 
 const Checkout = () => {
@@ -34,18 +35,7 @@ const Checkout = () => {
     phone: ''
   });
 
-  // Early returns for error states
-  if (!user) {
-    return (
-      <CheckoutErrorState
-        title="Login Required"
-        message="You need to be logged in to proceed with checkout"
-        buttonText="Login to Continue"
-        onButtonClick={() => navigate('/auth')}
-      />
-    );
-  }
-
+  // Allow checkout without authentication for WhatsApp orders
   if (!cart || cart.length === 0) {
     return (
       <CheckoutErrorState
@@ -70,6 +60,15 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to place a regular order, or use WhatsApp ordering below.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     console.log('🚀 Starting order placement process...');
     
     if (!validateAddress(deliveryAddress)) {
@@ -106,7 +105,7 @@ const Checkout = () => {
       console.error('❌ Order placement failed:', error);
       toast({
         title: "Order Failed",
-        description: "Unable to place your order. Please try again or contact support.",
+        description: "Unable to place your order. Please try again or use WhatsApp ordering.",
         variant: "destructive",
       });
     } finally {
@@ -150,12 +149,40 @@ const Checkout = () => {
                 appliedCoupon={appliedCoupon}
               />
               
-              <CheckoutActions
-                onPlaceOrder={handlePlaceOrder}
-                loading={loading}
-                cartLength={cart.length}
-                cartTotal={finalTotal}
-              />
+              {user ? (
+                <CheckoutActions
+                  onPlaceOrder={handlePlaceOrder}
+                  loading={loading}
+                  cartLength={cart.length}
+                  cartTotal={finalTotal}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p className="text-sm text-yellow-800">
+                      🔐 Login required for regular checkout, or use WhatsApp ordering below
+                    </p>
+                  </div>
+                  <WhatsAppOrderButton
+                    cart={cart}
+                    cartTotal={finalTotal}
+                    deliveryAddress={deliveryAddress}
+                  />
+                </div>
+              )}
+
+              {user && (
+                <div className="border-t pt-4">
+                  <p className="text-sm text-gray-600 mb-3 text-center">
+                    Or order directly via WhatsApp:
+                  </p>
+                  <WhatsAppOrderButton
+                    cart={cart}
+                    cartTotal={finalTotal}
+                    deliveryAddress={deliveryAddress}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

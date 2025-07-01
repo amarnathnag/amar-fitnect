@@ -31,18 +31,20 @@ export const useCartOperations = ({
   const addToCart = useCallback(async (product: any) => {
     console.log('🛒 Adding product to cart:', product.name);
     
-    if (!user) {
-      console.log('❌ User not logged in');
-      toast({
-        title: "Login Required",
-        description: "Please login to add items to cart",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setLoading(true);
+
+      if (!user) {
+        // Handle guest cart
+        CartService.addItemToGuestCart(product, 1);
+        await fetchCart();
+        console.log('✅ Product added to guest cart successfully');
+        toast({
+          title: "Added to Cart",
+          description: `${product.name} added to cart`,
+        });
+        return;
+      }
 
       const existingItem = findExistingCartItem(cart, product.id);
       console.log('🔍 Checking existing item:', existingItem ? 'Found' : 'Not found');
@@ -73,13 +75,18 @@ export const useCartOperations = ({
   }, [user, cart, setLoading, fetchCart, toast]);
 
   const updateQuantity = useCallback(async (productId: string, quantity: number) => {
-    if (!user) return;
-
     try {
       console.log('🔄 Updating quantity:', productId, 'to', quantity);
       
       if (quantity <= 0) {
         await removeFromCart(productId);
+        return;
+      }
+
+      if (!user) {
+        // Handle guest cart
+        CartService.updateGuestCartQuantity(productId, quantity);
+        updateItemQuantityInState(productId, quantity);
         return;
       }
 
@@ -97,12 +104,16 @@ export const useCartOperations = ({
   }, [user, updateItemQuantityInState, toast]);
 
   const removeFromCart = useCallback(async (productId: string) => {
-    if (!user) return;
-
     try {
       console.log('🗑️ Removing item from cart:', productId);
       
-      await CartService.removeItemFromCart(user.id, productId);
+      if (!user) {
+        // Handle guest cart
+        CartService.removeItemFromGuestCart(productId);
+      } else {
+        await CartService.removeItemFromCart(user.id, productId);
+      }
+      
       removeItemFromState(productId);
 
       console.log('✅ Item removed from cart successfully');

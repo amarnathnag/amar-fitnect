@@ -21,7 +21,9 @@ export const useCart = (): UseCartReturn => {
 
   const fetchCart = useCallback(async () => {
     if (!user) {
-      updateCartState([]);
+      // Load guest cart from localStorage
+      const guestCart = CartService.getGuestCart();
+      updateCartState(guestCart);
       return;
     }
 
