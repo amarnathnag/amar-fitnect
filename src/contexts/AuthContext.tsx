@@ -224,7 +224,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Login error:', error);
+        toast({
+          title: "Login failed",
+          description: error.message || "Invalid email or password",
+          variant: "destructive",
+        });
+        return { success: false, error: error.message };
+      }
 
       if (data.user) {
         toast({
@@ -233,7 +241,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
 
-      return data;
+      return { success: true, data };
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
@@ -241,7 +249,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: error.message || "Invalid email or password",
         variant: "destructive",
       });
-      throw error;
+      return { success: false, error: error.message };
     }
   };
 
@@ -254,11 +262,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             full_name: name,
             name: name,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/`
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Signup error:', error);
+        toast({
+          title: "Signup failed",
+          description: error.message || "There was an error creating your account",
+          variant: "destructive",
+        });
+        return { success: false, error: error.message };
+      }
 
       if (data.user) {
         toast({
@@ -267,7 +284,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
 
-      return data;
+      return { success: true, data };
     } catch (error: any) {
       console.error('Signup error:', error);
       toast({
@@ -275,7 +292,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: error.message || "There was an error creating your account",
         variant: "destructive",
       });
-      throw error;
+      return { success: false, error: error.message };
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) {
+        console.error('Google sign-in error:', error);
+        toast({
+          title: "Google sign-in failed",
+          description: error.message || "There was an error signing in with Google",
+          variant: "destructive",
+        });
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, data };
+    } catch (error: any) {
+      console.error('Google sign-in error:', error);
+      toast({
+        title: "Google sign-in failed",
+        description: error.message || "There was an error signing in with Google",
+        variant: "destructive",
+      });
+      return { success: false, error: error.message };
     }
   };
 
@@ -314,6 +362,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     login,
     signup,
+    signInWithGoogle,
     logout,
     isLoading,
     profileData,
