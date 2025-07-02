@@ -73,7 +73,7 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
       
       <CardFooter className="border-t bg-gray-50/50 dark:bg-gray-800/20 p-4">
         <Button asChild className="w-full bg-gradient-to-r from-health-primary to-health-primary/90 hover:from-health-dark hover:to-health-dark/90 text-white py-2 px-6 rounded-md transition-all duration-300 flex items-center justify-center gap-2 shadow-sm">
-          <Link to={`/workout-detail?id=${workout.id}`}>
+          <Link to={`/workout/${workout.id}`}>
             <Play className="h-4 w-4" /> {translateText("start_workout", language)}
           </Link>
         </Button>
