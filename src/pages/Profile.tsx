@@ -5,92 +5,61 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import PersonalInfoTab from '@/components/profile/PersonalInfoTab';
 import HealthDataTab from '@/components/profile/HealthDataTab';
-import PreferencesTab from '@/components/profile/PreferencesTab';
-import ProgressTab from '@/components/profile/ProgressTab';
+import EnhancedPreferencesTab from '@/components/profile/EnhancedPreferencesTab';
+import EnhancedProgressTab from '@/components/profile/EnhancedProgressTab';
 import OrdersSection from '@/components/profile/OrdersSection';
-import NotificationsSection from '@/components/profile/NotificationsSection';
+import EnhancedNotificationsSection from '@/components/profile/EnhancedNotificationsSection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'react-router-dom';
+import { User, Settings, Heart, TrendingUp, Package, Bell } from 'lucide-react';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, profileData, updateProfile, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [userData, setUserData] = useState({
-    personal: {
-      name: user?.name || '',
-      email: user?.email || '',
-      age: 25,
-      gender: 'male',
-      height: 170,
-      weight: 70,
-      targetWeight: 65
-    },
-    preferences: {
-      dietType: 'vegetarian',
-      goal: 'weightLoss',
-      allergies: '',
-      medicalConditions: '',
-      activityLevel: 'moderate'
-    },
-    progress: {
-      startingWeight: 75,
-      currentWeight: 70,
-      weightGoal: 65,
-      startDate: '2024-01-01',
-      workoutsCompleted: 25,
-      streakDays: 7
-    }
-  });
-
   // Get tab from URL params
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'personal';
 
+  useEffect(() => {
+    if (!user && !isLoading) {
+      navigate('/auth');
+    }
+  }, [user, isLoading, navigate]);
+
   if (!user) {
-    navigate('/auth');
     return null;
   }
 
-  const handlePersonalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUserData(prev => ({
-      ...prev,
-      personal: {
-        ...prev.personal,
-        [name]: value
-      }
-    }));
+  const calculateAge = (dateOfBirth: string | null): number => {
+    if (!dateOfBirth) return 0;
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
   };
 
-  const handlePreferencesChange = (name: string, value: string) => {
-    setUserData(prev => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        [name]: value
-      }
-    }));
-  };
-
-  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUserData(prev => ({
-      ...prev,
-      progress: {
-        ...prev.progress,
-        [name]: parseFloat(value) || 0
-      }
-    }));
-  };
-
-  const saveChanges = () => {
-    toast({
-      title: "Changes Saved",
-      description: "Your profile has been updated successfully.",
-    });
+  const handleSaveProfile = async (data: any) => {
+    try {
+      await updateProfile(data);
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -108,19 +77,38 @@ const Profile = () => {
 
           <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="personal">Personal</TabsTrigger>
-              <TabsTrigger value="health">Health Data</TabsTrigger>
-              <TabsTrigger value="progress">Progress</TabsTrigger>
-              <TabsTrigger value="orders">Orders</TabsTrigger>
-              <TabsTrigger value="notifications">Notifications</TabsTrigger>
-              <TabsTrigger value="preferences">Preferences</TabsTrigger>
+              <TabsTrigger value="personal" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Personal</span>
+              </TabsTrigger>
+              <TabsTrigger value="health" className="flex items-center gap-2">
+                <Heart className="h-4 w-4" />
+                <span className="hidden sm:inline">Health Data</span>
+              </TabsTrigger>
+              <TabsTrigger value="progress" className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                <span className="hidden sm:inline">Progress</span>
+              </TabsTrigger>
+              <TabsTrigger value="orders" className="flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                <span className="hidden sm:inline">Orders</span>
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="flex items-center gap-2">
+                <Bell className="h-4 w-4" />
+                <span className="hidden sm:inline">Notifications</span>
+              </TabsTrigger>
+              <TabsTrigger value="preferences" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Preferences</span>
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="personal" className="space-y-6">
               <PersonalInfoTab 
-                userData={userData}
-                handlePersonalChange={handlePersonalChange}
-                saveChanges={saveChanges}
+                user={user}
+                profileData={profileData}
+                onSave={handleSaveProfile}
+                calculateAge={calculateAge}
               />
             </TabsContent>
             
@@ -129,10 +117,9 @@ const Profile = () => {
             </TabsContent>
             
             <TabsContent value="progress" className="space-y-6">
-              <ProgressTab 
-                userData={userData}
-                handleProgressChange={handleProgressChange}
-                saveChanges={saveChanges}
+              <EnhancedProgressTab 
+                profileData={profileData}
+                onSave={handleSaveProfile}
               />
             </TabsContent>
             
@@ -141,14 +128,16 @@ const Profile = () => {
             </TabsContent>
             
             <TabsContent value="notifications" className="space-y-6">
-              <NotificationsSection />
+              <EnhancedNotificationsSection 
+                profileData={profileData}
+                onSave={handleSaveProfile}
+              />
             </TabsContent>
             
             <TabsContent value="preferences" className="space-y-6">
-              <PreferencesTab 
-                userData={userData}
-                handlePreferencesChange={handlePreferencesChange}
-                saveChanges={saveChanges}
+              <EnhancedPreferencesTab 
+                profileData={profileData}
+                onSave={handleSaveProfile}
               />
             </TabsContent>
           </Tabs>

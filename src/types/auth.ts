@@ -25,9 +25,22 @@ export interface ProfileData {
   gender: 'male' | 'female' | 'other' | null;
   height: number | null;
   weight: number | null;
+  target_weight: number | null;
   fitness_goal: 'weight_loss' | 'weight_gain' | 'muscle_gain' | 'maintain_fitness' | null;
   food_preference: 'vegetarian' | 'non_vegetarian' | null;
   health_issues: string | null;
+  activity_level: string | null;
+  allergies: string | null;
+  medical_conditions: string | null;
+  notification_preferences: {
+    email: boolean;
+    push: boolean;
+    sms: boolean;
+  } | null;
+  privacy_settings: {
+    profile_visibility: 'public' | 'private';
+    data_sharing: boolean;
+  } | null;
   period_tracking?: PeriodTrackingData | null;
 }
 

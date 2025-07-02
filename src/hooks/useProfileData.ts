@@ -45,8 +45,11 @@ export const useProfileData = () => {
       if (data) {
         console.log("Profile data retrieved:", data);
         
-        // Parse period_tracking JSON if it exists
+        // Parse JSON fields if they exist
         let periodTracking: PeriodTrackingData | null = null;
+        let notificationPreferences = null;
+        let privacySettings = null;
+        
         if (data.period_tracking) {
           try {
             periodTracking = typeof data.period_tracking === 'string' 
@@ -57,10 +60,44 @@ export const useProfileData = () => {
           }
         }
 
-        const profileData = {
-          ...data,
+        if (data.notification_preferences) {
+          try {
+            notificationPreferences = typeof data.notification_preferences === 'string' 
+              ? JSON.parse(data.notification_preferences) 
+              : data.notification_preferences;
+          } catch (e) {
+            console.error('Error parsing notification preferences:', e);
+          }
+        }
+
+        if (data.privacy_settings) {
+          try {
+            privacySettings = typeof data.privacy_settings === 'string' 
+              ? JSON.parse(data.privacy_settings) 
+              : data.privacy_settings;
+          } catch (e) {
+            console.error('Error parsing privacy settings:', e);
+          }
+        }
+
+        const profileData: ProfileData = {
+          id: data.id,
+          full_name: data.full_name,
+          date_of_birth: data.date_of_birth,
+          gender: data.gender as 'male' | 'female' | 'other' | null,
+          height: data.height,
+          weight: data.weight,
+          target_weight: data.target_weight,
+          fitness_goal: data.fitness_goal as ProfileData['fitness_goal'],
+          food_preference: data.food_preference as ProfileData['food_preference'],
+          health_issues: data.health_issues,
+          activity_level: data.activity_level,
+          allergies: data.allergies,
+          medical_conditions: data.medical_conditions,
+          notification_preferences: notificationPreferences,
+          privacy_settings: privacySettings,
           period_tracking: periodTracking
-        } as ProfileData;
+        };
 
         setProfileData(profileData);
         

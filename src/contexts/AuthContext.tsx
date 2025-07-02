@@ -97,9 +97,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           gender: data.gender as 'male' | 'female' | 'other' | null,
           height: data.height,
           weight: data.weight,
+          target_weight: data.target_weight,
           fitness_goal: data.fitness_goal as ProfileData['fitness_goal'],
           food_preference: data.food_preference as ProfileData['food_preference'],
           health_issues: data.health_issues,
+          activity_level: data.activity_level,
+          allergies: data.allergies,
+          medical_conditions: data.medical_conditions,
+          notification_preferences: data.notification_preferences ? 
+            (typeof data.notification_preferences === 'string' ? 
+              JSON.parse(data.notification_preferences) : 
+              data.notification_preferences
+            ) as ProfileData['notification_preferences'] : null,
+          privacy_settings: data.privacy_settings ? 
+            (typeof data.privacy_settings === 'string' ? 
+              JSON.parse(data.privacy_settings) : 
+              data.privacy_settings
+            ) as ProfileData['privacy_settings'] : null,
           period_tracking: data.period_tracking ? 
             (typeof data.period_tracking === 'string' ? 
               JSON.parse(data.period_tracking) : 
@@ -186,9 +200,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         gender: result.data.gender as 'male' | 'female' | 'other' | null,
         height: result.data.height,
         weight: result.data.weight,
+        target_weight: result.data.target_weight,
         fitness_goal: result.data.fitness_goal as ProfileData['fitness_goal'],
         food_preference: result.data.food_preference as ProfileData['food_preference'],
         health_issues: result.data.health_issues,
+        activity_level: result.data.activity_level,
+        allergies: result.data.allergies,
+        medical_conditions: result.data.medical_conditions,
+        notification_preferences: result.data.notification_preferences ? 
+          (typeof result.data.notification_preferences === 'string' ? 
+            JSON.parse(result.data.notification_preferences) : 
+            result.data.notification_preferences
+          ) as ProfileData['notification_preferences'] : null,
+        privacy_settings: result.data.privacy_settings ? 
+          (typeof result.data.privacy_settings === 'string' ? 
+            JSON.parse(result.data.privacy_settings) : 
+            result.data.privacy_settings
+          ) as ProfileData['privacy_settings'] : null,
         period_tracking: result.data.period_tracking ? 
           (typeof result.data.period_tracking === 'string' ? 
             JSON.parse(result.data.period_tracking) : 

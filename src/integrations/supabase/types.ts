@@ -1046,6 +1046,8 @@ export type Database = {
       }
       user_profiles: {
         Row: {
+          activity_level: string | null
+          allergies: string | null
           created_at: string | null
           date_of_birth: string | null
           fitness_goal: string | null
@@ -1056,12 +1058,18 @@ export type Database = {
           height: number | null
           id: string
           is_banned: boolean | null
+          medical_conditions: string | null
+          notification_preferences: Json | null
           period_tracking: Json | null
+          privacy_settings: Json | null
+          target_weight: number | null
           updated_at: string | null
           user_id: string
           weight: number | null
         }
         Insert: {
+          activity_level?: string | null
+          allergies?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           fitness_goal?: string | null
@@ -1072,12 +1080,18 @@ export type Database = {
           height?: number | null
           id?: string
           is_banned?: boolean | null
+          medical_conditions?: string | null
+          notification_preferences?: Json | null
           period_tracking?: Json | null
+          privacy_settings?: Json | null
+          target_weight?: number | null
           updated_at?: string | null
           user_id: string
           weight?: number | null
         }
         Update: {
+          activity_level?: string | null
+          allergies?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           fitness_goal?: string | null
@@ -1088,7 +1102,11 @@ export type Database = {
           height?: number | null
           id?: string
           is_banned?: boolean | null
+          medical_conditions?: string | null
+          notification_preferences?: Json | null
           period_tracking?: Json | null
+          privacy_settings?: Json | null
+          target_weight?: number | null
           updated_at?: string | null
           user_id?: string
           weight?: number | null
@@ -1100,6 +1118,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_age: {
+        Args: { birth_date: string }
+        Returns: number
+      }
       calculate_auto_health_score: {
         Args: { ingredients_list: Json }
         Returns: number
