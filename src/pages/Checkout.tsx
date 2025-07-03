@@ -171,18 +171,16 @@ const Checkout = () => {
                 </div>
               )}
 
-              {user && (
-                <div className="border-t pt-4">
-                  <p className="text-sm text-gray-600 mb-3 text-center">
-                    Or order directly via WhatsApp:
-                  </p>
-                  <WhatsAppOrderButton
-                    cart={cart}
-                    cartTotal={finalTotal}
-                    deliveryAddress={deliveryAddress}
-                  />
-                </div>
-              )}
+              <div className="border-t pt-4">
+                <p className="text-sm text-gray-600 mb-3 text-center">
+                  Or order directly via WhatsApp:
+                </p>
+                <WhatsAppOrderButton
+                  cart={cart}
+                  cartTotal={finalTotal}
+                  deliveryAddress={deliveryAddress}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -247,6 +247,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      // Clear any existing auth state first
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -267,6 +271,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           title: "Login successful",
           description: "Welcome back!",
         });
+        // Force page reload for clean state
+        window.location.href = '/';
       }
 
       return { success: true, data };
@@ -357,8 +363,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      // Clear auth state first
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
+      
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      if (error) console.error('Logout error:', error);
       
       setUser(null);
       setProfileData(null);
@@ -368,13 +378,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         title: "Logged out successfully",
         description: "See you next time!",
       });
+      
+      // Force page reload for clean state
+      window.location.href = '/auth';
     } catch (error: any) {
       console.error('Logout error:', error);
-      toast({
-        title: "Logout failed",
-        description: error.message || "There was an error logging out",
-        variant: "destructive",
-      });
+      // Still proceed with logout
+      setUser(null);
+      setProfileData(null);
+      setIsProfileComplete(false);
+      window.location.href = '/auth';
     }
   };
 

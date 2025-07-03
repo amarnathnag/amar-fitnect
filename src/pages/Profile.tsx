@@ -29,6 +29,21 @@ const Profile = () => {
     }
   }, [user, isLoading, navigate]);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-2 text-muted-foreground">Loading profile...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   if (!user) {
     return null;
   }

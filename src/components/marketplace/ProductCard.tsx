@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Leaf, Heart, Star, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import BuyNowButton from './BuyNowButton';
 
 interface Product {
   id: string;
@@ -158,15 +159,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       </CardContent>
       
       <CardFooter className="p-4 pt-0">
-        <Button 
-          onClick={handleAddToCartClick}
-          disabled={product.stock_quantity === 0}
-          className="w-full"
-          variant={product.stock_quantity === 0 ? "secondary" : "default"}
-        >
-          <ShoppingCart className="h-4 w-4 mr-2" />
-          {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-        </Button>
+        {product.stock_quantity === 0 ? (
+          <Button disabled className="w-full" variant="secondary">
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Out of Stock
+          </Button>
+        ) : (
+          <div className="flex gap-2 w-full">
+            <BuyNowButton product={product} variant="add-to-cart" className="flex-1" />
+            <BuyNowButton product={product} variant="buy-now" className="flex-1" />
+          </div>
+        )}
       </CardFooter>
     </Card>
   );
