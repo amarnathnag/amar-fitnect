@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
@@ -16,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { convertDbProductToProduct } from '@/utils/productMapping';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/types/product';
+import WhatsAppOrderSection from '@/components/product-detail/WhatsAppOrderSection';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -28,6 +28,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
+  const [showWhatsAppOrder, setShowWhatsAppOrder] = useState(false);
 
   // Sample coupons (in real app, these would come from backend)
   const availableCoupons = [
@@ -208,6 +209,9 @@ const ProductDetail = () => {
       title: "Added to Cart",
       description: `${quantity}x ${product.name} (${currentQuantityOption.unit}) added to cart`,
     });
+
+    // Show WhatsApp order section after adding to cart
+    setShowWhatsAppOrder(true);
   };
 
   const getHealthScoreColor = (score: number) => {
@@ -454,6 +458,15 @@ const ProductDetail = () => {
                   : `Add ${quantity}x ${currentQuantityOption.unit} to Cart - ₹${finalPrice.toFixed(2)}`
                 }
               </Button>
+
+              {/* WhatsApp Order Section - Shows after adding to cart */}
+              {showWhatsAppOrder && (
+                <WhatsAppOrderSection
+                  product={product}
+                  quantity={quantity}
+                  totalPrice={finalPrice}
+                />
+              )}
 
               {/* Description */}
               <div className="space-y-4">
