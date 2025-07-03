@@ -11,12 +11,11 @@ import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 
-// Form validation schema
 export const signupSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-  confirmPassword: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters" }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -47,17 +46,17 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
   const onSubmit = async (values: SignupFormValues) => {
     try {
       if (setError) setError(null);
+      console.log('Signup form submitted with:', { name: values.name, email: values.email });
+      
       const result = await signup(values.name, values.email, values.password);
+      
       if (result.success) {
-        toast({
-          title: "Account created!",
-          description: "Welcome to your health journey. Please check your email to verify your account.",
-        });
         if (onSuccess) onSuccess();
       } else {
         if (setError) setError(result.error || "Signup failed");
       }
     } catch (error: any) {
+      console.error('Signup form error:', error);
       if (setError) setError(error.message || "Signup failed");
     }
   };
@@ -66,14 +65,10 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
     try {
       if (setError) setError(null);
       const result = await signInWithGoogle();
-      if (result.success) {
-        toast({
-          title: "Account created with Google!",
-          description: "Welcome to your health journey.",
-        });
+      if (result?.success) {
         if (onSuccess) onSuccess();
       } else {
-        if (setError) setError(result.error || "Google signup failed");
+        if (setError) setError(result?.error || "Google signup failed");
       }
     } catch (error: any) {
       if (setError) setError(error.message || "Google signup failed");
@@ -131,7 +126,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
                 <FormLabel>Full Name</FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input 
+                      placeholder="John Doe" 
+                      autoComplete="name"
+                      {...field} 
+                    />
                   </FormControl>
                   <User className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 </div>
@@ -148,7 +147,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
                 <FormLabel>Email</FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
+                    <Input 
+                      placeholder="you@example.com" 
+                      type="email"
+                      autoComplete="email"
+                      {...field} 
+                    />
                   </FormControl>
                   <Mail className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 </div>
@@ -168,6 +172,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
                     <Input 
                       type={showPassword ? "text" : "password"} 
                       placeholder="********" 
+                      autoComplete="new-password"
                       {...field} 
                     />
                   </FormControl>
@@ -175,6 +180,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-2.5 text-muted-foreground"
+                    tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -195,6 +201,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
                     <Input 
                       type={showPassword ? "text" : "password"} 
                       placeholder="********" 
+                      autoComplete="new-password"
                       {...field} 
                     />
                   </FormControl>

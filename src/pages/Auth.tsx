@@ -20,8 +20,9 @@ const Auth = () => {
   // Check if user is already authenticated
   useEffect(() => {
     if (user && !isLoading) {
+      console.log('User already authenticated, redirecting...');
       const from = location.state?.from?.pathname || '/';
-      navigate(from);
+      navigate(from, { replace: true });
     }
   }, [user, isLoading, navigate, location]);
   
@@ -30,11 +31,19 @@ const Auth = () => {
       <div className="min-h-screen flex flex-col">
         <NavBar />
         <div className="flex-grow flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+            <p className="mt-2 text-muted-foreground">Loading...</p>
+          </div>
         </div>
         <Footer />
       </div>
     );
+  }
+  
+  // Don't render if user is authenticated (prevents flash)
+  if (user) {
+    return null;
   }
   
   return (

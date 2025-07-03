@@ -11,10 +11,9 @@ import { Eye, EyeOff, Mail } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 
-// Form validation schema
 export const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
@@ -43,17 +42,17 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const onSubmit = async (values: LoginFormValues) => {
     try {
       if (setError) setError(null);
+      console.log('Form submitted with:', { email: values.email });
+      
       const result = await login(values.email, values.password);
+      
       if (result.success) {
-        toast({
-          title: "Login successful!",
-          description: "Welcome back to your health journey.",
-        });
         if (onSuccess) onSuccess();
       } else {
         if (setError) setError(result.error || "Login failed");
       }
     } catch (error: any) {
+      console.error('Login form error:', error);
       if (setError) setError(error.message || "Login failed");
     }
   };
@@ -62,14 +61,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
     try {
       if (setError) setError(null);
       const result = await signInWithGoogle();
-      if (result.success) {
-        toast({
-          title: "Google login successful!",
-          description: "Welcome to your health journey.",
-        });
+      if (result?.success) {
         if (onSuccess) onSuccess();
       } else {
-        if (setError) setError(result.error || "Google login failed");
+        if (setError) setError(result?.error || "Google login failed");
       }
     } catch (error: any) {
       if (setError) setError(error.message || "Google login failed");
@@ -127,7 +122,12 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 <FormLabel>Email</FormLabel>
                 <div className="relative">
                   <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
+                    <Input 
+                      placeholder="you@example.com" 
+                      type="email"
+                      autoComplete="email"
+                      {...field} 
+                    />
                   </FormControl>
                   <Mail className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 </div>
@@ -147,6 +147,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
                     <Input 
                       type={showPassword ? "text" : "password"} 
                       placeholder="********" 
+                      autoComplete="current-password"
                       {...field} 
                     />
                   </FormControl>

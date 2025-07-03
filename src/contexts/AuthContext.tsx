@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -25,6 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session?.user?.id);
       setSession(session);
       if (session) {
         setUser({
@@ -36,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isAdmin: false,
           gender: null
         });
-        fetchProfile();
+        fetchProfile(session);
       }
       setIsLoading(false);
     });
@@ -58,8 +60,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             gender: null
           });
           setTimeout(() => {
-            fetchProfile();
-          }, 0);
+            fetchProfile(session);
+          }, 100);
         } else {
           setUser(null);
           setProfileData(null);
@@ -72,15 +74,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async () => {
-    if (!session?.user?.id) return;
+  const fetchProfile = async (currentSession?: Session) => {
+    const sessionToUse = currentSession || session;
+    if (!sessionToUse?.user?.id) return;
 
     try {
-      console.log('Fetching profile for user:', session.user.id);
+      console.log('Fetching profile for user:', sessionToUse.user.id);
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('user_id', sessionToUse.user.id)
         .maybeSingle();
 
       if (error) {
@@ -89,7 +92,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data) {
-        // Transform the database data to match our ProfileData interface
         const transformedData: ProfileData = {
           id: data.id,
           full_name: data.full_name,
@@ -104,21 +106,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           activity_level: data.activity_level,
           allergies: data.allergies,
           medical_conditions: data.medical_conditions,
-          notification_preferences: data.notification_preferences ? 
-            (typeof data.notification_preferences === 'string' ? 
-              JSON.parse(data.notification_preferences) : 
-              data.notification_preferences
-            ) as ProfileData['notification_preferences'] : null,
-          privacy_settings: data.privacy_settings ? 
-            (typeof data.privacy_settings === 'string' ? 
-              JSON.parse(data.privacy_settings) : 
-              data.privacy_settings
-            ) as ProfileData['privacy_settings'] : null,
-          period_tracking: data.period_tracking ? 
-            (typeof data.period_tracking === 'string' ? 
-              JSON.parse(data.period_tracking) : 
-              data.period_tracking
-            ) : null
+          notification_preferences: data.notification_preferences || null,
+          privacy_settings: data.privacy_settings || null,
+          period_tracking: data.period_tracking || null
         };
 
         setProfileData(transformedData);
@@ -149,7 +139,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Updating user profile with data:', data);
       
-      // Check if profile exists
       const { data: existingProfile, error: checkError } = await supabase
         .from('user_profiles')
         .select('id')
@@ -161,28 +150,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw checkError;
       }
 
-      // Prepare data for database - convert types as needed
-      const dbData: any = { ...data };
-      
-      // Convert period_tracking to JSON if it exists
-      if (dbData.period_tracking) {
-        dbData.period_tracking = JSON.stringify(dbData.period_tracking);
-      }
-
       let result;
       if (existingProfile) {
-        // Update existing profile
         result = await supabase
           .from('user_profiles')
-          .update(dbData)
+          .update(data)
           .eq('user_id', session.user.id)
           .select()
           .single();
       } else {
-        // Create new profile
         result = await supabase
           .from('user_profiles')
-          .insert([{ ...dbData, user_id: session.user.id }])
+          .insert([{ ...data, user_id: session.user.id }])
           .select()
           .single();
       }
@@ -192,52 +171,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw result.error;
       }
 
-      // Transform the returned data back to our interface
-      const transformedResult: ProfileData = {
-        id: result.data.id,
-        full_name: result.data.full_name,
-        date_of_birth: result.data.date_of_birth,
-        gender: result.data.gender as 'male' | 'female' | 'other' | null,
-        height: result.data.height,
-        weight: result.data.weight,
-        target_weight: result.data.target_weight,
-        fitness_goal: result.data.fitness_goal as ProfileData['fitness_goal'],
-        food_preference: result.data.food_preference as ProfileData['food_preference'],
-        health_issues: result.data.health_issues,
-        activity_level: result.data.activity_level,
-        allergies: result.data.allergies,
-        medical_conditions: result.data.medical_conditions,
-        notification_preferences: result.data.notification_preferences ? 
-          (typeof result.data.notification_preferences === 'string' ? 
-            JSON.parse(result.data.notification_preferences) : 
-            result.data.notification_preferences
-          ) as ProfileData['notification_preferences'] : null,
-        privacy_settings: result.data.privacy_settings ? 
-          (typeof result.data.privacy_settings === 'string' ? 
-            JSON.parse(result.data.privacy_settings) : 
-            result.data.privacy_settings
-          ) as ProfileData['privacy_settings'] : null,
-        period_tracking: result.data.period_tracking ? 
-          (typeof result.data.period_tracking === 'string' ? 
-            JSON.parse(result.data.period_tracking) : 
-            result.data.period_tracking
-          ) : null
-      };
-
-      setProfileData(transformedResult);
-      
-      // Check if profile is now complete
-      const isComplete = !!(
-        transformedResult.full_name &&
-        transformedResult.date_of_birth &&
-        transformedResult.gender &&
-        transformedResult.height &&
-        transformedResult.weight &&
-        transformedResult.fitness_goal &&
-        transformedResult.food_preference
-      );
-      setIsProfileComplete(isComplete);
-      
+      // Refresh profile data
+      await fetchProfile();
       console.log('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -247,9 +182,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      // Clear any existing auth state first
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.clear();
+      setIsLoading(true);
+      console.log('Attempting login for:', email);
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -267,15 +201,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data.user) {
+        console.log('Login successful for:', data.user.email);
         toast({
           title: "Login successful",
           description: "Welcome back!",
         });
-        // Force page reload for clean state
-        window.location.href = '/';
+        return { success: true, data };
       }
 
-      return { success: true, data };
+      return { success: false, error: "Unknown error" };
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
@@ -284,11 +218,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         variant: "destructive",
       });
       return { success: false, error: error.message };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signup = async (name: string, email: string, password: string) => {
     try {
+      setIsLoading(true);
+      console.log('Attempting signup for:', email);
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -312,13 +251,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data.user) {
+        console.log('Signup successful for:', data.user.email);
         toast({
           title: "Account created successfully",
           description: "Please check your email to verify your account.",
         });
+        return { success: true, data };
       }
 
-      return { success: true, data };
+      return { success: false, error: "Unknown error" };
     } catch (error: any) {
       console.error('Signup error:', error);
       toast({
@@ -327,6 +268,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         variant: "destructive",
       });
       return { success: false, error: error.message };
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -363,14 +306,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      // Clear auth state first
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.clear();
+      setIsLoading(true);
+      console.log('Attempting logout');
       
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
-      if (error) console.error('Logout error:', error);
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+      }
       
       setUser(null);
+      setSession(null);
       setProfileData(null);
       setIsProfileComplete(false);
       
@@ -379,15 +324,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "See you next time!",
       });
       
-      // Force page reload for clean state
-      window.location.href = '/auth';
     } catch (error: any) {
       console.error('Logout error:', error);
-      // Still proceed with logout
       setUser(null);
+      setSession(null);
       setProfileData(null);
       setIsProfileComplete(false);
-      window.location.href = '/auth';
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -413,7 +357,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     upgradeToPremium,
   };
 
-  console.log('AuthContext render - user:', user?.id, 'isProfileComplete:', isProfileComplete);
+  console.log('AuthContext render - user:', user?.id, 'isLoading:', isLoading);
 
   return (
     <AuthContext.Provider value={value}>
