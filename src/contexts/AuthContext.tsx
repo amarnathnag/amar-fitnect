@@ -92,6 +92,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data) {
+        // Parse JSON fields if they exist
+        let periodTracking = null;
+        let notificationPreferences = null;
+        let privacySettings = null;
+        
+        if (data.period_tracking) {
+          try {
+            periodTracking = typeof data.period_tracking === 'string' 
+              ? JSON.parse(data.period_tracking) 
+              : data.period_tracking;
+          } catch (e) {
+            console.error('Error parsing period tracking data:', e);
+          }
+        }
+
+        if (data.notification_preferences) {
+          try {
+            notificationPreferences = typeof data.notification_preferences === 'string' 
+              ? JSON.parse(data.notification_preferences) 
+              : data.notification_preferences;
+          } catch (e) {
+            console.error('Error parsing notification preferences:', e);
+          }
+        }
+
+        if (data.privacy_settings) {
+          try {
+            privacySettings = typeof data.privacy_settings === 'string' 
+              ? JSON.parse(data.privacy_settings) 
+              : data.privacy_settings;
+          } catch (e) {
+            console.error('Error parsing privacy settings:', e);
+          }
+        }
+
         const transformedData: ProfileData = {
           id: data.id,
           full_name: data.full_name,
@@ -106,9 +141,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           activity_level: data.activity_level,
           allergies: data.allergies,
           medical_conditions: data.medical_conditions,
-          notification_preferences: data.notification_preferences || null,
-          privacy_settings: data.privacy_settings || null,
-          period_tracking: data.period_tracking || null
+          notification_preferences: notificationPreferences,
+          privacy_settings: privacySettings,
+          period_tracking: periodTracking
         };
 
         setProfileData(transformedData);
@@ -139,6 +174,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Updating user profile with data:', data);
       
+      // Prepare the data for update, stringify JSON fields if present
+      const updateData: any = { ...data };
+      if (updateData.period_tracking) {
+        updateData.period_tracking = JSON.stringify(updateData.period_tracking);
+      }
+      if (updateData.notification_preferences) {
+        updateData.notification_preferences = JSON.stringify(updateData.notification_preferences);
+      }
+      if (updateData.privacy_settings) {
+        updateData.privacy_settings = JSON.stringify(updateData.privacy_settings);
+      }
+      
       const { data: existingProfile, error: checkError } = await supabase
         .from('user_profiles')
         .select('id')
@@ -154,14 +201,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (existingProfile) {
         result = await supabase
           .from('user_profiles')
-          .update(data)
+          .update(updateData)
           .eq('user_id', session.user.id)
           .select()
           .single();
       } else {
         result = await supabase
           .from('user_profiles')
-          .insert([{ ...data, user_id: session.user.id }])
+          .insert([{ ...updateData, user_id: session.user.id }])
           .select()
           .single();
       }
