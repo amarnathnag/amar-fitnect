@@ -10,6 +10,7 @@ import AdminAppointments from '@/components/admin/AdminAppointments';
 import AdminOrders from '@/components/admin/AdminOrders';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminNotifications from '@/components/admin/AdminNotifications';
+import AdminCategories from '@/components/admin/AdminCategories';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
@@ -97,9 +98,10 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="orders" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="orders">Orders</TabsTrigger>
               <TabsTrigger value="products">Products</TabsTrigger>
+              <TabsTrigger value="categories">Categories</TabsTrigger>
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
               <TabsTrigger value="doctors">Doctors</TabsTrigger>
@@ -113,6 +115,10 @@ const Admin = () => {
             
             <TabsContent value="products" className="space-y-6">
               <AdminProducts />
+            </TabsContent>
+
+            <TabsContent value="categories" className="space-y-6">
+              <AdminCategories />
             </TabsContent>
 
             <TabsContent value="users" className="space-y-6">

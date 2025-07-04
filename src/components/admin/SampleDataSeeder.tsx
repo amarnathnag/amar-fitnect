@@ -40,28 +40,41 @@ const SampleDataSeeder = () => {
         return;
       }
 
-      // Prepare products for database insertion
-      const productsToInsert = sampleProducts.map(product => ({
-        id: product.id,
-        name: product.name,
-        brand: product.brand,
-        category: 'food' as const,
-        subcategory: product.subcategory,
-        description: product.description,
-        price: product.price,
-        health_score: product.health_score,
-        image_urls: product.image_urls,
-        health_impact_summary: product.health_impact_summary,
-        is_organic: product.is_organic,
-        is_vegetarian: product.is_vegetarian,
-        is_vegan: product.is_vegan,
-        stock_quantity: product.stock_quantity,
-        ingredients: product.ingredients,
-        allergens: product.allergens,
-        nutritional_info: product.nutritional_info,
-        status: 'active' as const,
-        workflow_status: 'published'
-      }));
+      // Prepare products for database insertion with proper categories
+      const productsToInsert = sampleProducts.map(product => {
+        // Map subcategory to main category for better organization
+        let mainCategory: 'food' | 'supplements' | 'fitness_gear' | 'wellness' = 'food';
+        
+        if (product.subcategory === 'supplements' || product.subcategory === 'vitamins') {
+          mainCategory = 'supplements';
+        } else if (product.subcategory === 'fitness' || product.subcategory === 'equipment') {
+          mainCategory = 'fitness_gear';
+        } else if (product.subcategory === 'personal_care' || product.subcategory === 'wellness') {
+          mainCategory = 'wellness';
+        }
+
+        return {
+          id: product.id,
+          name: product.name,
+          brand: product.brand,
+          category: mainCategory,
+          subcategory: product.subcategory,
+          description: product.description,
+          price: product.price,
+          health_score: product.health_score,
+          image_urls: product.image_urls,
+          health_impact_summary: product.health_impact_summary,
+          is_organic: product.is_organic,
+          is_vegetarian: product.is_vegetarian,
+          is_vegan: product.is_vegan,
+          stock_quantity: product.stock_quantity,
+          ingredients: product.ingredients,
+          allergens: product.allergens,
+          nutritional_info: product.nutritional_info,
+          status: 'active' as const,
+          workflow_status: 'published'
+        };
+      });
 
       console.log('Inserting products:', productsToInsert.length);
 

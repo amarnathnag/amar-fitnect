@@ -5,7 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
-import { Package, Calendar, User, Search } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Package, Calendar, User, Search, MessageCircle, MapPin, Phone, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,6 +20,8 @@ const AdminOrders = () => {
   const [search, setSearch] = useState('');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
   const [updating, setUpdating] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -79,6 +83,40 @@ const AdminOrders = () => {
     } finally {
       setUpdating(null);
     }
+  };
+
+  const handleWhatsAppContact = (order: any) => {
+    const deliveryAddress = order.delivery_address;
+    let message = `📦 *Order Update - #${order.id.slice(0, 8)}*\n\n`;
+    message += `Dear Customer,\n\n`;
+    message += `Your order for ₹${order.total_amount} is being processed.\n\n`;
+    message += `*Order Status:* ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}\n\n`;
+    
+    if (deliveryAddress?.phone) {
+      message += `We will contact you shortly for delivery confirmation.\n\n`;
+      message += `Thank you for choosing us! 🙏`;
+      
+      const whatsappUrl = `https://wa.me/91${deliveryAddress.phone}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    } else {
+      toast({
+        title: "No Phone Number",
+        description: "Customer phone number not available for WhatsApp",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleOrderExpansion = (orderId: string) => {
+    setExpandedOrders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(orderId)) {
+        newSet.delete(orderId);
+      } else {
+        newSet.add(orderId);
+      }
+      return newSet;
+    });
   };
 
   const handleBulkStatusUpdate = async (status: string) => {
@@ -158,15 +196,93 @@ const AdminOrders = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-2 items-center">
-                    <User className="h-4 w-4" />
-                    <span className="text-sm text-gray-500">{order.user_id.slice(0, 8)}</span>
+                <div className="space-y-4">
+                  {/* Basic Order Info */}
+                  <div className="flex gap-4 items-center flex-wrap">
+                    <div className="flex gap-2 items-center">
+                      <User className="h-4 w-4" />
+                      <span className="text-sm text-gray-500">User: {order.user_id.slice(0, 8)}</span>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Package className="h-4 w-4" />
+                      <span className="text-sm">Items: {order.order_items?.length || 0}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-bold">Items:</span> {order.order_items?.length || 0}
-                  </div>
-                  <div className="flex flex-wrap gap-2 py-1">
+
+                  {/* Delivery Address */}
+                  {order.delivery_address && (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="h-4 w-4" />
+                        <span className="font-medium">Delivery Address</span>
+                      </div>
+                      <div className="text-sm space-y-1">
+                        {order.delivery_address.street && (
+                          <div>{order.delivery_address.street}</div>
+                        )}
+                        <div>
+                          {order.delivery_address.city}
+                          {order.delivery_address.state && `, ${order.delivery_address.state}`}
+                        </div>
+                        {order.delivery_address.pincode && (
+                          <div>PIN: {order.delivery_address.pincode}</div>
+                        )}
+                        {order.delivery_address.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-3 w-3" />
+                            <span>{order.delivery_address.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Order Items Collapsible */}
+                  <Collapsible 
+                    open={expandedOrders.has(order.id)} 
+                    onOpenChange={() => toggleOrderExpansion(order.id)}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="w-full justify-between">
+                        <span>View Order Items</span>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-2 mt-2">
+                      {order.order_items?.map((item, itemIdx) => (
+                        <div key={itemIdx} className="flex items-center gap-3 p-2 bg-gray-50 rounded">
+                          <img 
+                            src={item.product?.image_urls?.[0] || '/placeholder.svg'} 
+                            alt={item.product?.name}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium">{item.product?.name}</div>
+                            <div className="text-sm text-gray-500">
+                              Qty: {item.quantity} × ₹{item.price_per_item} = ₹{(item.quantity * item.price_per_item).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-2 pt-2 border-t">
+                    {/* WhatsApp Button */}
+                    {order.delivery_address?.phone && (
+                      <Button
+                        onClick={() => handleWhatsAppContact(order)}
+                        size="sm"
+                        variant="outline"
+                        className="text-green-600 border-green-600 hover:bg-green-50"
+                      >
+                        <MessageCircle className="h-3 w-3 mr-1" />
+                        WhatsApp
+                      </Button>
+                    )}
+                    
+                    {/* Status Update Buttons */}
                     {ORDER_STATUSES.filter(s => s !== order.status).map(s => (
                       <Button
                         key={s}
