@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,7 +30,7 @@ interface GymDetailPageProps {
     rating: number;
     reviewCount: number;
     priceRange: string;
-    facilities: string[];
+    facilities: string[] | { [key: string]: boolean } | undefined;
     openingHours: Record<string, string>;
     images: string[];
     contact: {
@@ -64,8 +63,38 @@ const GymDetailPage = ({ gym }: GymDetailPageProps) => {
     'Locker Rooms': <ShowerHead className="h-4 w-4" />,
     'Parking': <Car className="h-4 w-4" />,
     'WiFi': <Wifi className="h-4 w-4" />,
-    'Air Conditioning': <AirVent className="h-4 w-4" />
+    'Air Conditioning': <AirVent className="h-4 w-4" />,
+    'Weight Training': <Dumbbell className="h-4 w-4" />,
+    'Cardio': <Heart className="h-4 w-4" />,
+    'CrossFit': <Trophy className="h-4 w-4" />,
+    'Zumba': <Users className="h-4 w-4" />,
+    'Diet Consultant': <Heart className="h-4 w-4" />
   };
+
+  // Convert facilities object to array of active facilities
+  const getFacilitiesList = () => {
+    if (!gym.facilities) return [];
+    
+    if (Array.isArray(gym.facilities)) {
+      return gym.facilities;
+    }
+    
+    // If it's an object, filter for true values and convert keys to readable names
+    const facilityNames: Record<string, string> = {
+      'weight_training': 'Weight Training',
+      'cardio': 'Cardio',
+      'crossfit': 'CrossFit',
+      'zumba': 'Zumba',
+      'personal_training': 'Personal Training',
+      'diet_consultant': 'Diet Consultant'
+    };
+    
+    return Object.entries(gym.facilities)
+      .filter(([key, value]) => value === true)
+      .map(([key]) => facilityNames[key] || key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()));
+  };
+
+  const facilitiesList = getFacilitiesList();
 
   return (
     <div className="space-y-6">
@@ -161,14 +190,18 @@ const GymDetailPage = ({ gym }: GymDetailPageProps) => {
               <CardDescription>Everything available at this gym</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {gym.facilities.map((facility) => (
-                  <div key={facility} className="flex items-center gap-3 p-3 border rounded-lg">
-                    {facilityIcons[facility] || <Dumbbell className="h-4 w-4" />}
-                    <span>{facility}</span>
-                  </div>
-                ))}
-              </div>
+              {facilitiesList.length > 0 ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {facilitiesList.map((facility) => (
+                    <div key={facility} className="flex items-center gap-3 p-3 border rounded-lg">
+                      {facilityIcons[facility] || <Dumbbell className="h-4 w-4" />}
+                      <span>{facility}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">No facilities information available</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
