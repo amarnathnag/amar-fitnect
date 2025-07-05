@@ -25,6 +25,7 @@ import DoctorConsultation from "./pages/DoctorConsultation";
 import Gyms from "./pages/Gyms";
 import GymDetail from "./pages/GymDetail";
 import GymRegistration from "./pages/GymRegistration";
+import GymBookTrial from "./pages/GymBookTrial";
 import Jobs from "./pages/Jobs";
 import JobDetails from "./pages/JobDetails";
 import JobApplication from "./pages/JobApplication";
@@ -70,6 +71,7 @@ function App() {
                 <Route path="/doctor-consultation" element={<DoctorConsultation />} />
                 <Route path="/gyms" element={<Gyms />} />
                 <Route path="/gym/:id" element={<GymDetail />} />
+                <Route path="/gyms/:gymId/book-trial" element={<GymBookTrial />} />
                 <Route path="/gym-registration" element={<GymRegistration />} />
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/job/:id" element={<JobDetails />} />

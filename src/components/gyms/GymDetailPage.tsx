@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -122,9 +123,22 @@ const GymDetailPage = ({ gym }: GymDetailPageProps) => {
                 </div>
               </div>
               
-              <Badge variant="secondary" className="text-lg px-4 py-2">
-                {gym.priceRange}
-              </Badge>
+              <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                <Button size="lg" className="flex-1" asChild>
+                  <Link to={`/gyms/${gym.id}/book-trial`}>
+                    Book Trial Session
+                  </Link>
+                </Button>
+                <Button variant="outline" size="lg" className="flex-1" asChild>
+                  <a 
+                    href={`https://wa.me/${gym.contact.phone.replace(/\D/g, '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    Contact Gym
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>

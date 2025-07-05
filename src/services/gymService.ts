@@ -4,34 +4,120 @@ import { dummyGyms, dummyJobs } from "./dummyData";
 
 // Gym CRUD Operations
 export const fetchGyms = async (search?: string, pincode?: string) => {
-  // For demonstration, we're using dummy data instead of Supabase
-  let filteredGyms = [...dummyGyms];
-  
-  if (search) {
-    const lowerCaseSearch = search.toLowerCase();
-    filteredGyms = filteredGyms.filter(gym => 
-      gym.name.toLowerCase().includes(lowerCaseSearch) || 
-      gym.location.toLowerCase().includes(lowerCaseSearch)
-    );
+  try {
+    // Try to fetch from Supabase first, with fallback to dummy data
+    const { data, error } = await supabase
+      .from('gyms')
+      .select('*')
+      .eq('is_approved', true);
+
+    if (error) {
+      console.warn('Using dummy data, Supabase error:', error);
+      // Fallback to dummy data
+      let filteredGyms = [...dummyGyms];
+      
+      if (search) {
+        const lowerCaseSearch = search.toLowerCase();
+        filteredGyms = filteredGyms.filter(gym => 
+          gym.name.toLowerCase().includes(lowerCaseSearch) || 
+          gym.location.toLowerCase().includes(lowerCaseSearch)
+        );
+      }
+      
+      if (pincode) {
+        filteredGyms = filteredGyms.filter(gym => 
+          gym.location_pincode === pincode
+        );
+      }
+      
+      return filteredGyms;
+    }
+
+    let filteredGyms = data || [];
+    
+    if (search) {
+      const lowerCaseSearch = search.toLowerCase();
+      filteredGyms = filteredGyms.filter(gym => 
+        gym.name.toLowerCase().includes(lowerCaseSearch) || 
+        gym.location.toLowerCase().includes(lowerCaseSearch)
+      );
+    }
+    
+    if (pincode) {
+      filteredGyms = filteredGyms.filter(gym => 
+        gym.location_pincode === pincode
+      );
+    }
+    
+    // Add dummy data if no real data
+    if (filteredGyms.length === 0) {
+      return dummyGyms.filter(gym => {
+        if (search) {
+          const lowerCaseSearch = search.toLowerCase();
+          return gym.name.toLowerCase().includes(lowerCaseSearch) || 
+                 gym.location.toLowerCase().includes(lowerCaseSearch);
+        }
+        if (pincode) {
+          return gym.location_pincode === pincode;
+        }
+        return true;
+      });
+    }
+    
+    return filteredGyms;
+  } catch (error) {
+    console.warn('Error fetching gyms, using dummy data:', error);
+    // Fallback to dummy data
+    let filteredGyms = [...dummyGyms];
+    
+    if (search) {
+      const lowerCaseSearch = search.toLowerCase();
+      filteredGyms = filteredGyms.filter(gym => 
+        gym.name.toLowerCase().includes(lowerCaseSearch) || 
+        gym.location.toLowerCase().includes(lowerCaseSearch)
+      );
+    }
+    
+    if (pincode) {
+      filteredGyms = filteredGyms.filter(gym => 
+        gym.location_pincode === pincode
+      );
+    }
+    
+    return filteredGyms;
   }
-  
-  if (pincode) {
-    filteredGyms = filteredGyms.filter(gym => 
-      gym.location_pincode === pincode
-    );
-  }
-  
-  return filteredGyms;
 };
 
 export const fetchGymById = async (gymId: string) => {
-  const gym = dummyGyms.find(g => g.id === gymId);
-  
-  if (!gym) {
-    throw new Error('Gym not found');
+  try {
+    // Try to fetch from Supabase first
+    const { data, error } = await supabase
+      .from('gyms')
+      .select('*')
+      .eq('id', gymId)
+      .eq('is_approved', true)
+      .single();
+
+    if (error) {
+      console.warn('Using dummy data for gym detail, Supabase error:', error);
+      // Fallback to dummy data
+      const gym = dummyGyms.find(g => g.id === gymId);
+      if (!gym) {
+        throw new Error('Gym not found');
+      }
+      return gym;
+    }
+
+    return data;
+  } catch (error) {
+    console.warn('Error fetching gym by ID, using dummy data:', error);
+    // Fallback to dummy data
+    const gym = dummyGyms.find(g => g.id === gymId);
+    if (!gym) {
+      throw new Error('Gym not found');
+    }
+    return gym;
   }
-  
-  return gym;
 };
 
 export const fetchGymMedia = async (gymId: string) => {
