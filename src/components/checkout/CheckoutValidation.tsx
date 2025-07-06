@@ -13,18 +13,22 @@ export const useCheckoutValidation = () => {
   const { toast } = useToast();
 
   const validateAddress = (deliveryAddress: DeliveryAddress) => {
+    console.log('🔍 Validating delivery address:', deliveryAddress);
+    
+    // Check required fields
     const requiredFields = [
-      { field: 'street', label: 'Street Address' },
-      { field: 'city', label: 'City' },
-      { field: 'state', label: 'State' },
-      { field: 'pincode', label: 'Pincode' },
-      { field: 'phone', label: 'Phone Number' }
+      { field: 'street', label: 'Street Address', value: deliveryAddress.street },
+      { field: 'city', label: 'City', value: deliveryAddress.city },
+      { field: 'state', label: 'State', value: deliveryAddress.state },
+      { field: 'pincode', label: 'Pincode', value: deliveryAddress.pincode },
+      { field: 'phone', label: 'Phone Number', value: deliveryAddress.phone }
     ];
 
-    for (const { field, label } of requiredFields) {
-      if (!deliveryAddress[field as keyof typeof deliveryAddress].trim()) {
+    for (const { field, label, value } of requiredFields) {
+      if (!value || !value.toString().trim()) {
+        console.log(`❌ Missing field: ${field}`);
         toast({
-          title: "Missing Information",
+          title: "Missing Information ⚠️",
           description: `Please enter ${label}`,
           variant: "destructive",
         });
@@ -32,8 +36,10 @@ export const useCheckoutValidation = () => {
       }
     }
 
-    // Validate pincode format
-    if (!/^\d{6}$/.test(deliveryAddress.pincode)) {
+    // Validate pincode format (6 digits)
+    const pincodeRegex = /^\d{6}$/;
+    if (!pincodeRegex.test(deliveryAddress.pincode.trim())) {
+      console.log('❌ Invalid pincode format');
       toast({
         title: "Invalid Pincode",
         description: "Please enter a valid 6-digit pincode",
@@ -42,8 +48,10 @@ export const useCheckoutValidation = () => {
       return false;
     }
 
-    // Validate phone format
-    if (!/^\d{10}$/.test(deliveryAddress.phone)) {
+    // Validate phone format (10 digits)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(deliveryAddress.phone.trim())) {
+      console.log('❌ Invalid phone format');
       toast({
         title: "Invalid Phone Number",
         description: "Please enter a valid 10-digit phone number",
@@ -52,8 +60,21 @@ export const useCheckoutValidation = () => {
       return false;
     }
 
+    console.log('✅ Address validation passed');
     return true;
   };
 
-  return { validateAddress };
+  const validateCart = (cart: any[]) => {
+    if (!cart || cart.length === 0) {
+      toast({
+        title: "Empty Cart",
+        description: "Please add items to your cart before checkout",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  return { validateAddress, validateCart };
 };

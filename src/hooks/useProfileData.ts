@@ -13,25 +13,27 @@ export const useProfileData = () => {
   // Fetch user profile from Supabase
   const fetchProfile = async () => {
     try {
-      console.log("Attempting to fetch user profile...");
+      console.log("🔍 Fetching user profile...");
+      
+      // Get current session first
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        console.error('Session error:', sessionError);
+        console.error('❌ Session error:', sessionError);
         return;
       }
       
       if (!sessionData.session?.user) {
-        console.log('No active session found when fetching profile');
+        console.log('⚠️ No active session found');
         setProfileData(null);
         setIsProfileComplete(false);
         return;
       }
       
       const userId = sessionData.session.user.id;
-      console.log(`Fetching profile for user ID: ${userId}`);
+      console.log(`📋 Fetching profile for user ID: ${userId}`);
       
-      // Fetch from user_profiles table
+      // Fetch from user_profiles table with error handling
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -39,50 +41,52 @@ export const useProfileData = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching profile:', error);
-        // Don't show error toast for missing profile - it's normal for new users
+        console.error('❌ Error fetching profile:', error);
+        // Only show error for non-missing profile errors
         if (error.code !== 'PGRST116') {
-          console.error('Profile fetch error that is not "no rows":', error);
+          console.error('Profile fetch error:', error.message);
         }
+        setProfileData(null);
+        setIsProfileComplete(false);
         return;
       }
 
       if (data) {
-        console.log("Profile data retrieved:", data);
+        console.log("✅ Profile data retrieved successfully");
         
-        // Parse JSON fields if they exist
+        // Parse JSON fields safely
         let periodTracking: PeriodTrackingData | null = null;
         let notificationPreferences = null;
         let privacySettings = null;
         
-        if (data.period_tracking) {
-          try {
+        try {
+          if (data.period_tracking) {
             periodTracking = typeof data.period_tracking === 'string' 
               ? JSON.parse(data.period_tracking) 
               : data.period_tracking;
-          } catch (e) {
-            console.error('Error parsing period tracking data:', e);
           }
+        } catch (e) {
+          console.error('Error parsing period tracking:', e);
         }
 
-        if (data.notification_preferences) {
-          try {
+        try {
+          if (data.notification_preferences) {
             notificationPreferences = typeof data.notification_preferences === 'string' 
               ? JSON.parse(data.notification_preferences) 
               : data.notification_preferences;
-          } catch (e) {
-            console.error('Error parsing notification preferences:', e);
           }
+        } catch (e) {
+          console.error('Error parsing notification preferences:', e);
         }
 
-        if (data.privacy_settings) {
-          try {
+        try {
+          if (data.privacy_settings) {
             privacySettings = typeof data.privacy_settings === 'string' 
               ? JSON.parse(data.privacy_settings) 
               : data.privacy_settings;
-          } catch (e) {
-            console.error('Error parsing privacy settings:', e);
           }
+        } catch (e) {
+          console.error('Error parsing privacy settings:', e);
         }
 
         const profileData: ProfileData = {
@@ -113,24 +117,27 @@ export const useProfileData = () => {
 
         setProfileData(profileData);
         
-        // Check if profile is complete by verifying required fields
-        const hasRequiredFields = 
+        // Check if profile is complete
+        const hasRequiredFields = !!(
           data.full_name && 
           data.gender && 
           data.height && 
           data.weight && 
           data.fitness_goal && 
-          data.food_preference;
+          data.food_preference
+        );
         
-        setIsProfileComplete(!!hasRequiredFields);
-        console.log("Profile complete status:", !!hasRequiredFields);
+        setIsProfileComplete(hasRequiredFields);
+        console.log("✅ Profile complete status:", hasRequiredFields);
       } else {
-        console.log("No profile data found for user");
+        console.log("ℹ️ No profile data found - new user");
         setProfileData(null);
         setIsProfileComplete(false);
       }
     } catch (error) {
-      console.error('Error in fetchProfile:', error);
+      console.error('❌ Unexpected error in fetchProfile:', error);
+      setProfileData(null);
+      setIsProfileComplete(false);
     }
   };
 
@@ -138,26 +145,28 @@ export const useProfileData = () => {
   const updateProfile = async (data: Partial<ProfileData>) => {
     try {
       setIsLoading(true);
-      console.log("Updating user profile with data:", data);
+      console.log("🔄 Updating user profile...", data);
       
       // Get current session
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !sessionData.session?.user) {
-        console.error("No authenticated user found during profile update:", sessionError);
+        console.error("❌ No authenticated user found:", sessionError);
         toast({
           title: "Authentication Error",
-          description: "You must be logged in to update your profile",
+          description: "Please log in to update your profile",
           variant: "destructive",
         });
-        throw new Error("You must be logged in to update your profile");
+        return;
       }
 
       const userId = sessionData.session.user.id;
-      console.log('Updating profile for user ID:', userId);
+      console.log('📝 Updating profile for user ID:', userId);
 
-      // Prepare the data for update, stringify JSON fields if present
+      // Prepare the data for update
       const updateData: any = { ...data };
+      
+      // Stringify JSON fields if present
       if (updateData.period_tracking) {
         updateData.period_tracking = JSON.stringify(updateData.period_tracking);
       }
@@ -168,23 +177,18 @@ export const useProfileData = () => {
         updateData.privacy_settings = JSON.stringify(updateData.privacy_settings);
       }
       
-      // Check if profile exists
-      const { data: existingProfile, error: profileCheckError } = await supabase
+      // Check if profile exists first
+      const { data: existingProfile } = await supabase
         .from('user_profiles')
         .select('id')
         .eq('user_id', userId)
         .maybeSingle();
       
-      if (profileCheckError && profileCheckError.code !== 'PGRST116') {
-        console.error('Error checking existing profile:', profileCheckError);
-        throw profileCheckError;
-      }
-      
       let result;
       
       if (existingProfile) {
         // Update existing profile
-        console.log('Updating existing profile');
+        console.log('📝 Updating existing profile');
         result = await supabase
           .from('user_profiles')
           .update(updateData)
@@ -192,8 +196,8 @@ export const useProfileData = () => {
           .select()
           .single();
       } else {
-        // Insert new profile with user_id
-        console.log('Creating new profile with user ID:', userId);
+        // Create new profile
+        console.log('🆕 Creating new profile');
         result = await supabase
           .from('user_profiles')
           .insert([{ 
@@ -205,28 +209,33 @@ export const useProfileData = () => {
       }
       
       if (result.error) {
-        console.error('Error in profile operation:', result.error);
+        console.error('❌ Profile update failed:', result.error);
         toast({
-          title: "Profile Update Failed",
-          description: result.error.message || "There was a problem updating your profile. Please try again.",
+          title: "Update Failed",
+          description: result.error.message || "Failed to update profile. Please try again.",
           variant: "destructive",
         });
         throw result.error;
       }
       
-      console.log('Profile operation successful:', result.data);
+      console.log('✅ Profile updated successfully');
       
       // Refresh profile data
       await fetchProfile();
       
       toast({
-        title: "Profile Updated",
+        title: "Profile Updated! ✅",
         description: "Your profile has been successfully updated.",
       });
       
       return result;
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('❌ Error updating profile:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
       throw error;
     } finally {
       setIsLoading(false);

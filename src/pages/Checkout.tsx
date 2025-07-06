@@ -23,7 +23,8 @@ const Checkout = () => {
   const { user } = useAuth();
   const { createOrder } = useOrders();
   const { toast } = useToast();
-  const { validateAddress } = useCheckoutValidation();
+  const { validateAddress, validateCart } = useCheckoutValidation();
+  
   const [loading, setLoading] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string>('');
   const [couponDiscount, setCouponDiscount] = useState<number>(0);
@@ -35,9 +36,10 @@ const Checkout = () => {
     phone: ''
   });
 
-  console.log('🛒 Checkout - Cart:', cart.length, 'items, Total:', cartTotal);
+  console.log('🛒 Checkout loaded - Cart:', cart.length, 'items, Total: ₹', cartTotal);
 
-  if (!cart || cart.length === 0) {
+  // Handle empty cart
+  if (!validateCart(cart)) {
     return (
       <CheckoutErrorState
         title="Cart is Empty"
@@ -51,7 +53,7 @@ const Checkout = () => {
   const finalTotal = Math.max(0, cartTotal - couponDiscount);
 
   const handleCouponApply = (discount: number, couponCode: string) => {
-    console.log('🎫 Coupon applied:', couponCode, 'Discount:', discount);
+    console.log('🎫 Applying coupon:', couponCode, 'Discount:', discount);
     setCouponDiscount(discount);
     setAppliedCoupon(couponCode);
     toast({
@@ -61,7 +63,7 @@ const Checkout = () => {
   };
 
   const handleCouponRemove = () => {
-    console.log('🎫 Coupon removed');
+    console.log('🎫 Removing coupon');
     setCouponDiscount(0);
     setAppliedCoupon('');
     toast({
@@ -80,21 +82,17 @@ const Checkout = () => {
       return;
     }
 
-    console.log('🚀 Starting order placement process...');
+    console.log('🚀 Starting order placement...');
     
-    // Validate address before proceeding
+    // Validate address
     if (!validateAddress(deliveryAddress)) {
-      toast({
-        title: "Address Required",
-        description: "Please fill in all required address fields.",
-        variant: "destructive",
-      });
       return;
     }
 
     try {
       setLoading(true);
-      console.log('📋 Order data preparation:', {
+      
+      console.log('📋 Creating order with data:', {
         user_id: user.id,
         total_amount: finalTotal,
         delivery_address: deliveryAddress,
@@ -113,11 +111,12 @@ const Checkout = () => {
 
       toast({
         title: "Order Placed Successfully! 🎉",
-        description: `Order #${order.id.slice(0, 8)} has been confirmed. You can track it in your profile.`,
+        description: `Order #${order.id.slice(0, 8)} has been confirmed. Track it in your profile.`,
       });
 
-      // Navigate to profile orders tab
+      // Navigate to profile orders
       navigate('/profile?tab=orders');
+      
     } catch (error) {
       console.error('❌ Order placement failed:', error);
       toast({
@@ -166,32 +165,34 @@ const Checkout = () => {
                 appliedCoupon={appliedCoupon}
               />
               
-              {user ? (
-                <CheckoutActions
-                  onPlaceOrder={handlePlaceOrder}
-                  loading={loading}
-                  cartLength={cart.length}
-                  cartTotal={finalTotal}
-                />
-              ) : (
-                <div className="space-y-4">
+              {/* Order Actions */}
+              <div className="space-y-4">
+                {user ? (
+                  <CheckoutActions
+                    onPlaceOrder={handlePlaceOrder}
+                    loading={loading}
+                    cartLength={cart.length}
+                    cartTotal={finalTotal}
+                  />
+                ) : (
                   <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                     <p className="text-sm text-yellow-800">
                       🔐 Login required for regular checkout, or use WhatsApp ordering below
                     </p>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div className="border-t pt-4">
-                <p className="text-sm text-gray-600 mb-3 text-center">
-                  Order directly via WhatsApp:
-                </p>
-                <WhatsAppOrderButton
-                  cart={cart}
-                  cartTotal={finalTotal}
-                  deliveryAddress={deliveryAddress}
-                />
+                {/* WhatsApp Order Section */}
+                <div className="border-t pt-4">
+                  <p className="text-sm text-gray-600 mb-3 text-center">
+                    Alternative: Order directly via WhatsApp
+                  </p>
+                  <WhatsAppOrderButton
+                    cart={cart}
+                    cartTotal={finalTotal}
+                    deliveryAddress={deliveryAddress}
+                  />
+                </div>
               </div>
             </div>
           </div>
