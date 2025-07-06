@@ -11,37 +11,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { Calendar as CalendarIcon, ArrowRight } from 'lucide-react';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
 import { supabase } from '@/integrations/supabase/client';
 
-// Form validation schema
-const profileFormSchema = z.object({
-  full_name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  date_of_birth: z.date({ required_error: "Date of birth is required" }),
-  gender: z.enum(["male", "female", "other"], { required_error: "Gender is required" }),
-  height: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, { message: "Height must be a positive number" }),
-  weight: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, { message: "Weight must be a positive number" }),
-  fitness_goal: z.enum(["weight_loss", "weight_gain", "muscle_gain", "maintain_fitness"], { required_error: "Fitness goal is required" }),
-  food_preference: z.enum(["vegetarian", "non_vegetarian"], { required_error: "Food preference is required" }),
-  health_issues: z.string().optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
 const ProfileSetup = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, isLoading: authLoading, profileData } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    full_name: '',
+    date_of_birth: null as Date | null,
+    gender: '',
+    height: '',
+    weight: '',
+    fitness_goal: '',
+    food_preference: '',
+    health_issues: ''
+  });
 
   // Check authentication status
   useEffect(() => {
@@ -56,43 +48,49 @@ const ProfileSetup = () => {
     }
   }, [user, authLoading, navigate, toast]);
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues: {
-      full_name: user?.name || profileData?.full_name || "",
-      health_issues: profileData?.health_issues || "",
-    },
-  });
+  const handleInputChange = (field: string, value: string | Date | null) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
-  // Update form with existing profile data
-  useEffect(() => {
-    if (profileData) {
-      form.setValue('full_name', profileData.full_name || user?.name || "");
-      if (profileData.date_of_birth) {
-        form.setValue('date_of_birth', new Date(profileData.date_of_birth));
-      }
-      if (profileData.gender) {
-        form.setValue('gender', profileData.gender);
-      }
-      if (profileData.height) {
-        form.setValue('height', profileData.height.toString());
-      }
-      if (profileData.weight) {
-        form.setValue('weight', profileData.weight.toString());
-      }
-      if (profileData.fitness_goal) {
-        form.setValue('fitness_goal', profileData.fitness_goal);
-      }
-      if (profileData.food_preference) {
-        form.setValue('food_preference', profileData.food_preference);
-      }
-      if (profileData.health_issues) {
-        form.setValue('health_issues', profileData.health_issues);
+  const validateForm = () => {
+    const requiredFields = [
+      { field: 'full_name', label: 'Full Name' },
+      { field: 'gender', label: 'Gender' },
+      { field: 'height', label: 'Height' },
+      { field: 'weight', label: 'Weight' },
+      { field: 'fitness_goal', label: 'Fitness Goal' },
+      { field: 'food_preference', label: 'Food Preference' }
+    ];
+
+    for (const { field, label } of requiredFields) {
+      if (!formData[field as keyof typeof formData]) {
+        toast({
+          title: "Missing Information",
+          description: `Please enter ${label}`,
+          variant: "destructive",
+        });
+        return false;
       }
     }
-  }, [profileData, user, form]);
 
-  const onSubmit = async (data: ProfileFormValues) => {
+    if (!formData.date_of_birth) {
+      toast({
+        title: "Missing Information",
+        description: "Please select your date of birth",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!user) {
       toast({
         title: "Authentication Error",
@@ -102,10 +100,14 @@ const ProfileSetup = () => {
       return;
     }
 
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       
-      console.log("Submitting profile data:", data);
+      console.log("Submitting profile data:", formData);
       
       // Get current session to ensure we have the user ID
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -116,18 +118,20 @@ const ProfileSetup = () => {
       
       const userId = sessionData.session.user.id;
       
-      // Prepare profile data
+      // Prepare profile data for user_profiles table
       const profileData = {
         user_id: userId,
-        full_name: data.full_name,
-        date_of_birth: format(data.date_of_birth, 'yyyy-MM-dd'),
-        gender: data.gender,
-        height: parseFloat(data.height),
-        weight: parseFloat(data.weight),
-        fitness_goal: data.fitness_goal,
-        food_preference: data.food_preference,
-        health_issues: data.health_issues || null,
+        full_name: formData.full_name.trim(),
+        date_of_birth: formData.date_of_birth ? format(formData.date_of_birth, 'yyyy-MM-dd') : null,
+        gender: formData.gender,
+        height: parseFloat(formData.height),
+        weight: parseFloat(formData.weight),
+        fitness_goal: formData.fitness_goal,
+        food_preference: formData.food_preference,
+        health_issues: formData.health_issues || null,
       };
+      
+      console.log('Prepared profile data:', profileData);
       
       // Check if profile exists
       const { data: existingProfile, error: checkError } = await supabase
@@ -136,13 +140,15 @@ const ProfileSetup = () => {
         .eq('user_id', userId)
         .maybeSingle();
       
-      if (checkError && checkError.code !== 'PGRST116') {
+      if (checkError) {
+        console.error('Error checking existing profile:', checkError);
         throw checkError;
       }
       
       let result;
       if (existingProfile) {
         // Update existing profile
+        console.log('Updating existing profile');
         result = await supabase
           .from('user_profiles')
           .update(profileData)
@@ -151,6 +157,7 @@ const ProfileSetup = () => {
           .single();
       } else {
         // Insert new profile
+        console.log('Creating new profile');
         result = await supabase
           .from('user_profiles')
           .insert([profileData])
@@ -159,14 +166,18 @@ const ProfileSetup = () => {
       }
       
       if (result.error) {
+        console.error('Profile operation error:', result.error);
         throw result.error;
       }
       
+      console.log('Profile saved successfully:', result.data);
+      
       toast({
-        title: "Profile setup completed!",
+        title: "Profile setup completed! ✅",
         description: "Your profile has been successfully created.",
       });
       
+      // Navigate to profile page
       navigate('/profile');
     } catch (error: any) {
       console.error('Profile setup error:', error);
@@ -184,7 +195,7 @@ const ProfileSetup = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-health-primary"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-500"></div>
           <p className="mt-4">Loading...</p>
         </div>
       </div>
@@ -209,235 +220,177 @@ const ProfileSetup = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Personal Information Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Personal Information</h3>
-                    
-                    <FormField
-                      control={form.control}
-                      name="full_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+              <form onSubmit={onSubmit} className="space-y-6">
+                {/* Personal Information Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Personal Information</h3>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="full_name">Full Name *</Label>
+                    <Input 
+                      id="full_name"
+                      placeholder="John Doe" 
+                      value={formData.full_name}
+                      onChange={(e) => handleInputChange('full_name', e.target.value)}
+                      required
                     />
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="date_of_birth"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Date of Birth</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "w-full pl-3 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  disabled={(date) =>
-                                    date > new Date() || date < new Date("1900-01-01")
-                                  }
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="gender"
-                        render={({ field }) => (
-                          <FormItem className="space-y-3">
-                            <FormLabel>Gender</FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                className="flex space-x-4"
-                              >
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem value="male" />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    Male
-                                  </FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem value="female" />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    Female
-                                  </FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                  <FormControl>
-                                    <RadioGroupItem value="other" />
-                                  </FormControl>
-                                  <FormLabel className="font-normal">
-                                    Other
-                                  </FormLabel>
-                                </FormItem>
-                              </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Date of Birth *</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !formData.date_of_birth && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.date_of_birth ? (
+                              format(formData.date_of_birth, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={formData.date_of_birth || undefined}
+                            onSelect={(date) => handleInputChange('date_of_birth', date || null)}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
-                  </div>
-                  
-                  {/* Physical Measurements Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Physical Measurements</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="height"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Height (cm)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="175" {...field} type="number" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="weight"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Weight (kg)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="70" {...field} type="number" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Preferences Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Preferences</h3>
                     
-                    <FormField
-                      control={form.control}
-                      name="fitness_goal"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Fitness Goal</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select your fitness goal" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="weight_loss">Weight Loss</SelectItem>
-                              <SelectItem value="weight_gain">Weight Gain</SelectItem>
-                              <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
-                              <SelectItem value="maintain_fitness">Maintain Fitness</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="food_preference"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Food Preference</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select your food preference" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="vegetarian">Vegetarian</SelectItem>
-                              <SelectItem value="non_vegetarian">Non-Vegetarian</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="health_issues"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Existing Health Issues (Optional)</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="E.g., Diabetes, Hypertension, etc." 
-                              className="resize-none" 
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Share any health conditions that might affect your fitness plan.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  
-                  <div className="flex justify-end">
-                    <Button 
-                      type="submit"
-                      className="px-6"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Saving..." : (
-                        <div className="flex items-center">
-                          Complete Setup <ArrowRight className="ml-2 h-4 w-4" />
+                    <div className="space-y-3">
+                      <Label>Gender *</Label>
+                      <RadioGroup 
+                        value={formData.gender} 
+                        onValueChange={(value) => handleInputChange('gender', value)}
+                        className="flex space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="male" id="male" />
+                          <Label htmlFor="male">Male</Label>
                         </div>
-                      )}
-                    </Button>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="female" id="female" />
+                          <Label htmlFor="female">Female</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="other" id="other" />
+                          <Label htmlFor="other">Other</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
                   </div>
-                </form>
-              </Form>
+                </div>
+                
+                {/* Physical Measurements Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Physical Measurements</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="height">Height (cm) *</Label>
+                      <Input 
+                        id="height"
+                        placeholder="175" 
+                        type="number"
+                        value={formData.height}
+                        onChange={(e) => handleInputChange('height', e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="weight">Weight (kg) *</Label>
+                      <Input 
+                        id="weight"
+                        placeholder="70" 
+                        type="number"
+                        value={formData.weight}
+                        onChange={(e) => handleInputChange('weight', e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Preferences Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Preferences</h3>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="fitness_goal">Fitness Goal *</Label>
+                    <Select 
+                      value={formData.fitness_goal} 
+                      onValueChange={(value) => handleInputChange('fitness_goal', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your fitness goal" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                        <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                        <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
+                        <SelectItem value="maintain_fitness">Maintain Fitness</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="food_preference">Food Preference *</Label>
+                    <Select 
+                      value={formData.food_preference} 
+                      onValueChange={(value) => handleInputChange('food_preference', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your food preference" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                        <SelectItem value="non_vegetarian">Non-Vegetarian</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="health_issues">Existing Health Issues (Optional)</Label>
+                    <Textarea 
+                      id="health_issues"
+                      placeholder="E.g., Diabetes, Hypertension, etc." 
+                      className="resize-none" 
+                      value={formData.health_issues}
+                      onChange={(e) => handleInputChange('health_issues', e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Share any health conditions that might affect your fitness plan.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button 
+                    type="submit"
+                    className="px-6 bg-green-600 hover:bg-green-700"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Saving..." : (
+                      <div className="flex items-center">
+                        Complete Setup <ArrowRight className="ml-2 h-4 w-4" />
+                      </div>
+                    )}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>
