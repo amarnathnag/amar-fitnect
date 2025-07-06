@@ -36,8 +36,8 @@ export const useOrders = () => {
   const { toast } = useToast();
 
   const fetchOrders = async () => {
-    if (!user) {
-      console.log('No user found, cannot fetch orders');
+    if (!user?.id) {
+      console.log('No authenticated user found, cannot fetch orders');
       setOrders([]);
       return;
     }
@@ -55,7 +55,16 @@ export const useOrders = () => {
 
       if (ordersError) {
         console.error('❌ Error fetching orders:', ordersError);
-        throw ordersError;
+        // Don't show error for no orders found
+        if (ordersError.code !== 'PGRST116') {
+          toast({
+            title: "Error",
+            description: "Failed to fetch your orders. Please try again.",
+            variant: "destructive",
+          });
+        }
+        setOrders([]);
+        return;
       }
 
       console.log('✅ Orders fetched:', ordersData?.length || 0);
@@ -68,58 +77,79 @@ export const useOrders = () => {
       // Fetch order items for each order
       const ordersWithItems = await Promise.all(
         ordersData.map(async (order) => {
-          // Get order items
-          const { data: itemsData, error: itemsError } = await supabase
-            .from('order_items')
-            .select('*')
-            .eq('order_id', order.id);
+          try {
+            // Get order items
+            const { data: itemsData, error: itemsError } = await supabase
+              .from('order_items')
+              .select('*')
+              .eq('order_id', order.id);
 
-          if (itemsError) {
-            console.error('❌ Error fetching order items:', itemsError);
+            if (itemsError) {
+              console.error('❌ Error fetching order items:', itemsError);
+              return {
+                ...order,
+                order_items: []
+              };
+            }
+
+            // Get product details for each item
+            const itemsWithProducts = await Promise.all(
+              (itemsData || []).map(async (item) => {
+                try {
+                  const { data: productData, error: productError } = await supabase
+                    .from('products')
+                    .select('id, name, brand, image_urls')
+                    .eq('id', item.product_id)
+                    .single();
+
+                  if (productError) {
+                    console.error('❌ Error fetching product:', productError);
+                    return {
+                      ...item,
+                      product: {
+                        id: item.product_id,
+                        name: 'Product not found',
+                        brand: 'Unknown',
+                        image_urls: []
+                      }
+                    };
+                  }
+
+                  return {
+                    ...item,
+                    product: productData || {
+                      id: item.product_id,
+                      name: 'Product not found',
+                      brand: 'Unknown',
+                      image_urls: []
+                    }
+                  };
+                } catch (error) {
+                  console.error('❌ Error processing product:', error);
+                  return {
+                    ...item,
+                    product: {
+                      id: item.product_id,
+                      name: 'Product not found',
+                      brand: 'Unknown',
+                      image_urls: []
+                    }
+                  };
+                }
+              })
+            );
+
+            return {
+              ...order,
+              order_items: itemsWithProducts
+            };
+          } catch (error) {
+            console.error('❌ Error processing order:', error);
             return {
               ...order,
               order_items: []
             };
           }
-
-          // Get product details for each item
-          const itemsWithProducts = await Promise.all(
-            (itemsData || []).map(async (item) => {
-              const { data: productData, error: productError } = await supabase
-                .from('products')
-                .select('id, name, brand, image_urls')
-                .eq('id', item.product_id)
-                .single();
-
-              if (productError) {
-                console.error('❌ Error fetching product:', productError);
-                return {
-                  ...item,
-                  product: {
-                    id: item.product_id,
-                    name: 'Product not found',
-                    brand: 'Unknown',
-                    image_urls: []
-                  }
-                };
-              }
-
-              return {
-                ...item,
-                product: productData || {
-                  id: item.product_id,
-                  name: 'Product not found',
-                  brand: 'Unknown',
-                  image_urls: []
-                }
-              };
-            })
-          );
-
-          return {
-            ...order,
-            order_items: itemsWithProducts
-          };
         })
       );
 
@@ -127,11 +157,6 @@ export const useOrders = () => {
       setOrders(ordersWithItems);
     } catch (error) {
       console.error('❌ Failed to fetch orders:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch your orders. Please try again.",
-        variant: "destructive",
-      });
       setOrders([]);
     } finally {
       setLoading(false);
@@ -144,7 +169,7 @@ export const useOrders = () => {
     cart: any[];
     coupon_discount?: number;
   }) => {
-    if (!user) {
+    if (!user?.id) {
       throw new Error('User not authenticated');
     }
 
@@ -210,12 +235,12 @@ export const useOrders = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchOrders();
     } else {
       setOrders([]);
     }
-  }, [user]);
+  }, [user?.id]);
 
   return {
     orders,

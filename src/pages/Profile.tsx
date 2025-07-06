@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -24,10 +25,15 @@ const Profile = () => {
   const defaultTab = searchParams.get('tab') || 'personal';
 
   useEffect(() => {
-    if (!user && !isLoading) {
+    if (!isLoading && !user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to access your profile.",
+        variant: "destructive",
+      });
       navigate('/auth');
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, toast]);
 
   if (isLoading) {
     return (
@@ -63,17 +69,9 @@ const Profile = () => {
   const handleSaveProfile = async (data: any) => {
     try {
       await updateProfile(data);
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
-      });
     } catch (error) {
       console.error('Error saving profile:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      });
+      throw error; // Re-throw to let individual components handle the error display
     }
   };
 

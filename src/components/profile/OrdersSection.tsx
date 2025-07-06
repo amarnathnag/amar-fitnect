@@ -1,4 +1,6 @@
+
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +34,7 @@ interface Order {
 
 const OrdersSection = () => {
   const { orders, loading, refetch } = useOrders();
+  const navigate = useNavigate();
 
   const formatPrice = (price: number) => {
     const displayPrice = price > 1000 ? price / 100 : price;
@@ -72,6 +75,10 @@ const OrdersSection = () => {
     }
   };
 
+  const handleStartShopping = () => {
+    navigate('/marketplace');
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -102,7 +109,7 @@ const OrdersSection = () => {
             <p className="text-gray-500 mb-4">
               You haven't placed any orders yet. Start shopping for healthy products!
             </p>
-            <Button onClick={() => window.location.href = '/marketplace'}>
+            <Button onClick={handleStartShopping}>
               Start Shopping
             </Button>
           </div>

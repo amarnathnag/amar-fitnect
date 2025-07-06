@@ -1,140 +1,66 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Utensils, Plus, Edit, Trash2 } from 'lucide-react';
-import { useDietPlans } from '@/hooks/useDietPlans';
-import { useToast } from '@/hooks/use-toast';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Utensils, Plus, Eye } from 'lucide-react';
 
 const EditableDietPlansCard = () => {
-  const { dietPlans, createDietPlan, isLoading } = useDietPlans();
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newPlanName, setNewPlanName] = useState('');
-  const [newPlanGoal, setNewPlanGoal] = useState('');
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleCreatePlan = async () => {
-    if (!newPlanName.trim() || !newPlanGoal) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
-    }
+  // Mock diet plans data
+  const dietPlans = [
+    { id: 1, name: 'Amarnath', goal: 'muscle gain' },
+    { id: 2, name: 'gain weight', goal: 'muscle gain' },
+    { id: 3, name: 'Muscle Building', goal: 'muscle gain' }
+  ];
 
-    const result = await createDietPlan(newPlanName.trim(), newPlanGoal);
-    if (result) {
-      setNewPlanName('');
-      setNewPlanGoal('');
-      setIsCreateDialogOpen(false);
-    }
+  const handleViewAllDietPlans = () => {
+    navigate('/diet-plans');
+  };
+
+  const handleNewPlan = () => {
+    navigate('/diet-plans');
   };
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
-          <Utensils className="h-5 w-5 text-green-500" />
+          <Utensils className="h-5 w-5" />
           Diet Plans
         </CardTitle>
-        <CardDescription>Your saved diet plans and nutrition tracking</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Total Plans Created</span>
-            <Badge variant="outline">{dietPlans.length}</Badge>
-          </div>
-          
-          {dietPlans.length > 0 ? (
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Recent Plans:</p>
-              {dietPlans.slice(0, 3).map((plan) => (
-                <div key={plan.id} className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
-                  <div className="flex-1">
-                    <span className="text-sm font-medium">{plan.name}</span>
-                    <Badge variant="secondary" className="text-xs ml-2">
-                      {plan.goal.replace('-', ' ')}
-                    </Badge>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-500 hover:text-red-700">
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+      <CardContent className="space-y-4">
+        {dietPlans.map((plan) => (
+          <div key={plan.id} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
+            <div>
+              <h4 className="font-medium">{plan.name}</h4>
+              <Badge className="bg-blue-100 text-blue-800 mt-1">
+                {plan.goal}
+              </Badge>
             </div>
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">No diet plans created yet</p>
-          )}
-          
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1">
-              View All Diet Plans
-            </Button>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="flex items-center gap-1">
-                  <Plus className="h-3 w-3" />
-                  New Plan
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Diet Plan</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Plan Name</label>
-                    <Input 
-                      value={newPlanName} 
-                      onChange={(e) => setNewPlanName(e.target.value)}
-                      placeholder="Enter plan name"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Goal</label>
-                    <Select value={newPlanGoal} onValueChange={setNewPlanGoal}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select goal" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weight-loss">Weight Loss</SelectItem>
-                        <SelectItem value="muscle-gain">Muscle Gain</SelectItem>
-                        <SelectItem value="maintain-weight">Maintain Weight</SelectItem>
-                        <SelectItem value="bulking">Bulking</SelectItem>
-                        <SelectItem value="cutting">Cutting</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      onClick={handleCreatePlan} 
-                      disabled={isLoading}
-                      className="flex-1"
-                    >
-                      Create Plan
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsCreateDialogOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Eye className="h-4 w-4 mr-1" />
+                Edit
+              </Button>
+              <Button variant="outline" size="sm" className="text-red-600">
+                Delete
+              </Button>
+            </div>
           </div>
+        ))}
+        
+        <div className="flex justify-between gap-2 pt-4">
+          <Button variant="outline" onClick={handleViewAllDietPlans} className="flex-1">
+            View All Diet Plans
+          </Button>
+          <Button onClick={handleNewPlan} className="flex-1">
+            <Plus className="h-4 w-4 mr-2" />
+            New Plan
+          </Button>
         </div>
       </CardContent>
     </Card>

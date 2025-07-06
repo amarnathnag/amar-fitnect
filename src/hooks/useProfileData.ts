@@ -26,6 +26,7 @@ export const useProfileData = () => {
       const userId = sessionData.session.user.id;
       console.log(`Fetching profile for user ID: ${userId}`);
       
+      // Fetch from user_profiles table instead of users table
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -34,11 +35,14 @@ export const useProfileData = () => {
 
       if (error) {
         console.error('Error fetching profile:', error);
-        toast({
-          title: "Error",
-          description: "Could not fetch your profile information.",
-          variant: "destructive",
-        });
+        // Don't show error toast for missing profile - it's normal for new users
+        if (error.code !== 'PGRST116') {
+          toast({
+            title: "Error",
+            description: "Could not fetch your profile information.",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
@@ -148,10 +152,16 @@ export const useProfileData = () => {
       const userId = sessionData.session.user.id;
       console.log('Updating profile for user ID:', userId);
 
-      // Prepare the data for update, stringify period_tracking if present
+      // Prepare the data for update, stringify JSON fields if present
       const updateData: any = { ...data };
       if (updateData.period_tracking) {
         updateData.period_tracking = JSON.stringify(updateData.period_tracking);
+      }
+      if (updateData.notification_preferences) {
+        updateData.notification_preferences = JSON.stringify(updateData.notification_preferences);
+      }
+      if (updateData.privacy_settings) {
+        updateData.privacy_settings = JSON.stringify(updateData.privacy_settings);
       }
       
       // Check if profile exists
@@ -161,7 +171,7 @@ export const useProfileData = () => {
         .eq('user_id', userId)
         .maybeSingle();
       
-      if (profileCheckError) {
+      if (profileCheckError && profileCheckError.code !== 'PGRST116') {
         console.error('Error checking existing profile:', profileCheckError);
         throw profileCheckError;
       }

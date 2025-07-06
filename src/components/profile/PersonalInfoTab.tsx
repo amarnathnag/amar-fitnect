@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { CalendarIcon, Save } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ProfileData, User } from '@/types/auth';
+import { useToast } from '@/hooks/use-toast';
 
 interface PersonalInfoTabProps {
   user: User;
@@ -24,6 +26,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
   onSave, 
   calculateAge 
 }) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     full_name: profileData?.full_name || user?.name || '',
     date_of_birth: profileData?.date_of_birth || null,
@@ -63,6 +66,15 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
   };
 
   const handleSave = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to update your profile.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const dataToSave: Partial<ProfileData> = {
@@ -75,8 +87,18 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
       };
       
       await onSave(dataToSave);
+      
+      toast({
+        title: "Success",
+        description: "Personal information updated successfully.",
+      });
     } catch (error) {
       console.error('Error saving personal info:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update personal information. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
