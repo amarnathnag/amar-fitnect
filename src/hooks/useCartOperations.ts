@@ -28,6 +28,40 @@ export const useCartOperations = ({
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const removeFromCart = useCallback(async (productId: string) => {
+    if (!productId) {
+      console.error('❌ Invalid product ID for removal');
+      return;
+    }
+
+    try {
+      console.log('🗑️ Removing item from cart:', productId);
+      
+      if (!user) {
+        // Handle guest cart
+        CartService.removeItemFromGuestCart(productId);
+      } else {
+        await CartService.removeItemFromCart(user.id, productId);
+      }
+      
+      removeItemFromState(productId);
+
+      toast({
+        title: "Removed from Cart",
+        description: "Item removed successfully",
+      });
+      
+      console.log('✅ Item removed successfully');
+    } catch (error) {
+      console.error('❌ Error removing from cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove item. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [user, removeItemFromState, toast]);
+
   const addToCart = useCallback(async (product: any) => {
     if (!product || !product.id) {
       console.error('❌ Invalid product data');
@@ -119,40 +153,6 @@ export const useCartOperations = ({
       });
     }
   }, [user, updateItemQuantityInState, removeFromCart, toast]);
-
-  const removeFromCart = useCallback(async (productId: string) => {
-    if (!productId) {
-      console.error('❌ Invalid product ID for removal');
-      return;
-    }
-
-    try {
-      console.log('🗑️ Removing item from cart:', productId);
-      
-      if (!user) {
-        // Handle guest cart
-        CartService.removeItemFromGuestCart(productId);
-      } else {
-        await CartService.removeItemFromCart(user.id, productId);
-      }
-      
-      removeItemFromState(productId);
-
-      toast({
-        title: "Removed from Cart",
-        description: "Item removed successfully",
-      });
-      
-      console.log('✅ Item removed successfully');
-    } catch (error) {
-      console.error('❌ Error removing from cart:', error);
-      toast({
-        title: "Error",
-        description: "Failed to remove item. Please try again.",
-        variant: "destructive",
-      });
-    }
-  }, [user, removeItemFromState, toast]);
 
   return {
     addToCart,
