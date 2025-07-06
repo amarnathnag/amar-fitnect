@@ -35,7 +35,8 @@ const Checkout = () => {
     phone: ''
   });
 
-  // Allow checkout without authentication for WhatsApp orders
+  console.log('🛒 Checkout - Cart:', cart.length, 'items, Total:', cartTotal);
+
   if (!cart || cart.length === 0) {
     return (
       <CheckoutErrorState
@@ -50,13 +51,23 @@ const Checkout = () => {
   const finalTotal = Math.max(0, cartTotal - couponDiscount);
 
   const handleCouponApply = (discount: number, couponCode: string) => {
+    console.log('🎫 Coupon applied:', couponCode, 'Discount:', discount);
     setCouponDiscount(discount);
     setAppliedCoupon(couponCode);
+    toast({
+      title: "Coupon Applied! 🎉",
+      description: `You saved ₹${discount.toFixed(2)} with ${couponCode}`,
+    });
   };
 
   const handleCouponRemove = () => {
+    console.log('🎫 Coupon removed');
     setCouponDiscount(0);
     setAppliedCoupon('');
+    toast({
+      title: "Coupon Removed",
+      description: "Coupon discount has been removed from your order.",
+    });
   };
 
   const handlePlaceOrder = async () => {
@@ -71,7 +82,13 @@ const Checkout = () => {
 
     console.log('🚀 Starting order placement process...');
     
+    // Validate address before proceeding
     if (!validateAddress(deliveryAddress)) {
+      toast({
+        title: "Address Required",
+        description: "Please fill in all required address fields.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -163,17 +180,12 @@ const Checkout = () => {
                       🔐 Login required for regular checkout, or use WhatsApp ordering below
                     </p>
                   </div>
-                  <WhatsAppOrderButton
-                    cart={cart}
-                    cartTotal={finalTotal}
-                    deliveryAddress={deliveryAddress}
-                  />
                 </div>
               )}
 
               <div className="border-t pt-4">
                 <p className="text-sm text-gray-600 mb-3 text-center">
-                  Or order directly via WhatsApp:
+                  Order directly via WhatsApp:
                 </p>
                 <WhatsAppOrderButton
                   cart={cart}

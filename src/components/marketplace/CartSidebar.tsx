@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { formatPrice } from '@/utils/cartCalculations';
 
 interface CartItem {
   id: string;
@@ -43,12 +44,6 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
     navigate('/checkout');
   };
 
-  const formatPrice = (price: number) => {
-    // Convert from paise to rupees if price is in paise format (> 1000)
-    const displayPrice = price > 1000 ? price / 100 : price;
-    return displayPrice.toFixed(2);
-  };
-
   const handleQuantityIncrease = (productId: string, currentQuantity: number) => {
     console.log('➕ Increasing quantity for product:', productId);
     onUpdateQuantity(productId, currentQuantity + 1);
@@ -56,7 +51,9 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
 
   const handleQuantityDecrease = (productId: string, currentQuantity: number) => {
     console.log('➖ Decreasing quantity for product:', productId);
-    onUpdateQuantity(productId, Math.max(0, currentQuantity - 1));
+    if (currentQuantity > 1) {
+      onUpdateQuantity(productId, currentQuantity - 1);
+    }
   };
 
   const handleRemoveItem = (productId: string) => {

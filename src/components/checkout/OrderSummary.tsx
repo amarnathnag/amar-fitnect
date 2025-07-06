@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import { formatPrice } from '@/utils/cartCalculations';
 
 interface CartItem {
   id: string;
@@ -34,11 +35,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   couponDiscount = 0,
   appliedCoupon
 }) => {
-  const formatPrice = (price: number) => {
-    const displayPrice = price > 1000 ? price / 100 : price;
-    return displayPrice.toFixed(2);
-  };
-
   const finalTotal = Math.max(0, cartTotal - couponDiscount);
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {

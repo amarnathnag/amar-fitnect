@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { formatPrice } from '@/utils/cartCalculations';
 
 interface CartItem {
   id: string;
@@ -34,12 +35,7 @@ const WhatsAppOrderButton: React.FC<WhatsAppOrderButtonProps> = ({
   deliveryAddress
 }) => {
   const { toast } = useToast();
-  const whatsappNumber = "9883810559";
-
-  const formatPrice = (price: number) => {
-    const displayPrice = price > 1000 ? price / 100 : price;
-    return displayPrice.toFixed(2);
-  };
+  const whatsappNumber = "919883810559"; // Added country code
 
   const handleWhatsAppOrder = () => {
     if (cart.length === 0) {
@@ -50,6 +46,8 @@ const WhatsAppOrderButton: React.FC<WhatsAppOrderButtonProps> = ({
       });
       return;
     }
+
+    console.log('📱 Creating WhatsApp order message...');
 
     // Create order message
     let message = `🛒 *New Order Request*\n\n`;
@@ -65,12 +63,15 @@ const WhatsAppOrderButton: React.FC<WhatsAppOrderButtonProps> = ({
 
     message += `💰 *Total Amount: ₹${formatPrice(cartTotal)}*\n\n`;
     
-    if (deliveryAddress.street) {
+    if (deliveryAddress.street || deliveryAddress.city) {
       message += `📍 *Delivery Address:*\n`;
-      message += `${deliveryAddress.street}\n`;
-      message += `${deliveryAddress.city}, ${deliveryAddress.state}\n`;
-      message += `PIN: ${deliveryAddress.pincode}\n`;
-      message += `Phone: ${deliveryAddress.phone}\n\n`;
+      if (deliveryAddress.street) message += `${deliveryAddress.street}\n`;
+      if (deliveryAddress.city) message += `${deliveryAddress.city}`;
+      if (deliveryAddress.state) message += `, ${deliveryAddress.state}`;
+      message += `\n`;
+      if (deliveryAddress.pincode) message += `PIN: ${deliveryAddress.pincode}\n`;
+      if (deliveryAddress.phone) message += `Phone: ${deliveryAddress.phone}\n`;
+      message += `\n`;
     }
 
     message += `Please confirm this order and let me know the delivery time. Thank you!`;
@@ -79,11 +80,13 @@ const WhatsAppOrderButton: React.FC<WhatsAppOrderButtonProps> = ({
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
+    console.log('📱 Opening WhatsApp with order details');
+    
     // Open WhatsApp
     window.open(whatsappUrl, '_blank');
 
     toast({
-      title: "Order Sent to WhatsApp",
+      title: "Order Sent to WhatsApp! 📱",
       description: "Your order details have been sent via WhatsApp. Please wait for confirmation.",
     });
   };

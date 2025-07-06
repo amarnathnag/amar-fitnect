@@ -20,21 +20,28 @@ export const useCart = (): UseCartReturn => {
   } = useCartState();
 
   const fetchCart = useCallback(async () => {
+    console.log('🛒 Fetching cart, user:', user ? 'authenticated' : 'guest');
+    
     if (!user) {
       // Load guest cart from localStorage
       const guestCart = CartService.getGuestCart();
+      console.log('📦 Guest cart loaded:', guestCart.length, 'items');
       updateCartState(guestCart);
       return;
     }
 
     try {
+      setLoading(true);
       const cartItems = await CartService.fetchCartItems(user.id);
+      console.log('📦 User cart loaded:', cartItems.length, 'items');
       updateCartState(cartItems);
     } catch (error) {
       console.error('❌ Error fetching cart:', error);
       updateCartState([]);
+    } finally {
+      setLoading(false);
     }
-  }, [user, updateCartState]);
+  }, [user, updateCartState, setLoading]);
 
   const { addToCart, updateQuantity, removeFromCart } = useCartOperations({
     cart,
@@ -50,7 +57,7 @@ export const useCart = (): UseCartReturn => {
     fetchCart();
   }, [fetchCart]);
 
-  console.log('🛒 Cart stats - Total:', cartTotal, 'Count:', cartCount);
+  console.log('🛒 Cart summary - Items:', cart.length, 'Total: ₹', cartTotal, 'Count:', cartCount);
 
   return {
     cart,

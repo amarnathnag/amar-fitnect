@@ -52,6 +52,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
   }, [profileData, user]);
 
   const handleInputChange = (name: string, value: string) => {
+    console.log('📝 Form field changed:', name, value);
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -59,9 +60,11 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
   };
 
   const handleDateChange = (date: Date | undefined) => {
+    const dateString = date ? format(date, 'yyyy-MM-dd') : null;
+    console.log('📅 Date changed:', dateString);
     setFormData(prev => ({
       ...prev,
-      date_of_birth: date ? format(date, 'yyyy-MM-dd') : null
+      date_of_birth: dateString
     }));
   };
 
@@ -75,10 +78,12 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
       return;
     }
 
+    console.log('💾 Saving personal information:', formData);
     setIsLoading(true);
+
     try {
       const dataToSave: Partial<ProfileData> = {
-        full_name: formData.full_name,
+        full_name: formData.full_name.trim(),
         date_of_birth: formData.date_of_birth,
         gender: formData.gender as 'male' | 'female' | 'other' | null,
         height: formData.height ? parseFloat(formData.height) : null,
@@ -86,14 +91,15 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
         target_weight: formData.target_weight ? parseFloat(formData.target_weight) : null
       };
       
+      console.log('💾 Data being saved:', dataToSave);
       await onSave(dataToSave);
       
       toast({
-        title: "Success",
+        title: "Success! ✅",
         description: "Personal information updated successfully.",
       });
     } catch (error) {
-      console.error('Error saving personal info:', error);
+      console.error('❌ Error saving personal info:', error);
       toast({
         title: "Error",
         description: "Failed to update personal information. Please try again.",
@@ -234,7 +240,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={isLoading}>
+          <Button onClick={handleSave} disabled={isLoading} className="bg-green-600 hover:bg-green-700">
             <Save className="mr-2 h-4 w-4" /> 
             {isLoading ? 'Saving...' : 'Save Changes'}
           </Button>

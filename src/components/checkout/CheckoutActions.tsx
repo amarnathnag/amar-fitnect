@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
+import { formatPrice } from '@/utils/cartCalculations';
 
 interface CheckoutActionsProps {
   onPlaceOrder: () => void;
@@ -16,11 +17,6 @@ const CheckoutActions: React.FC<CheckoutActionsProps> = ({
   cartLength,
   cartTotal
 }) => {
-  const formatPrice = (price: number) => {
-    const displayPrice = price > 1000 ? price / 100 : price;
-    return displayPrice.toFixed(2);
-  };
-
   return (
     <div className="space-y-6">
       <Button 
