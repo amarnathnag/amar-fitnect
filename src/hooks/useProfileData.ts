@@ -14,9 +14,14 @@ export const useProfileData = () => {
   const fetchProfile = async () => {
     try {
       console.log("Attempting to fetch user profile...");
-      const { data: sessionData } = await supabase.auth.getSession();
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (!sessionData.session) {
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        return;
+      }
+      
+      if (!sessionData.session?.user) {
         console.log('No active session found when fetching profile');
         setProfileData(null);
         setIsProfileComplete(false);
@@ -26,7 +31,7 @@ export const useProfileData = () => {
       const userId = sessionData.session.user.id;
       console.log(`Fetching profile for user ID: ${userId}`);
       
-      // Fetch from user_profiles table instead of users table
+      // Fetch from user_profiles table
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -37,11 +42,7 @@ export const useProfileData = () => {
         console.error('Error fetching profile:', error);
         // Don't show error toast for missing profile - it's normal for new users
         if (error.code !== 'PGRST116') {
-          toast({
-            title: "Error",
-            description: "Could not fetch your profile information.",
-            variant: "destructive",
-          });
+          console.error('Profile fetch error that is not "no rows":', error);
         }
         return;
       }
@@ -98,8 +99,15 @@ export const useProfileData = () => {
           activity_level: data.activity_level,
           allergies: data.allergies,
           medical_conditions: data.medical_conditions,
-          notification_preferences: notificationPreferences,
-          privacy_settings: privacySettings,
+          notification_preferences: notificationPreferences || {
+            email: true,
+            push: true,
+            sms: false
+          },
+          privacy_settings: privacySettings || {
+            profile_visibility: 'private' as const,
+            data_sharing: false
+          },
           period_tracking: periodTracking
         };
 
@@ -118,15 +126,11 @@ export const useProfileData = () => {
         console.log("Profile complete status:", !!hasRequiredFields);
       } else {
         console.log("No profile data found for user");
+        setProfileData(null);
         setIsProfileComplete(false);
       }
     } catch (error) {
       console.error('Error in fetchProfile:', error);
-      toast({
-        title: "Error",
-        description: "Could not fetch your profile information.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -139,7 +143,7 @@ export const useProfileData = () => {
       // Get current session
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError || !sessionData.session) {
+      if (sessionError || !sessionData.session?.user) {
         console.error("No authenticated user found during profile update:", sessionError);
         toast({
           title: "Authentication Error",
@@ -184,7 +188,9 @@ export const useProfileData = () => {
         result = await supabase
           .from('user_profiles')
           .update(updateData)
-          .eq('user_id', userId);
+          .eq('user_id', userId)
+          .select()
+          .single();
       } else {
         // Insert new profile with user_id
         console.log('Creating new profile with user ID:', userId);
@@ -193,18 +199,22 @@ export const useProfileData = () => {
           .insert([{ 
             user_id: userId,
             ...updateData 
-          }]);
+          }])
+          .select()
+          .single();
       }
       
       if (result.error) {
         console.error('Error in profile operation:', result.error);
         toast({
           title: "Profile Update Failed",
-          description: "There was a problem updating your profile. Please try again.",
+          description: result.error.message || "There was a problem updating your profile. Please try again.",
           variant: "destructive",
         });
         throw result.error;
       }
+      
+      console.log('Profile operation successful:', result.data);
       
       // Refresh profile data
       await fetchProfile();

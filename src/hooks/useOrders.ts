@@ -36,7 +36,16 @@ export const useOrders = () => {
   const { toast } = useToast();
 
   const fetchOrders = async () => {
-    if (!user?.id) {
+    // First check if we have an authenticated user
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error('Session error:', sessionError);
+      setOrders([]);
+      return;
+    }
+    
+    if (!sessionData.session?.user?.id) {
       console.log('No authenticated user found, cannot fetch orders');
       setOrders([]);
       return;
@@ -44,24 +53,20 @@ export const useOrders = () => {
 
     try {
       setLoading(true);
-      console.log('🔍 Fetching orders for user:', user.id);
+      const userId = sessionData.session.user.id;
+      console.log('🔍 Fetching orders for user:', userId);
 
-      // First, fetch orders without any joins
+      // Fetch orders
       const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (ordersError) {
         console.error('❌ Error fetching orders:', ordersError);
-        // Don't show error for no orders found
         if (ordersError.code !== 'PGRST116') {
-          toast({
-            title: "Error",
-            description: "Failed to fetch your orders. Please try again.",
-            variant: "destructive",
-          });
+          console.error('Orders fetch error:', ordersError.message);
         }
         setOrders([]);
         return;
@@ -169,18 +174,21 @@ export const useOrders = () => {
     cart: any[];
     coupon_discount?: number;
   }) => {
-    if (!user?.id) {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !sessionData.session?.user?.id) {
       throw new Error('User not authenticated');
     }
 
     try {
+      const userId = sessionData.session.user.id;
       console.log('📝 Creating order:', orderData);
 
       // Create the order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert([{
-          user_id: user.id,
+          user_id: userId,
           total_amount: orderData.total_amount,
           delivery_address: orderData.delivery_address,
           status: 'pending'
@@ -218,7 +226,7 @@ export const useOrders = () => {
       const { error: clearCartError } = await supabase
         .from('shopping_cart')
         .delete()
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       if (clearCartError) {
         console.error('⚠️ Warning: Failed to clear cart:', clearCartError);
@@ -235,6 +243,7 @@ export const useOrders = () => {
   };
 
   useEffect(() => {
+    // Only fetch orders if we have a user
     if (user?.id) {
       fetchOrders();
     } else {

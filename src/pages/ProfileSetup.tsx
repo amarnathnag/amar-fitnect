@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import Footer from '@/components/Footer';
 import NavBar from '@/components/NavBar';
+import { supabase } from '@/integrations/supabase/client';
 
 // Form validation schema
 const profileFormSchema = z.object({
@@ -38,7 +40,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 const ProfileSetup = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, isLoading: authLoading, updateProfile, profileData } = useAuth();
+  const { user, isLoading: authLoading, profileData } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check authentication status
@@ -104,7 +106,19 @@ const ProfileSetup = () => {
       setIsSubmitting(true);
       
       console.log("Submitting profile data:", data);
-      await updateProfile({
+      
+      // Get current session to ensure we have the user ID
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session?.user?.id) {
+        throw new Error("Authentication error. Please log in again.");
+      }
+      
+      const userId = sessionData.session.user.id;
+      
+      // Prepare profile data
+      const profileData = {
+        user_id: userId,
         full_name: data.full_name,
         date_of_birth: format(data.date_of_birth, 'yyyy-MM-dd'),
         gender: data.gender,
@@ -113,7 +127,40 @@ const ProfileSetup = () => {
         fitness_goal: data.fitness_goal,
         food_preference: data.food_preference,
         health_issues: data.health_issues || null,
-      });
+      };
+      
+      // Check if profile exists
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+      
+      let result;
+      if (existingProfile) {
+        // Update existing profile
+        result = await supabase
+          .from('user_profiles')
+          .update(profileData)
+          .eq('user_id', userId)
+          .select()
+          .single();
+      } else {
+        // Insert new profile
+        result = await supabase
+          .from('user_profiles')
+          .insert([profileData])
+          .select()
+          .single();
+      }
+      
+      if (result.error) {
+        throw result.error;
+      }
       
       toast({
         title: "Profile setup completed!",
