@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -10,10 +9,11 @@ import EnhancedPreferencesTab from '@/components/profile/EnhancedPreferencesTab'
 import EnhancedProgressTab from '@/components/profile/EnhancedProgressTab';
 import OrdersSection from '@/components/profile/OrdersSection';
 import EnhancedNotificationsSection from '@/components/profile/EnhancedNotificationsSection';
+import UserAppointments from '@/components/doctor/UserAppointments';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'react-router-dom';
-import { User, Settings, Heart, TrendingUp, Package, Bell } from 'lucide-react';
+import { User, Settings, Heart, TrendingUp, Package, Bell, Calendar } from 'lucide-react';
 
 const Profile = () => {
   const { user, profileData, updateProfile, isLoading } = useAuth();
@@ -82,21 +82,25 @@ const Profile = () => {
       <main className="flex-grow">
         <div className="container-custom py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Profile Settings</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Manage your account settings and preferences
+            <h1 className="text-3xl font-bold mb-2">Your Health Hub</h1>
+            <p className="text-muted-foreground">
+              Manage your complete health profile - track everything in one place
             </p>
           </div>
 
           <Tabs defaultValue={defaultTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
               <TabsTrigger value="personal" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Personal</span>
               </TabsTrigger>
               <TabsTrigger value="health" className="flex items-center gap-2">
                 <Heart className="h-4 w-4" />
-                <span className="hidden sm:inline">Health Data</span>
+                <span className="hidden sm:inline">Health</span>
+              </TabsTrigger>
+              <TabsTrigger value="appointments" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Appointments</span>
               </TabsTrigger>
               <TabsTrigger value="progress" className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
@@ -112,7 +116,7 @@ const Profile = () => {
               </TabsTrigger>
               <TabsTrigger value="preferences" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">Preferences</span>
+                <span className="hidden sm:inline">Settings</span>
               </TabsTrigger>
             </TabsList>
             
@@ -127,6 +131,10 @@ const Profile = () => {
             
             <TabsContent value="health" className="space-y-6">
               <HealthDataTab />
+            </TabsContent>
+            
+            <TabsContent value="appointments" className="space-y-6">
+              <UserAppointments />
             </TabsContent>
             
             <TabsContent value="progress" className="space-y-6">

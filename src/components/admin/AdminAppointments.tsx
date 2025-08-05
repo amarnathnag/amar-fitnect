@@ -53,9 +53,9 @@ const AdminAppointments = () => {
   const filteredAppointments = appointments?.filter(appt => {
     // Apply search filter
     const matchesSearch = 
-      appt.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appt.doctor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appt.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (appt.user_name || 'Unknown User').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (appt.doctor_name || 'Unknown Doctor').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (appt.reason || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       appt.date.includes(searchTerm);
     
     // Apply status filter
@@ -111,8 +111,8 @@ const AdminAppointments = () => {
                       </span>
                     </div>
                     
-                    <h3 className="text-lg font-semibold">Dr. {appointment.doctor_name}</h3>
-                    <p className="text-gray-600">Patient: {appointment.user_name}</p>
+                    <h3 className="text-lg font-semibold">{appointment.doctor_name || 'Unknown Doctor'}</h3>
+                    <p className="text-gray-600">Patient: {appointment.user_name || 'Unknown User'}</p>
                     
                     {appointment.reason && (
                       <p className="text-sm text-gray-500 mt-2">
