@@ -37,6 +37,7 @@ import DiseaseManagement from "./pages/DiseaseManagement";
 import DiseaseDetail from "./pages/DiseaseDetail";
 import DailyRoutine from "./pages/DailyRoutine";
 import Marketplace from "./pages/Marketplace";
+import CategoryProducts from "./pages/CategoryProducts";
 import ProductDetail from '@/pages/ProductDetail';
 import Checkout from "./pages/Checkout";
 import Subscription from "./pages/Subscription";
@@ -85,6 +86,7 @@ function App() {
                 <Route path="/disease/:id" element={<DiseaseDetail />} />
                 <Route path="/daily-routine" element={<DailyRoutine />} />
                 <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/marketplace/category/:categoryId" element={<CategoryProducts />} />
                 <Route path="/marketplace/product/:id" element={<ProductDetail />} />
                 <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                 <Route path="/subscription" element={<Subscription />} />

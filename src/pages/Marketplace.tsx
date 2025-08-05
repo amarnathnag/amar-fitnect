@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import ProductGrid from '@/components/marketplace/ProductGrid';
@@ -8,8 +8,9 @@ import ProductSearch from '@/components/marketplace/ProductSearch';
 import CartSidebar from '@/components/marketplace/CartSidebar';
 import CategoryHero from '@/components/marketplace/CategoryHero';
 import HealthFocusedHero from '@/components/marketplace/HealthFocusedHero';
-import FeaturedCategories from '@/components/marketplace/FeaturedCategories';
+import CategoryGrid from '@/components/marketplace/CategoryGrid';
 import { useProducts } from '@/hooks/useProducts';
+import { categoryMapping } from '@/data/marketplaceCategories';
 import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 
 const Marketplace = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('browse');
@@ -83,17 +85,9 @@ const Marketplace = () => {
 
   const handleCategorySelect = (selectedCategory: string) => {
     console.log('🎯 Category selection handler called:', selectedCategory);
-    console.log('📊 Current state:', { activeTab, category });
     
-    // Clear other filters when selecting a category
-    const newParams = new URLSearchParams();
-    newParams.set('category', selectedCategory);
-    
-    console.log('🔄 Setting new category and switching to browse tab');
-    setSearchParams(newParams);
-    setActiveTab('browse');
-    
-    console.log('✅ Category selection complete. New category:', selectedCategory);
+    // Navigate to category-specific page
+    navigate(`/marketplace/category/${selectedCategory}`);
   };
 
   const handleAddToCart = (product: any, quantityOption?: any) => {
@@ -297,7 +291,7 @@ const Marketplace = () => {
             </TabsContent>
 
             <TabsContent value="categories">
-              <FeaturedCategories onCategorySelect={handleCategorySelect} />
+              <CategoryGrid onCategorySelect={handleCategorySelect} />
             </TabsContent>
           </Tabs>
         </div>
