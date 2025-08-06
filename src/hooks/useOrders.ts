@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -35,7 +35,7 @@ export const useOrders = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     // First check if we have an authenticated user
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     
@@ -166,7 +166,7 @@ export const useOrders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
   const createOrder = async (orderData: {
     total_amount: number;
@@ -242,14 +242,9 @@ export const useOrders = () => {
     }
   };
 
-  useEffect(() => {
-    // Only fetch orders if we have a user
-    if (user?.id) {
-      fetchOrders();
-    } else {
-      setOrders([]);
-    }
-  }, [user?.id]);
+  // Only auto-fetch orders if explicitly requested (not in checkout)
+  // This prevents automatic fetching that can cause infinite loops
+  // Orders will be fetched manually when needed (e.g., in profile page)
 
   return {
     orders,

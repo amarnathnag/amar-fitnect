@@ -5,7 +5,7 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrders } from '@/hooks/useOrders';
+import { useCreateOrder } from '@/hooks/useCreateOrder';
 import { useToast } from '@/hooks/use-toast';
 import OrderSummary from '@/components/checkout/OrderSummary';
 import DeliveryAddressForm from '@/components/checkout/DeliveryAddressForm';
@@ -21,7 +21,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { cart, cartTotal, updateQuantity, removeFromCart } = useCart();
   const { user } = useAuth();
-  const { createOrder } = useOrders();
+  const { createOrder } = useCreateOrder();
   const { toast } = useToast();
   const { validateAddress, validateCart } = useCheckoutValidation();
   
