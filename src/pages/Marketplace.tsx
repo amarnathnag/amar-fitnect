@@ -24,7 +24,7 @@ const Marketplace = () => {
   const navigate = useNavigate();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('browse');
+  const [activeTab, setActiveTab] = useState('categories');
   
   const category = searchParams.get('category') || '';
   const search = searchParams.get('search') || '';

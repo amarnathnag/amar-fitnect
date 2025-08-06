@@ -18,12 +18,17 @@ const HealthFocusedHero = () => {
         <div className="flex items-center justify-center gap-2 mb-4">
           <Sparkles className="h-8 w-8 text-green-600" />
           <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            Health-Focused Marketplace
+            Welcome to Our Marketplace
           </h2>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Discover carefully curated products with detailed health ratings, organic options, and nutritional benefits
+          Browse through our organized categories to find exactly what you need - from fresh groceries to health supplements, all with detailed health ratings
         </p>
+        <div className="mt-4">
+          <Badge className="bg-blue-100 text-blue-700 px-4 py-2 text-sm hover:bg-blue-200 transition-colors">
+            💡 Tip: Click on "Categories" tab above to browse by category like BigBasket!
+          </Badge>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
