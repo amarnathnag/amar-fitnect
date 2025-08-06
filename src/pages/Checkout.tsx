@@ -165,27 +165,14 @@ const Checkout = () => {
                 appliedCoupon={appliedCoupon}
               />
               
-              {/* Order Actions */}
+              {/* WhatsApp Order Section - Primary Option */}
               <div className="space-y-4">
-                {user ? (
-                  <CheckoutActions
-                    onPlaceOrder={handlePlaceOrder}
-                    loading={loading}
-                    cartLength={cart.length}
-                    cartTotal={finalTotal}
-                  />
-                ) : (
-                  <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <p className="text-sm text-yellow-800">
-                      🔐 Login required for regular checkout, or use WhatsApp ordering below
-                    </p>
-                  </div>
-                )}
-
-                {/* WhatsApp Order Section */}
-                <div className="border-t pt-4">
-                  <p className="text-sm text-gray-600 mb-3 text-center">
-                    Alternative: Order directly via WhatsApp
+                <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                  <h3 className="text-lg font-semibold text-green-800 mb-2">
+                    📱 Order via WhatsApp
+                  </h3>
+                  <p className="text-sm text-green-700 mb-3">
+                    Place your order directly through WhatsApp for quick processing
                   </p>
                   <WhatsAppOrderButton
                     cart={cart}
@@ -193,6 +180,27 @@ const Checkout = () => {
                     deliveryAddress={deliveryAddress}
                   />
                 </div>
+
+                {/* Regular Order Section - Secondary Option */}
+                {user ? (
+                  <div className="border-t pt-4">
+                    <p className="text-sm text-gray-600 mb-3 text-center">
+                      Or place a regular order
+                    </p>
+                    <CheckoutActions
+                      onPlaceOrder={handlePlaceOrder}
+                      loading={loading}
+                      cartLength={cart.length}
+                      cartTotal={finalTotal}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-800">
+                      💡 Want to track your orders? <a href="/auth" className="underline font-medium">Login here</a>
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -54,8 +54,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/premium-ai" replace />;
   }
   
-  // Redirect to profile setup if profile is not complete (but allow access to profile-setup page itself)
-  if (!isProfileComplete && location.pathname !== '/profile-setup' && location.pathname !== '/profile') {
+  // Redirect to profile setup if profile is not complete (but allow access to profile-setup, profile, and checkout pages)
+  if (!isProfileComplete && 
+      location.pathname !== '/profile-setup' && 
+      location.pathname !== '/profile' && 
+      location.pathname !== '/checkout') {
     console.log("ProtectedRoute: Profile not complete, redirecting to profile setup page");
     return <Navigate to="/profile-setup" replace />;
   }

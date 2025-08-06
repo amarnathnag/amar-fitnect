@@ -88,7 +88,7 @@ function App() {
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/marketplace/category/:categoryId" element={<CategoryProducts />} />
                 <Route path="/marketplace/product/:id" element={<ProductDetail />} />
-                <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                <Route path="/checkout" element={<Checkout />} />
                 <Route path="/subscription" element={<Subscription />} />
                 <Route path="/premium-ai" element={<PremiumAi />} />
                 <Route path="/premium-payment" element={<PremiumPayment />} />
