@@ -65,15 +65,8 @@ export const useCheckoutValidation = () => {
   };
 
   const validateCart = (cart: any[]) => {
-    if (!cart || cart.length === 0) {
-      toast({
-        title: "Empty Cart",
-        description: "Please add items to your cart before checkout",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
+    // Only validate cart length, don't show toast during render
+    return cart && cart.length > 0;
   };
 
   return { validateAddress, validateCart };
