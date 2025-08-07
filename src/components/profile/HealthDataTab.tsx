@@ -6,12 +6,16 @@ import EditableWorkoutProgressCard from './EditableWorkoutProgressCard';
 import EditableHealthGoalsCard from './EditableHealthGoalsCard';
 import DailyProgressTracker from './DailyProgressTracker';
 import PeriodDataViewer from './PeriodDataViewer';
+import ProfileDataSummary from './ProfileDataSummary';
 
 const HealthDataTab = () => {
   const { user } = useAuth();
 
   return (
     <div className="space-y-6">
+      {/* Complete Profile Data Overview */}
+      <ProfileDataSummary />
+
       {/* Daily Progress Tracker - Most Important */}
       <DailyProgressTracker />
 
