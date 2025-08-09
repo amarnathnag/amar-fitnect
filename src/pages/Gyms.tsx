@@ -9,12 +9,13 @@ import Footer from '@/components/Footer';
 import GymSearchBar from '@/components/gyms/GymSearchBar';
 import GymCard from '@/components/gyms/GymCard';
 import { Button } from '@/components/ui/button';
-import { Loader2, Building, Users, Dumbbell, Plus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Loader2, Building, Users, Dumbbell, Plus, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Gyms = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const pincodeQuery = searchParams.get('pincode') || '';
@@ -39,6 +40,16 @@ const Gyms = () => {
       
       <main className="flex-grow pt-6 pb-16">
         <div className="container-custom mx-auto px-4">
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="mb-6"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          
           {/* Hero Section */}
           <div className="relative rounded-lg overflow-hidden mb-12">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/70 z-10"></div>

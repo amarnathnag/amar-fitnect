@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import BlogList from '@/components/blog/BlogList';
@@ -13,9 +13,11 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import NewBlogForm from '@/components/blog/NewBlogForm';
+import { ArrowLeft } from 'lucide-react';
 
 const Blog = () => {
   const { postId } = useParams<{ postId: string }>();
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [showNewBlogForm, setShowNewBlogForm] = useState(false);
   const { user } = useAuth();
@@ -57,7 +59,17 @@ const Blog = () => {
       <main className="flex-grow py-12">
         <div className="container-custom">
           {currentPost ? (
-            <BlogPost post={currentPost} isPremiumUser={isPremiumUser} />
+            <div>
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/blog')}
+                className="mb-6"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Blog
+              </Button>
+              <BlogPost post={currentPost} isPremiumUser={isPremiumUser} />
+            </div>
           ) : (
             <>
               <div className="text-center mb-12">

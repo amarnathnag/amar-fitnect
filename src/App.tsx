@@ -80,6 +80,7 @@ function App() {
                 <Route path="/job-application-success" element={<JobApplicationSuccess />} />
                 <Route path="/community" element={<Community />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:postId" element={<Blog />} />
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/disease-management" element={<DiseaseManagement />} />
                 <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
