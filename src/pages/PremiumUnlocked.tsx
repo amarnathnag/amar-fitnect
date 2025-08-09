@@ -9,14 +9,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Dumbbell, Utensils, FileText, Activity, BarChart2, 
-  Calendar, Download, Crown, 
-  ArrowRight, Book, Plus, Save, Play
+import {
+  Dumbbell, Utensils, FileText, Activity, BarChart2,
+  Calendar, Download, Book, Plus, Save, Play
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import DietPlanCreator from '@/components/diet/DietPlanCreator';
 import { useDietPlans } from '@/hooks/useDietPlans';
+import PremiumHeroSection from '@/components/premium/PremiumHeroSection';
 
 const PremiumUnlocked = () => {
   const navigate = useNavigate();
@@ -94,15 +94,7 @@ const PremiumUnlocked = () => {
       <NavBar />
       
       <main className="flex-grow">
-        <div className="bg-gradient-to-r from-health-primary to-health-accent py-6 mb-8">
-          <div className="container-custom text-white">
-            <div className="flex items-center mb-2">
-              <Crown className="mr-2 h-5 w-5" />
-              <h2 className="text-xl font-bold">Premium Access Unlocked</h2>
-            </div>
-            <p className="opacity-90">Welcome to your personalized health journey. Explore all premium features below.</p>
-          </div>
-        </div>
+        <PremiumHeroSection />
         
         <div className="container-custom mb-12">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
