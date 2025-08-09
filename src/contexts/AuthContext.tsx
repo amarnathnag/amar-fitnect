@@ -38,7 +38,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isAdmin: false,
           gender: null
         });
-        fetchProfile(session);
+        setTimeout(() => fetchProfile(session), 0);
+        setTimeout(() => fetchAdminRole(session.user.id), 0);
       }
       setIsLoading(false);
     });
@@ -59,9 +60,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isAdmin: false,
             gender: null
           });
-          setTimeout(() => {
-            fetchProfile(session);
-          }, 100);
+          setTimeout(() => fetchProfile(session), 0);
+          setTimeout(() => fetchAdminRole(session.user.id), 0);
         } else {
           setUser(null);
           setProfileData(null);
@@ -73,6 +73,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchAdminRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+      if (!error && data) {
+        setUser((prev: any) => (prev ? { ...prev, isAdmin: true } : prev));
+      }
+    } catch (e) {
+      console.error('Error checking admin role:', e);
+    }
+  };
 
   const fetchProfile = async (currentSession?: Session) => {
     const sessionToUse = currentSession || session;

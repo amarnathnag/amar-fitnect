@@ -18,33 +18,8 @@ export const useAuthMethods = (
     try {
       setIsLoading(true);
       
-      // Check if this is admin login
-      if (email === 'admin@healthapp.com' && password === 'admin123') {
-        console.log("Admin login successful");
-        
-        // Set admin user
-        const adminUser = {
-          email: email,
-          isAuthenticated: true,
-          isPremium: true,
-          isAdmin: true,
-        };
-        
-        setUser(adminUser);
-        
-        // Store admin login state
-        localStorage.setItem('isAdminLoggedIn', 'true');
-        localStorage.setItem('adminEmail', email);
-        
-        toast({
-          title: "Welcome Admin",
-          description: "You have successfully logged in as an administrator.",
-        });
-        
-        // Redirect to admin dashboard
-        navigate('/admin');
-        return { success: true };
-      }
+      // Admin login via hardcoded credentials has been removed for security.
+      // Use Supabase authentication and user roles instead.
       
       // Regular user login via Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -169,17 +144,8 @@ export const useAuthMethods = (
     try {
       setIsLoading(true);
       
-      // Check if admin user
-      const isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
-      
-      if (isAdminLoggedIn) {
-        // Clear admin login
-        localStorage.removeItem('isAdminLoggedIn');
-        localStorage.removeItem('adminEmail');
-      } else {
-        // Regular user logout via Supabase
-        await supabase.auth.signOut();
-      }
+      // Always sign out from Supabase for a clean logout
+      await supabase.auth.signOut();
       
       // Clear all auth state
       setUser(null);
