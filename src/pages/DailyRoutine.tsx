@@ -1,16 +1,31 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import { Clock, Coffee, UtensilsCrossed, Dumbbell, Droplet, Moon } from 'lucide-react';
+import DailyRoutineEditor from '@/components/DailyRoutineEditor';
+import { Clock, Coffee, UtensilsCrossed, Dumbbell, Droplet, Moon, Edit3 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const DailyRoutine = () => {
   const [dietType, setDietType] = useState('vegetarian');
   const [goalType, setGoalType] = useState('maintenance');
+  const [isEditing, setIsEditing] = useState(false);
+  const [customRoutines, setCustomRoutines] = useState({});
+  const { profileData, updateProfile } = useAuth();
+  const { toast } = useToast();
+
+  // Load custom routines from local storage
+  useEffect(() => {
+    const savedRoutines = localStorage.getItem('customRoutines');
+    if (savedRoutines) {
+      setCustomRoutines(JSON.parse(savedRoutines));
+    }
+  }, []);
 
   const routines = {
     vegetarian: {
@@ -211,6 +226,28 @@ const DailyRoutine = () => {
   };
 
   const selectedRoutine = routines[dietType][goalType];
+  const customRoutineKey = `${dietType}_${goalType}`;
+  const hasCustomRoutine = customRoutines[customRoutineKey];
+
+  const handleSaveCustomRoutine = async (items, timeSlot) => {
+    const updatedCustomRoutines = {
+      ...customRoutines,
+      [customRoutineKey]: {
+        ...customRoutines[customRoutineKey],
+        [timeSlot]: items
+      }
+    };
+    
+    setCustomRoutines(updatedCustomRoutines);
+    
+    // Save to local storage
+    localStorage.setItem('customRoutines', JSON.stringify(updatedCustomRoutines));
+    
+    toast({
+      title: "✨ Routine Saved!",
+      description: "Your personalized routine has been saved to your profile.",
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -219,10 +256,22 @@ const DailyRoutine = () => {
       <main className="flex-grow py-10">
         <div className="container-custom">
           <div className="mb-10">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Your Personalized Daily Routine</h1>
-            <p className="text-lg text-muted-foreground">
-              Follow this structured daily routine tailored to your preferences for optimal health and goal achievement.
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold">Your Personalized Daily Routine</h1>
+                <p className="text-lg text-muted-foreground">
+                  Follow this structured daily routine tailored to your preferences for optimal health and goal achievement.
+                </p>
+              </div>
+              <Button
+                variant={isEditing ? "default" : "outline"}
+                onClick={() => setIsEditing(!isEditing)}
+                className="flex items-center gap-2"
+              >
+                <Edit3 className="h-4 w-4" />
+                {isEditing ? 'View Mode' : 'Edit Mode'}
+              </Button>
+            </div>
           </div>
 
           <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">

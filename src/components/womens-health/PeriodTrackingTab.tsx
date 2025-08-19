@@ -10,10 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Plus, TrendingUp, AlertCircle, Heart, Save, Moon, Droplets, ThermometerSun, Bell, Target, Activity } from 'lucide-react';
 import { usePeriodTracking } from '@/hooks/usePeriodTracking';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const PeriodTrackingTab = () => {
   const navigate = useNavigate();
   const { periodData, savePeriodData } = usePeriodTracking();
+  const { updateProfile } = useAuth();
   const { toast } = useToast();
   const [lastPeriodDate, setLastPeriodDate] = useState(periodData?.last_period_date || '');
   const [cycleLength, setCycleLength] = useState(periodData?.cycle_length?.toString() || '28');
@@ -56,14 +58,24 @@ const PeriodTrackingTab = () => {
       cycle_length: cycleLength ? parseInt(cycleLength) : null,
       period_length: periodLength ? parseInt(periodLength) : null,
       symptoms: symptoms.length > 0 ? symptoms : null,
-      notes: notes || null
+      notes: notes || null,
+      mood_rating: moodRating,
+      flow_intensity: flowIntensity,
+      water_intake: waterIntake,
+      sleep_hours: sleepHours
     };
 
+    // Save both to period tracking and profile
     const result = await savePeriodData(data);
     if (result) {
+      // Also update profile with period data
+      await updateProfile({
+        period_tracking: data
+      });
+      
       toast({
-        title: "Success",
-        description: "Period data saved successfully!",
+        title: "✨ Period Data Saved!",
+        description: "Your cycle insights have been updated successfully.",
       });
     }
   };
@@ -92,15 +104,21 @@ const PeriodTrackingTab = () => {
   return (
     <div className="space-y-6">
       {/* Enhanced Period Tracker */}
-      <Card className="border-2 border-pink-200">
+      <Card className="border-2 border-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-900/20 dark:via-purple-900/20 dark:to-indigo-900/20">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-6 w-6 text-pink-500" />
-            <CardTitle>Enhanced Period Tracker</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-600">
+              <Calendar className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <CardTitle className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                🌸 Smart Period Tracker
+              </CardTitle>
+              <CardDescription className="text-sm font-medium">
+                Your personalized cycle companion with AI insights ✨
+              </CardDescription>
+            </div>
           </div>
-          <CardDescription>
-            Track your menstrual cycle with detailed insights and predictions
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Basic Cycle Information */}
