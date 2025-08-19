@@ -8,8 +8,8 @@ import { AlertCircle } from 'lucide-react';
 
 const Chat = () => {
   // Check if we're in development and API key is missing
-  const isDevelopment = import.meta.env.MODE === 'development';
-  const apiKeyMissing = !import.meta.env.VITE_DEEPSEEK_API_KEY;
+  const isDevelopment = false; // Disable development mode
+  const apiKeyMissing = false; // API key is hardcoded
   
   return (
     <div className="min-h-screen flex flex-col">

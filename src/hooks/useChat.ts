@@ -28,7 +28,7 @@ export const useChat = () => {
   // Check if API key is configured
   useEffect(() => {
     const checkApiKey = async () => {
-      const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+      const apiKey = "sk-c6bc1d2e47c14690b5661204311e8e19";
       if (!apiKey) {
         setErrorMessage("API key not configured. Please add your DeepSeek API key to the .env file.");
         toast({
@@ -47,7 +47,7 @@ export const useChat = () => {
 
   const retryConfigConnection = () => {
     // Force re-check of API configuration
-    const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+    const apiKey = "sk-c6bc1d2e47c14690b5661204311e8e19";
     if (apiKey) {
       setErrorMessage(null);
       toast({

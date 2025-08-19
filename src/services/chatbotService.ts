@@ -15,8 +15,8 @@ export const getChatbotResponse = async (
   console.log('Sending request to DeepSeek API with input:', userInput);
   console.log('Current language:', language);
   
-  // Check if API key exists
-  const apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY;
+  // Check if API key exists - use hardcoded key for now
+  const apiKey = "sk-c6bc1d2e47c14690b5661204311e8e19";
   if (!apiKey) {
     console.error('DeepSeek API key is not configured');
     throw new Error(getConfigErrorMessages()[language]);
