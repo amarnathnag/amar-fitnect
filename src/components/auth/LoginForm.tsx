@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Mail } from 'lucide-react';
+import { Eye, EyeOff, Mail, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 
@@ -47,13 +47,29 @@ const LoginForm: React.FC<LoginFormProps> = ({
       const result = await login(values.email, values.password);
       
       if (result.success) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
         if (onSuccess) onSuccess();
       } else {
-        if (setError) setError(result.error || "Login failed");
+        const errorMessage = result.error || "Login failed";
+        if (setError) setError(errorMessage);
+        toast({
+          title: "Login failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
       console.error('Login form error:', error);
-      if (setError) setError(error.message || "Login failed");
+      const errorMessage = error.message || "Login failed";
+      if (setError) setError(errorMessage);
+      toast({
+        title: "Login failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
@@ -62,12 +78,28 @@ const LoginForm: React.FC<LoginFormProps> = ({
       if (setError) setError(null);
       const result = await signInWithGoogle();
       if (result?.success) {
+        toast({
+          title: "Welcome!",
+          description: "You have successfully signed in with Google.",
+        });
         if (onSuccess) onSuccess();
       } else {
-        if (setError) setError(result?.error || "Google login failed");
+        const errorMessage = result?.error || "Google login failed";
+        if (setError) setError(errorMessage);
+        toast({
+          title: "Sign in failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
-      if (setError) setError(error.message || "Google login failed");
+      const errorMessage = error.message || "Google login failed";
+      if (setError) setError(errorMessage);
+      toast({
+        title: "Sign in failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
@@ -166,7 +198,14 @@ const LoginForm: React.FC<LoginFormProps> = ({
           />
           
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </Button>
         </form>
       </Form>

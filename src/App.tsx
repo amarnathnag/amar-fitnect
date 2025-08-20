@@ -85,7 +85,7 @@ function App() {
                 <Route path="/disease-management" element={<DiseaseManagement />} />
                 <Route path="/disease-management/:diseaseId" element={<DiseaseDetail />} />
                 <Route path="/disease/:id" element={<DiseaseDetail />} />
-                <Route path="/daily-routine" element={<DailyRoutine />} />
+                <Route path="/daily-routine" element={<ProtectedRoute><DailyRoutine /></ProtectedRoute>} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/marketplace/category/:categoryId" element={<CategoryProducts />} />
                 <Route path="/marketplace/product/:id" element={<ProductDetail />} />

@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 
@@ -56,13 +56,29 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
       const result = await signup(values.name, values.email, values.password);
       
       if (result.success) {
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account.",
+        });
         if (onSuccess) onSuccess();
       } else {
-        if (setError) setError(result.error || "Signup failed");
+        const errorMessage = result.error || "Signup failed";
+        if (setError) setError(errorMessage);
+        toast({
+          title: "Signup failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
       console.error('Signup form error:', error);
-      if (setError) setError(error.message || "Signup failed");
+      const errorMessage = error.message || "Signup failed";
+      if (setError) setError(errorMessage);
+      toast({
+        title: "Signup failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
@@ -71,12 +87,28 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
       if (setError) setError(null);
       const result = await signInWithGoogle();
       if (result?.success) {
+        toast({
+          title: "Welcome!",
+          description: "Your account has been created successfully with Google.",
+        });
         if (onSuccess) onSuccess();
       } else {
-        if (setError) setError(result?.error || "Google signup failed");
+        const errorMessage = result?.error || "Google signup failed";
+        if (setError) setError(errorMessage);
+        toast({
+          title: "Signup failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
-      if (setError) setError(error.message || "Google signup failed");
+      const errorMessage = error.message || "Google signup failed";
+      if (setError) setError(errorMessage);
+      toast({
+        title: "Signup failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
@@ -218,7 +250,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
           />
           
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create Account"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating account...
+              </>
+            ) : (
+              "Create Account"
+            )}
           </Button>
         </form>
       </Form>

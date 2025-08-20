@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,229 +6,262 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import DailyRoutineEditor from '@/components/DailyRoutineEditor';
-import { Clock, Coffee, UtensilsCrossed, Dumbbell, Droplet, Moon, Edit3 } from 'lucide-react';
+import { Clock, Coffee, UtensilsCrossed, Dumbbell, Droplet, Moon, Edit3, User, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+
+interface RoutineItem {
+  id: string;
+  time: string;
+  activity: string;
+  category: 'meal' | 'exercise' | 'hydration' | 'rest' | 'other';
+  notes?: string;
+  icon?: React.ReactNode;
+}
 
 const DailyRoutine = () => {
   const [dietType, setDietType] = useState('vegetarian');
   const [goalType, setGoalType] = useState('maintenance');
   const [isEditing, setIsEditing] = useState(false);
-  const [customRoutines, setCustomRoutines] = useState({});
-  const { profileData, updateProfile } = useAuth();
+  const [customRoutines, setCustomRoutines] = useState<Record<string, any>>({});
+  const [activeTab, setActiveTab] = useState('morning');
+  const { user, profileData, updateProfile } = useAuth();
   const { toast } = useToast();
 
-  // Load custom routines from local storage
+  // Load custom routines from local storage and user preferences
   useEffect(() => {
     const savedRoutines = localStorage.getItem('customRoutines');
     if (savedRoutines) {
       setCustomRoutines(JSON.parse(savedRoutines));
     }
-  }, []);
+    
+    // Set diet type and goal from profile if available
+    if (profileData) {
+      if (profileData.food_preference) {
+        setDietType(profileData.food_preference === 'non_vegetarian' ? 'nonVegetarian' : profileData.food_preference);
+      }
+      if (profileData.fitness_goal) {
+        const goalMapping: Record<string, string> = {
+          'weight_loss': 'weightLoss',
+          'weight_gain': 'weightGain',
+          'muscle_gain': 'weightGain',
+          'maintain_fitness': 'maintenance'
+        };
+        setGoalType(goalMapping[profileData.fitness_goal] || 'maintenance');
+      }
+    }
+  }, [profileData]);
 
   const routines = {
     vegetarian: {
       weightLoss: {
         morning: [
-          { time: '06:00 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:15 AM', activity: '1 glass of warm water with lemon', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '06:30 AM', activity: 'Morning workout (30 min cardio)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '07:15 AM', activity: 'Breakfast: Oatmeal with fruits and nuts', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:00 AM', activity: 'Green tea + 1 fruit', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '1', time: '06:00', activity: 'Wake up and hydrate', category: 'hydration' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:15', activity: '1 glass of warm water with lemon', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '06:30', activity: 'Morning workout (30 min cardio)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '07:15', activity: 'Breakfast: Oatmeal with fruits and nuts', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:00', activity: 'Green tea + 1 fruit', category: 'meal' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
         ],
         afternoon: [
-          { time: '12:30 PM', activity: 'Lunch: Quinoa bowl with vegetables and tofu', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:00 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Evening snack: Greek yogurt with berries', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Evening workout (Strength training - 40 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '12:30', activity: 'Lunch: Quinoa bowl with vegetables and tofu', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:00', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Evening snack: Greek yogurt with berries', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Evening workout (Strength training - 40 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:00 PM', activity: 'Dinner: Vegetable soup with whole grain bread', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '08:00 PM', activity: 'Herbal tea', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '09:30 PM', activity: 'Relaxation/Meditation (15 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:00 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:00', activity: 'Dinner: Vegetable soup with whole grain bread', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '20:00', activity: 'Herbal tea', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '12', time: '21:30', activity: 'Relaxation/Meditation (15 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:00', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       },
       weightGain: {
         morning: [
-          { time: '06:30 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:45 AM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '07:00 AM', activity: 'Morning workout (Strength training - 45 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '08:00 AM', activity: 'Breakfast: Protein smoothie with banana, peanut butter, and oats', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:30 AM', activity: 'Snack: Nuts and dried fruits + protein shake', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '1', time: '06:30', activity: 'Wake up', category: 'other' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:45', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '07:00', activity: 'Morning workout (Strength training - 45 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '08:00', activity: 'Breakfast: Protein smoothie with banana, peanut butter, and oats', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:30', activity: 'Snack: Nuts and dried fruits + protein shake', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
         ],
         afternoon: [
-          { time: '01:00 PM', activity: 'Lunch: Lentil curry with brown rice and vegetables', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:30 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Snack: Avocado toast with chickpeas', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Evening workout (Resistance training - 40 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '13:00', activity: 'Lunch: Lentil curry with brown rice and vegetables', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:30', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Snack: Avocado toast with chickpeas', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Evening workout (Resistance training - 40 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:30 PM', activity: 'Dinner: Bean pasta with vegetables and cheese', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '09:00 PM', activity: 'Night snack: Greek yogurt with honey and granola', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '09:45 PM', activity: 'Relaxation (15 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:30 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:30', activity: 'Dinner: Bean pasta with vegetables and cheese', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '21:00', activity: 'Night snack: Greek yogurt with honey and granola', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '12', time: '21:45', activity: 'Relaxation (15 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:30', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       },
       maintenance: {
         morning: [
-          { time: '06:30 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:45 AM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '07:00 AM', activity: 'Morning yoga/stretching (20 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '07:30 AM', activity: 'Breakfast: Vegetable omelet with toast', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:00 AM', activity: 'Fruit + handful of nuts', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '1', time: '06:30', activity: 'Wake up', category: 'other' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:45', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '07:00', activity: 'Morning yoga/stretching (20 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '07:30', activity: 'Breakfast: Vegetable omelet with toast', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:00', activity: 'Fruit + handful of nuts', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
         ],
         afternoon: [
-          { time: '12:30 PM', activity: 'Lunch: Mixed vegetable salad with cottage cheese', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:00 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Snack: Hummus with vegetable sticks', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Moderate workout (30 min mix of cardio and strength)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '12:30', activity: 'Lunch: Mixed vegetable salad with cottage cheese', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:00', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Snack: Hummus with vegetable sticks', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Moderate workout (30 min mix of cardio and strength)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:00 PM', activity: 'Dinner: Stir-fried vegetables with tofu and brown rice', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '08:30 PM', activity: 'Herbal tea', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '09:15 PM', activity: 'Relaxation/Reading (20 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:00 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:00', activity: 'Dinner: Stir-fried vegetables with tofu and brown rice', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '20:30', activity: 'Herbal tea', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '12', time: '21:15', activity: 'Relaxation/Reading (20 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:00', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       }
     },
     nonVegetarian: {
       weightLoss: {
         morning: [
-          { time: '06:00 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:15 AM', activity: '1 glass of warm water with lemon', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '06:30 AM', activity: 'Morning workout (30 min HIIT)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '07:15 AM', activity: 'Breakfast: Egg white omelet with vegetables', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:00 AM', activity: 'Green tea + 1 fruit', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '1', time: '06:00', activity: 'Wake up and hydrate', category: 'hydration' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:15', activity: '1 glass of warm water with lemon', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '06:30', activity: 'Morning workout (30 min cardio)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '07:15', activity: 'Breakfast: Scrambled eggs with spinach and whole grain toast', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:00', activity: 'Green tea + 1 fruit', category: 'meal' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
         ],
         afternoon: [
-          { time: '12:30 PM', activity: 'Lunch: Grilled chicken salad', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:00 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Evening snack: Protein shake', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Evening workout (Weight training - 40 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '12:30', activity: 'Lunch: Grilled chicken salad with mixed greens', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:00', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Evening snack: Cottage cheese with cucumber slices', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Evening workout (Strength training - 40 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:00 PM', activity: 'Dinner: Baked fish with steamed vegetables', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '08:00 PM', activity: 'Herbal tea', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '09:30 PM', activity: 'Relaxation/Meditation (15 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:00 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:00', activity: 'Dinner: Baked salmon with steamed vegetables', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '20:00', activity: 'Herbal tea', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '12', time: '21:30', activity: 'Relaxation/Meditation (15 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:00', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       },
       weightGain: {
         morning: [
-          { time: '06:30 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:45 AM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '07:00 AM', activity: 'Morning workout (Heavy lifting - 45 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '08:00 AM', activity: 'Breakfast: Protein-rich breakfast with eggs, bacon, and oatmeal', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:30 AM', activity: 'Snack: Trail mix + protein shake', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '1', time: '06:30', activity: 'Wake up', category: 'other' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:45', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '07:00', activity: 'Morning workout (Strength training - 45 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '08:00', activity: 'Breakfast: Omelet with cheese, veggies, and whole grain toast', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:30', activity: 'Snack: Mixed nuts and protein shake', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
         ],
         afternoon: [
-          { time: '01:00 PM', activity: 'Lunch: Steak with sweet potatoes and vegetables', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:30 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Snack: Tuna sandwich', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Evening workout (Resistance training - 40 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '13:00', activity: 'Lunch: Turkey sandwich with avocado and salad', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:30', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Snack: Cheese and whole grain crackers', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Evening workout (Resistance training - 40 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:30 PM', activity: 'Dinner: Chicken pasta with sauce', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '09:00 PM', activity: 'Night snack: Cottage cheese with fruit', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '09:45 PM', activity: 'Relaxation (15 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:30 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:30', activity: 'Dinner: Beef stir-fry with vegetables and rice', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '21:00', activity: 'Night snack: Greek yogurt with honey and granola', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '12', time: '21:45', activity: 'Relaxation (15 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:30', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       },
       maintenance: {
         morning: [
-          { time: '06:30 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:45 AM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '07:00 AM', activity: 'Morning cardio (20 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '07:30 AM', activity: 'Breakfast: Scrambled eggs with toast and fruit', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:00 AM', activity: 'Fruit + boiled egg', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '1', time: '06:30', activity: 'Wake up', category: 'other' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:45', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '07:00', activity: 'Morning yoga/stretching (20 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '07:30', activity: 'Breakfast: Scrambled eggs with veggies and toast', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:00', activity: 'Fruit + handful of nuts', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
         ],
         afternoon: [
-          { time: '12:30 PM', activity: 'Lunch: Turkey wrap with vegetables', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:00 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Snack: Greek yogurt with honey', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Moderate workout (30 min mix of cardio and strength)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '12:30', activity: 'Lunch: Chicken salad with mixed greens', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:00', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Snack: Hummus with vegetable sticks', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Moderate workout (30 min mix of cardio and strength)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:00 PM', activity: 'Dinner: Grilled salmon with quinoa and vegetables', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '08:30 PM', activity: 'Herbal tea', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '09:15 PM', activity: 'Relaxation/Reading (20 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:00 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:00', activity: 'Dinner: Grilled fish with steamed vegetables and rice', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '20:30', activity: 'Herbal tea', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '12', time: '21:15', activity: 'Relaxation/Reading (20 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:00', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       }
     },
     vegan: {
       weightLoss: {
         morning: [
-          { time: '06:00 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:15 AM', activity: '1 glass of warm water with lemon', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '06:30 AM', activity: 'Morning workout (30 min cardio)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '07:15 AM', activity: 'Breakfast: Chia seed pudding with almond milk and berries', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:00 AM', activity: 'Green tea + 1 fruit', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '1', time: '06:00', activity: 'Wake up and hydrate', category: 'hydration' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:15', activity: '1 glass of warm water with lemon', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '06:30', activity: 'Morning workout (30 min cardio)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '07:15', activity: 'Breakfast: Smoothie bowl with berries and chia seeds', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:00', activity: 'Green tea + 1 fruit', category: 'meal' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
         ],
         afternoon: [
-          { time: '12:30 PM', activity: 'Lunch: Buddha bowl with quinoa, avocado, and legumes', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:00 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Evening snack: Vegetable sticks with hummus', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Evening workout (Yoga - 40 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '12:30', activity: 'Lunch: Chickpea salad with mixed greens and tahini dressing', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:00', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Evening snack: Roasted nuts and fruit', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Evening workout (Strength training - 40 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:00 PM', activity: 'Dinner: Vegetable stir-fry with tofu', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '08:00 PM', activity: 'Herbal tea', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '09:30 PM', activity: 'Relaxation/Meditation (15 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:00 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:00', activity: 'Dinner: Lentil soup with whole grain bread', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '20:00', activity: 'Herbal tea', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '12', time: '21:30', activity: 'Relaxation/Meditation (15 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:00', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       },
       weightGain: {
         morning: [
-          { time: '06:30 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:45 AM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '07:00 AM', activity: 'Morning workout (Strength training - 45 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '08:00 AM', activity: 'Breakfast: Protein-rich smoothie with plant milk, banana, peanut butter, and vegan protein', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:30 AM', activity: 'Snack: Nuts, seeds and dried fruits + plant protein shake', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '1', time: '06:30', activity: 'Wake up', category: 'other' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:45', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '07:00', activity: 'Morning workout (Strength training - 45 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '08:00', activity: 'Breakfast: Tofu scramble with veggies and toast', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:30', activity: 'Snack: Nuts and protein shake', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
         ],
         afternoon: [
-          { time: '01:00 PM', activity: 'Lunch: Bean and legume burger with sweet potato fries', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:30 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Snack: Avocado toast with nutritional yeast', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Evening workout (Resistance training - 40 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '13:00', activity: 'Lunch: Vegan burger with sweet potato fries', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:30', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Snack: Hummus with pita bread', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Evening workout (Resistance training - 40 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:30 PM', activity: 'Dinner: Lentil pasta with cashew cream sauce', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '09:00 PM', activity: 'Night snack: Coconut yogurt with granola and nut butter', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '09:45 PM', activity: 'Relaxation (15 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:30 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:30', activity: 'Dinner: Vegan chili with brown rice', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '21:00', activity: 'Night snack: Vegan yogurt with granola', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '12', time: '21:45', activity: 'Relaxation (15 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:30', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       },
       maintenance: {
         morning: [
-          { time: '06:30 AM', activity: 'Wake up', icon: <Clock className="h-5 w-5 text-health-primary" /> },
-          { time: '06:45 AM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '07:00 AM', activity: 'Morning yoga/stretching (20 min)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
-          { time: '07:30 AM', activity: 'Breakfast: Tofu scramble with vegetables and whole grain toast', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '10:00 AM', activity: 'Fruit + handful of nuts', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '1', time: '06:30', activity: 'Wake up', category: 'other' as const, icon: <Clock className="h-5 w-5 text-health-primary" /> },
+          { id: '2', time: '06:45', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '3', time: '07:00', activity: 'Morning yoga/stretching (20 min)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '4', time: '07:30', activity: 'Breakfast: Vegan pancakes with fruit', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '5', time: '10:00', activity: 'Fruit + handful of nuts', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
         ],
         afternoon: [
-          { time: '12:30 PM', activity: 'Lunch: Mixed vegetable and bean salad with tahini dressing', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '02:00 PM', activity: 'Water (500ml)', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '04:00 PM', activity: 'Snack: Rice cakes with almond butter', icon: <Coffee className="h-5 w-5 text-amber-600" /> },
-          { time: '05:30 PM', activity: 'Moderate workout (30 min mix of cardio and strength)', icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
+          { id: '6', time: '12:30', activity: 'Lunch: Vegan wrap with veggies and hummus', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '7', time: '14:00', activity: 'Water (500ml)', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '8', time: '16:00', activity: 'Snack: Edamame beans', category: 'meal' as const, icon: <Coffee className="h-5 w-5 text-amber-600" /> },
+          { id: '9', time: '17:30', activity: 'Moderate workout (30 min mix of cardio and strength)', category: 'exercise' as const, icon: <Dumbbell className="h-5 w-5 text-health-secondary" /> },
         ],
         evening: [
-          { time: '07:00 PM', activity: 'Dinner: Buddha bowl with quinoa, roasted vegetables, and chickpeas', icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
-          { time: '08:30 PM', activity: 'Herbal tea', icon: <Droplet className="h-5 w-5 text-blue-500" /> },
-          { time: '09:15 PM', activity: 'Relaxation/Reading (20 min)', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
-          { time: '10:00 PM', activity: 'Sleep', icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '10', time: '19:00', activity: 'Dinner: Stir-fried tofu with vegetables and rice', category: 'meal' as const, icon: <UtensilsCrossed className="h-5 w-5 text-health-primary" /> },
+          { id: '11', time: '20:30', activity: 'Herbal tea', category: 'hydration' as const, icon: <Droplet className="h-5 w-5 text-blue-500" /> },
+          { id: '12', time: '21:15', activity: 'Relaxation/Reading (20 min)', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
+          { id: '13', time: '22:00', activity: 'Sleep', category: 'rest' as const, icon: <Moon className="h-5 w-5 text-indigo-500" /> },
         ]
       }
     }
   };
 
-  const selectedRoutine = routines[dietType][goalType];
+  const selectedRoutine = routines[dietType]?.[goalType] || routines.vegetarian.maintenance;
   const customRoutineKey = `${dietType}_${goalType}`;
   const hasCustomRoutine = customRoutines[customRoutineKey];
 
-  const handleSaveCustomRoutine = async (items, timeSlot) => {
+  const getCurrentRoutineItems = (timeSlot: string): RoutineItem[] => {
+    if (hasCustomRoutine && customRoutines[customRoutineKey][timeSlot]) {
+      return customRoutines[customRoutineKey][timeSlot];
+    }
+    return selectedRoutine[timeSlot] || [];
+  };
+
+  const handleSaveCustomRoutine = async (items: RoutineItem[], timeSlot: string) => {
     const updatedCustomRoutines = {
       ...customRoutines,
       [customRoutineKey]: {
@@ -243,10 +275,47 @@ const DailyRoutine = () => {
     // Save to local storage
     localStorage.setItem('customRoutines', JSON.stringify(updatedCustomRoutines));
     
+    // If user is logged in, also save to profile
+    if (user && updateProfile) {
+      try {
+        // Note: This would require adding a custom_routines field to the profile schema
+        // await updateProfile({ custom_routines: updatedCustomRoutines });
+      } catch (error) {
+        console.log('Could not save to profile:', error);
+      }
+    }
+    
     toast({
       title: "✨ Routine Saved!",
-      description: "Your personalized routine has been saved to your profile.",
+      description: `Your personalized ${timeSlot} routine has been saved.`,
     });
+  };
+
+  const handleSavePreferences = async () => {
+    if (user && updateProfile) {
+      try {
+        const foodPreference = dietType === 'nonVegetarian' ? 'non_vegetarian' : dietType;
+        const fitnessGoal = goalType === 'weightLoss' ? 'weight_loss' : 
+                           goalType === 'weightGain' ? 'weight_gain' : 'maintain_fitness';
+        
+        await updateProfile({
+          food_preference: foodPreference as any,
+          fitness_goal: fitnessGoal as any
+        });
+        
+        toast({
+          title: "Preferences Saved!",
+          description: "Your diet and fitness preferences have been updated.",
+        });
+      } catch (error) {
+        console.error('Failed to save preferences:', error);
+        toast({
+          title: "Save Failed",
+          description: "Could not save your preferences. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
@@ -256,26 +325,45 @@ const DailyRoutine = () => {
       <main className="flex-grow py-10">
         <div className="container-custom">
           <div className="mb-10">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold">Your Personalized Daily Routine</h1>
-                <p className="text-lg text-muted-foreground">
+                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-health-primary to-health-secondary bg-clip-text text-transparent">
+                  Your Personalized Daily Routine
+                </h1>
+                <p className="text-lg text-muted-foreground mt-2">
                   Follow this structured daily routine tailored to your preferences for optimal health and goal achievement.
                 </p>
+                {user && (
+                  <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
+                    <User className="h-4 w-4" />
+                    <span>Customized for {user.name || user.email}</span>
+                  </div>
+                )}
               </div>
-              <Button
-                variant={isEditing ? "default" : "outline"}
-                onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center gap-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                {isEditing ? 'View Mode' : 'Edit Mode'}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleSavePreferences}
+                  className="flex items-center gap-2"
+                  disabled={!user}
+                >
+                  <Settings className="h-4 w-4" />
+                  Save Preferences
+                </Button>
+                <Button
+                  variant={isEditing ? "default" : "outline"}
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="flex items-center gap-2"
+                >
+                  <Edit3 className="h-4 w-4" />
+                  {isEditing ? 'View Mode' : 'Edit Mode'}
+                </Button>
+              </div>
             </div>
           </div>
 
           <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+            <Card className="p-4">
               <label className="block text-sm font-medium mb-2">Diet Preference</label>
               <Select value={dietType} onValueChange={setDietType}>
                 <SelectTrigger className="w-full">
@@ -287,9 +375,9 @@ const DailyRoutine = () => {
                   <SelectItem value="vegan">Vegan</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Goal</label>
+            </Card>
+            <Card className="p-4">
+              <label className="block text-sm font-medium mb-2">Fitness Goal</label>
               <Select value={goalType} onValueChange={setGoalType}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select your goal" />
@@ -300,76 +388,142 @@ const DailyRoutine = () => {
                   <SelectItem value="maintenance">Maintenance</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </Card>
           </div>
 
-          <Tabs defaultValue="morning" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-8">
-              <TabsTrigger value="morning">Morning</TabsTrigger>
-              <TabsTrigger value="afternoon">Afternoon</TabsTrigger>
-              <TabsTrigger value="evening">Evening</TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-3 mb-8 w-full max-w-md mx-auto">
+              <TabsTrigger value="morning" className="flex items-center gap-2">
+                <Coffee className="h-4 w-4" />
+                Morning
+              </TabsTrigger>
+              <TabsTrigger value="afternoon" className="flex items-center gap-2">
+                <UtensilsCrossed className="h-4 w-4" />
+                Afternoon
+              </TabsTrigger>
+              <TabsTrigger value="evening" className="flex items-center gap-2">
+                <Moon className="h-4 w-4" />
+                Evening
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="morning" className="space-y-4">
-              <h2 className="text-2xl font-semibold mb-4">Morning Routine</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {selectedRoutine.morning.map((item, index) => (
-                  <Card key={index} className="overflow-hidden border-l-4 border-l-health-primary">
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-3">
-                        {item.icon}
-                        <div>
-                          <p className="font-medium text-lg">{item.time}</p>
-                          <p className="text-muted-foreground">{item.activity}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {isEditing ? (
+                <DailyRoutineEditor 
+                  routineItems={getCurrentRoutineItems('morning')}
+                  onSave={(items) => handleSaveCustomRoutine(items, 'morning')}
+                  title="Morning Routine Editor"
+                />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-semibold">Morning Routine</h2>
+                    {hasCustomRoutine && (
+                      <span className="text-sm text-health-primary font-medium">✨ Customized</span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {getCurrentRoutineItems('morning').map((item, index) => (
+                      <Card key={item.id || index} className="overflow-hidden border-l-4 border-l-health-primary hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-center space-x-3">
+                            {item.icon || <Clock className="h-5 w-5 text-health-primary" />}
+                            <div className="flex-1">
+                              <p className="font-medium text-lg">{item.time}</p>
+                              <p className="text-muted-foreground">{item.activity}</p>
+                              {item.notes && (
+                                <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              )}
             </TabsContent>
             
             <TabsContent value="afternoon" className="space-y-4">
-              <h2 className="text-2xl font-semibold mb-4">Afternoon Routine</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {selectedRoutine.afternoon.map((item, index) => (
-                  <Card key={index} className="overflow-hidden border-l-4 border-l-health-secondary">
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-3">
-                        {item.icon}
-                        <div>
-                          <p className="font-medium text-lg">{item.time}</p>
-                          <p className="text-muted-foreground">{item.activity}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {isEditing ? (
+                <DailyRoutineEditor 
+                  routineItems={getCurrentRoutineItems('afternoon')}
+                  onSave={(items) => handleSaveCustomRoutine(items, 'afternoon')}
+                  title="Afternoon Routine Editor"
+                />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-semibold">Afternoon Routine</h2>
+                    {hasCustomRoutine && (
+                      <span className="text-sm text-health-primary font-medium">✨ Customized</span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {getCurrentRoutineItems('afternoon').map((item, index) => (
+                      <Card key={item.id || index} className="overflow-hidden border-l-4 border-l-health-secondary hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-center space-x-3">
+                            {item.icon || <UtensilsCrossed className="h-5 w-5 text-health-secondary" />}
+                            <div className="flex-1">
+                              <p className="font-medium text-lg">{item.time}</p>
+                              <p className="text-muted-foreground">{item.activity}</p>
+                              {item.notes && (
+                                <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              )}
             </TabsContent>
             
             <TabsContent value="evening" className="space-y-4">
-              <h2 className="text-2xl font-semibold mb-4">Evening Routine</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {selectedRoutine.evening.map((item, index) => (
-                  <Card key={index} className="overflow-hidden border-l-4 border-l-health-accent">
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-3">
-                        {item.icon}
-                        <div>
-                          <p className="font-medium text-lg">{item.time}</p>
-                          <p className="text-muted-foreground">{item.activity}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {isEditing ? (
+                <DailyRoutineEditor 
+                  routineItems={getCurrentRoutineItems('evening')}
+                  onSave={(items) => handleSaveCustomRoutine(items, 'evening')}
+                  title="Evening Routine Editor"
+                />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-semibold">Evening Routine</h2>
+                    {hasCustomRoutine && (
+                      <span className="text-sm text-health-primary font-medium">✨ Customized</span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {getCurrentRoutineItems('evening').map((item, index) => (
+                      <Card key={item.id || index} className="overflow-hidden border-l-4 border-l-health-accent hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-center space-x-3">
+                            {item.icon || <Moon className="h-5 w-5 text-health-accent" />}
+                            <div className="flex-1">
+                              <p className="font-medium text-lg">{item.time}</p>
+                              <p className="text-muted-foreground">{item.activity}</p>
+                              {item.notes && (
+                                <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              )}
             </TabsContent>
           </Tabs>
 
-          <div className="mt-10 p-6 bg-muted rounded-xl">
-            <h3 className="text-xl font-semibold mb-4">Daily Health Tips</h3>
+          <Card className="mt-10 p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Droplet className="h-5 w-5 text-health-primary" />
+              Daily Health Tips
+            </h3>
             <ul className="space-y-3">
               <li className="flex items-start space-x-2">
                 <Droplet className="h-5 w-5 text-blue-500 mt-0.5" />
@@ -388,13 +542,7 @@ const DailyRoutine = () => {
                 <span>Include at least 30 minutes of physical activity daily</span>
               </li>
             </ul>
-          </div>
-
-          <div className="mt-8 flex justify-center">
-            <Button className="bg-health-primary hover:bg-health-dark">
-              Save Routine
-            </Button>
-          </div>
+          </Card>
         </div>
       </main>
 
