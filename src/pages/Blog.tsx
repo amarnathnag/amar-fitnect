@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import NewBlogForm from '@/components/blog/NewBlogForm';
+import CategoryHeader from '@/components/blog/CategoryHeader';
 import { ArrowLeft } from 'lucide-react';
 
 const Blog = () => {
@@ -107,7 +108,9 @@ const Blog = () => {
                 </div>
               )}
               
-              <BlogList 
+              <CategoryHeader category={selectedCategory} />
+              
+              <BlogList
                 posts={blogPosts}
                 isPremiumUser={isPremiumUser}
                 category={selectedCategory}
