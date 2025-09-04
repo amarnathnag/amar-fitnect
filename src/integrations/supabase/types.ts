@@ -157,13 +157,6 @@ export type Database = {
             referencedRelation: "doctors"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "appointments_doctor_id_fkey"
-            columns: ["doctor_id"]
-            isOneToOne: false
-            referencedRelation: "doctors_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       blogs: {
@@ -1184,60 +1177,7 @@ export type Database = {
       }
     }
     Views: {
-      doctors_public: {
-        Row: {
-          available_days: string[] | null
-          bio: string | null
-          created_at: string | null
-          experience: string | null
-          id: string | null
-          image_url: string | null
-          languages: string[] | null
-          location: string | null
-          name: string | null
-          next_available: string | null
-          price: number | null
-          rating: number | null
-          review_count: number | null
-          specialty: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          available_days?: string[] | null
-          bio?: string | null
-          created_at?: string | null
-          experience?: string | null
-          id?: string | null
-          image_url?: string | null
-          languages?: string[] | null
-          location?: string | null
-          name?: string | null
-          next_available?: string | null
-          price?: number | null
-          rating?: number | null
-          review_count?: number | null
-          specialty?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          available_days?: string[] | null
-          bio?: string | null
-          created_at?: string | null
-          experience?: string | null
-          id?: string | null
-          image_url?: string | null
-          languages?: string[] | null
-          location?: string | null
-          name?: string | null
-          next_available?: string | null
-          price?: number | null
-          rating?: number | null
-          review_count?: number | null
-          specialty?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       calculate_age: {
@@ -1251,6 +1191,26 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_doctors_public: {
+        Args: { specialty_filter?: string }
+        Returns: {
+          available_days: string[]
+          bio: string
+          created_at: string
+          experience: string
+          id: string
+          image_url: string
+          languages: string[]
+          location: string
+          name: string
+          next_available: string
+          price: number
+          rating: number
+          review_count: number
+          specialty: string
+          updated_at: string
+        }[]
       }
       get_user_email: {
         Args: { user_uuid: string }
