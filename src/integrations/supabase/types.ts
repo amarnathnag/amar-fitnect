@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -155,6 +155,13 @@ export type Database = {
             columns: ["doctor_id"]
             isOneToOne: false
             referencedRelation: "doctors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "doctors_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1177,7 +1184,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      doctors_public: {
+        Row: {
+          available_days: string[] | null
+          bio: string | null
+          created_at: string | null
+          experience: string | null
+          id: string | null
+          image_url: string | null
+          languages: string[] | null
+          location: string | null
+          name: string | null
+          next_available: string | null
+          price: number | null
+          rating: number | null
+          review_count: number | null
+          specialty: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          available_days?: string[] | null
+          bio?: string | null
+          created_at?: string | null
+          experience?: string | null
+          id?: string | null
+          image_url?: string | null
+          languages?: string[] | null
+          location?: string | null
+          name?: string | null
+          next_available?: string | null
+          price?: number | null
+          rating?: number | null
+          review_count?: number | null
+          specialty?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          available_days?: string[] | null
+          bio?: string | null
+          created_at?: string | null
+          experience?: string | null
+          id?: string | null
+          image_url?: string | null
+          languages?: string[] | null
+          location?: string | null
+          name?: string | null
+          next_available?: string | null
+          price?: number | null
+          rating?: number | null
+          review_count?: number | null
+          specialty?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_age: {
@@ -1198,13 +1258,17 @@ export type Database = {
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       is_admin_user: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      user_has_appointment_with_doctor: {
+        Args: { doctor_id: string }
         Returns: boolean
       }
     }
