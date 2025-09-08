@@ -1234,6 +1234,42 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_gym_details: {
+        Args: { gym_id: string }
+        Returns: {
+          contact_email: string
+          contact_phone: string
+          created_at: string
+          description: string
+          facilities: Json
+          id: string
+          is_approved: boolean
+          is_premium: boolean
+          location: string
+          location_pincode: string
+          name: string
+          opening_hours: Json
+          owner_id: string
+          owner_name: string
+          updated_at: string
+        }[]
+      }
+      get_public_gym_info: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          description: string
+          facilities: Json
+          id: string
+          is_approved: boolean
+          is_premium: boolean
+          location: string
+          location_pincode: string
+          name: string
+          opening_hours: Json
+          updated_at: string
+        }[]
+      }
       get_user_email: {
         Args: { user_uuid: string }
         Returns: string

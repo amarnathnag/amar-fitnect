@@ -5,11 +5,9 @@ import { dummyGyms, dummyJobs } from "./dummyData";
 // Gym CRUD Operations
 export const fetchGyms = async (search?: string, pincode?: string) => {
   try {
-    // Try to fetch from Supabase first, with fallback to dummy data
+    // Use secure function to get public gym info (no owner details)
     const { data, error } = await supabase
-      .from('gyms')
-      .select('*')
-      .eq('is_approved', true);
+      .rpc('get_public_gym_info');
 
     if (error) {
       console.warn('Using dummy data, Supabase error:', error);
