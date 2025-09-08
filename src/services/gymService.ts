@@ -88,15 +88,11 @@ export const fetchGyms = async (search?: string, pincode?: string) => {
 
 export const fetchGymById = async (gymId: string) => {
   try {
-    // Try to fetch from Supabase first
+    // Use secure function to get gym details with proper access control
     const { data, error } = await supabase
-      .from('gyms')
-      .select('*')
-      .eq('id', gymId)
-      .eq('is_approved', true)
-      .single();
+      .rpc('get_gym_details', { gym_id: gymId });
 
-    if (error) {
+    if (error || !data || data.length === 0) {
       console.warn('Using dummy data for gym detail, Supabase error:', error);
       // Fallback to dummy data
       const gym = dummyGyms.find(g => g.id === gymId);
@@ -106,7 +102,7 @@ export const fetchGymById = async (gymId: string) => {
       return gym;
     }
 
-    return data;
+    return data[0]; // Return the first (and only) result
   } catch (error) {
     console.warn('Error fetching gym by ID, using dummy data:', error);
     // Fallback to dummy data
