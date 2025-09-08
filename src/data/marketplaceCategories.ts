@@ -194,3 +194,111 @@ export const categoryMapping: Record<string, string> = {
   'stationery-games': 'grocery',
   'pet-store': 'grocery'
 };
+
+// Enhanced category mapping for better product filtering
+export const enhancedCategoryMapping: Record<string, { 
+  primary: string; 
+  subcategories: string[];
+  searchTerms: string[];
+}> = {
+  'fruits-vegetables': {
+    primary: 'grocery',
+    subcategories: ['fruits', 'vegetables', 'leafy-greens', 'organic'],
+    searchTerms: ['fruit', 'vegetable', 'organic', 'fresh', 'spinach', 'avocado']
+  },
+  'bakery-dairy': {
+    primary: 'dairy',
+    subcategories: ['bread', 'dairy', 'bakery', 'milk'],
+    searchTerms: ['bread', 'milk', 'yogurt', 'cheese', 'dairy', 'bakery']
+  },
+  'breakfast': {
+    primary: 'breakfast',
+    subcategories: ['cereals', 'spreads', 'oats'],
+    searchTerms: ['breakfast', 'oats', 'cereal', 'morning', 'butter']
+  },
+  'meat-fish': {
+    primary: 'protein',
+    subcategories: ['eggs', 'fish', 'meat'],
+    searchTerms: ['egg', 'fish', 'salmon', 'protein', 'meat']
+  },
+  'masalas-oils': {
+    primary: 'oils',
+    subcategories: ['oils', 'spices', 'dry-fruits'],
+    searchTerms: ['oil', 'spice', 'masala', 'turmeric', 'coconut']
+  },
+  'atta-rice-dals': {
+    primary: 'grains',
+    subcategories: ['grains', 'rice', 'dal', 'flour'],
+    searchTerms: ['rice', 'grain', 'quinoa', 'atta', 'dal']
+  },
+  'chips-biscuits': {
+    primary: 'healthy_snacks',
+    subcategories: ['chips', 'biscuits', 'snacks', 'energy-bars'],
+    searchTerms: ['chip', 'snack', 'biscuit', 'healthy', 'energy']
+  },
+  'beverages': {
+    primary: 'grocery',
+    subcategories: ['tea', 'juices', 'drinks'],
+    searchTerms: ['tea', 'juice', 'drink', 'beverage', 'green']
+  },
+  'frozen-foods': {
+    primary: 'grocery',
+    subcategories: ['frozen', 'ready-to-eat'],
+    searchTerms: ['frozen', 'instant', 'ready']
+  },
+  'chocolates-ice-cream': {
+    primary: 'healthy_snacks',
+    subcategories: ['chocolate', 'ice-cream', 'desserts'],
+    searchTerms: ['chocolate', 'dessert', 'sweet', 'ice']
+  },
+  'gourmet-world-food': {
+    primary: 'premium',
+    subcategories: ['gourmet', 'international'],
+    searchTerms: ['gourmet', 'premium', 'international']
+  },
+  'baby-care': {
+    primary: 'grocery',
+    subcategories: ['baby-food', 'baby-care'],
+    searchTerms: ['baby', 'infant', 'care']
+  },
+  'mens-grooming': {
+    primary: 'grocery',
+    subcategories: ['grooming', 'mens-care'],
+    searchTerms: ['men', 'grooming', 'shave']
+  },
+  'bath-body-hair': {
+    primary: 'grocery',
+    subcategories: ['bath', 'body-care', 'hair-care'],
+    searchTerms: ['bath', 'body', 'hair', 'soap']
+  },
+  'beauty-cosmetics': {
+    primary: 'grocery',
+    subcategories: ['cosmetics', 'beauty'],
+    searchTerms: ['beauty', 'cosmetic', 'makeup']
+  },
+  'health-hygiene': {
+    primary: 'health_supplements',
+    subcategories: ['vitamins', 'supplements', 'probiotics'],
+    searchTerms: ['vitamin', 'supplement', 'health', 'probiotic']
+  },
+  'detergents-cleaning': {
+    primary: 'grocery',
+    subcategories: ['cleaning', 'detergent'],
+    searchTerms: ['clean', 'detergent', 'wash']
+  },
+  'kitchen-homeware': {
+    primary: 'grocery',
+    subcategories: ['kitchen', 'homeware'],
+    searchTerms: ['kitchen', 'home', 'utensil']
+  },
+  'stationery-games': {
+    primary: 'grocery',
+    subcategories: ['stationery', 'games'],
+    searchTerms: ['stationery', 'game', 'book']
+  },
+  'pet-store': {
+    primary: 'grocery',
+    subcategories: ['pet-food', 'pet-care'],
+    searchTerms: ['pet', 'dog', 'cat', 'animal']
+  }
+};
