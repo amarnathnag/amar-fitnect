@@ -1192,6 +1192,28 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_doctor_details: {
+        Args: { doctor_id: string }
+        Returns: {
+          available_days: string[]
+          bio: string
+          created_at: string
+          email: string
+          experience: string
+          id: string
+          image_url: string
+          languages: string[]
+          location: string
+          name: string
+          next_available: string
+          phone: string
+          price: number
+          rating: number
+          review_count: number
+          specialty: string
+          updated_at: string
+        }[]
+      }
       get_doctors_public: {
         Args: { specialty_filter?: string }
         Returns: {
