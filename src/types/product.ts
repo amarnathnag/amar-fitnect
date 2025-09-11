@@ -45,4 +45,10 @@ export interface UseProductsOptions {
   isOrganic?: boolean;
   isVegetarian?: boolean;
   isVegan?: boolean;
+  enhancedSearch?: {
+    category: string;
+    searchTerms: string[];
+    subcategories: string[];
+    originalSearch?: string;
+  };
 }

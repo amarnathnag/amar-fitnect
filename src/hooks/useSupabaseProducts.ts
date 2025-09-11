@@ -29,8 +29,15 @@ export const useSupabaseProducts = (options: UseProductsOptions) => {
           .select('*')
           .eq('status', 'active');
 
-        // Apply category filter
-        if (options.category && options.category !== 'all') {
+        // Apply category filter with enhanced search support
+        if (options.enhancedSearch) {
+          // Use the enhanced search category
+          const category = options.enhancedSearch.category;
+          const enumCategories = ['supplements', 'food', 'fitness_gear', 'wellness'] as const;
+          if (enumCategories.includes(category as any)) {
+            query = query.eq('category', category as 'supplements' | 'food' | 'fitness_gear' | 'wellness');
+          }
+        } else if (options.category && options.category !== 'all') {
           const dbCategory = categoryToDbMapping[options.category];
           
           console.log('Category filter:', options.category, 'DB Category:', dbCategory);
@@ -47,8 +54,8 @@ export const useSupabaseProducts = (options: UseProductsOptions) => {
           }
         }
 
-        // Apply search filter
-        if (options.search) {
+        // Apply search filter - skip if using enhanced search (handled client-side)
+        if (options.search && !options.enhancedSearch) {
           query = query.or(`name.ilike.%${options.search}%,brand.ilike.%${options.search}%,description.ilike.%${options.search}%`);
         }
 
@@ -124,7 +131,7 @@ export const useSupabaseProducts = (options: UseProductsOptions) => {
     return () => {
       isMounted = false;
     };
-  }, [options.category, options.search, options.sortBy, options.minHealthScore, options.maxHealthScore, options.isOrganic, options.isVegetarian, options.isVegan, toast]);
+  }, [options.category, options.search, options.sortBy, options.minHealthScore, options.maxHealthScore, options.isOrganic, options.isVegetarian, options.isVegan, options.enhancedSearch, toast]);
 
   return {
     products,
