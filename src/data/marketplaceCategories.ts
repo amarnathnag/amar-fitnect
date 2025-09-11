@@ -173,26 +173,26 @@ export const marketplaceCategories: CategoryData[] = [
 ];
 
 export const categoryMapping: Record<string, string> = {
-  'fruits-vegetables': 'grocery',
-  'bakery-dairy': 'dairy',
-  'breakfast': 'breakfast',
-  'meat-fish': 'protein',
-  'masalas-oils': 'oils',
-  'atta-rice-dals': 'grains',
-  'chips-biscuits': 'healthy_snacks',
-  'beverages': 'grocery',
-  'frozen-foods': 'grocery',
-  'chocolates-ice-cream': 'healthy_snacks',
-  'gourmet-world-food': 'premium',
-  'baby-care': 'grocery',
-  'mens-grooming': 'grocery',
-  'bath-body-hair': 'grocery',
-  'beauty-cosmetics': 'grocery',
-  'health-hygiene': 'health_supplements',
-  'detergents-cleaning': 'grocery',
-  'kitchen-homeware': 'grocery',
-  'stationery-games': 'grocery',
-  'pet-store': 'grocery'
+  'fruits-vegetables': 'food',
+  'bakery-dairy': 'food', 
+  'breakfast': 'food',
+  'meat-fish': 'food',
+  'masalas-oils': 'food',
+  'atta-rice-dals': 'food',
+  'chips-biscuits': 'food',
+  'beverages': 'food',
+  'frozen-foods': 'food',
+  'chocolates-ice-cream': 'food',
+  'gourmet-world-food': 'food',
+  'baby-care': 'wellness',
+  'mens-grooming': 'wellness',
+  'bath-body-hair': 'wellness',
+  'beauty-cosmetics': 'wellness',
+  'health-hygiene': 'supplements',
+  'detergents-cleaning': 'wellness',
+  'kitchen-homeware': 'fitness_gear',
+  'stationery-games': 'fitness_gear',
+  'pet-store': 'wellness'
 };
 
 // Enhanced category mapping for better product filtering
@@ -202,102 +202,102 @@ export const enhancedCategoryMapping: Record<string, {
   searchTerms: string[];
 }> = {
   'fruits-vegetables': {
-    primary: 'grocery',
+    primary: 'food',
     subcategories: ['fruits', 'vegetables', 'leafy-greens', 'organic'],
-    searchTerms: ['fruit', 'vegetable', 'organic', 'fresh', 'spinach', 'avocado']
+    searchTerms: ['fruit', 'vegetable', 'organic', 'fresh', 'spinach', 'avocado', 'tomato']
   },
   'bakery-dairy': {
-    primary: 'dairy',
+    primary: 'food',
     subcategories: ['bread', 'dairy', 'bakery', 'milk'],
-    searchTerms: ['bread', 'milk', 'yogurt', 'cheese', 'dairy', 'bakery']
+    searchTerms: ['bread', 'milk', 'yogurt', 'cheese', 'dairy', 'bakery', 'sourdough']
   },
   'breakfast': {
-    primary: 'breakfast',
+    primary: 'food',
     subcategories: ['cereals', 'spreads', 'oats'],
-    searchTerms: ['breakfast', 'oats', 'cereal', 'morning', 'butter']
+    searchTerms: ['breakfast', 'oats', 'cereal', 'morning', 'butter', 'quinoa']
   },
   'meat-fish': {
-    primary: 'protein',
+    primary: 'food',
     subcategories: ['eggs', 'fish', 'meat'],
     searchTerms: ['egg', 'fish', 'salmon', 'protein', 'meat']
   },
   'masalas-oils': {
-    primary: 'oils',
+    primary: 'food',
     subcategories: ['oils', 'spices', 'dry-fruits'],
-    searchTerms: ['oil', 'spice', 'masala', 'turmeric', 'coconut']
+    searchTerms: ['oil', 'spice', 'masala', 'turmeric', 'coconut', 'olive']
   },
   'atta-rice-dals': {
-    primary: 'grains',
+    primary: 'food',
     subcategories: ['grains', 'rice', 'dal', 'flour'],
-    searchTerms: ['rice', 'grain', 'quinoa', 'atta', 'dal']
+    searchTerms: ['rice', 'grain', 'quinoa', 'atta', 'dal', 'brown', 'basmati']
   },
   'chips-biscuits': {
-    primary: 'healthy_snacks',
+    primary: 'food',
     subcategories: ['chips', 'biscuits', 'snacks', 'energy-bars'],
-    searchTerms: ['chip', 'snack', 'biscuit', 'healthy', 'energy']
+    searchTerms: ['chip', 'snack', 'biscuit', 'healthy', 'energy', 'multigrain']
   },
   'beverages': {
-    primary: 'grocery',
+    primary: 'food',
     subcategories: ['tea', 'juices', 'drinks'],
-    searchTerms: ['tea', 'juice', 'drink', 'beverage', 'green']
+    searchTerms: ['tea', 'juice', 'drink', 'beverage', 'green', 'cold-pressed']
   },
   'frozen-foods': {
-    primary: 'grocery',
+    primary: 'food',
     subcategories: ['frozen', 'ready-to-eat'],
     searchTerms: ['frozen', 'instant', 'ready']
   },
   'chocolates-ice-cream': {
-    primary: 'healthy_snacks',
+    primary: 'food',
     subcategories: ['chocolate', 'ice-cream', 'desserts'],
-    searchTerms: ['chocolate', 'dessert', 'sweet', 'ice']
+    searchTerms: ['chocolate', 'dessert', 'sweet', 'ice', 'dark', 'cocoa']
   },
   'gourmet-world-food': {
-    primary: 'premium',
+    primary: 'food',
     subcategories: ['gourmet', 'international'],
     searchTerms: ['gourmet', 'premium', 'international']
   },
   'baby-care': {
-    primary: 'grocery',
+    primary: 'wellness',
     subcategories: ['baby-food', 'baby-care'],
     searchTerms: ['baby', 'infant', 'care']
   },
   'mens-grooming': {
-    primary: 'grocery',
+    primary: 'wellness',
     subcategories: ['grooming', 'mens-care'],
     searchTerms: ['men', 'grooming', 'shave']
   },
   'bath-body-hair': {
-    primary: 'grocery',
-    subcategories: ['bath', 'body-care', 'hair-care'],
-    searchTerms: ['bath', 'body', 'hair', 'soap']
+    primary: 'wellness',
+    subcategories: ['bath', 'body-care', 'hair-care', 'skincare'],
+    searchTerms: ['bath', 'body', 'hair', 'soap', 'face', 'mask', 'herbal']
   },
   'beauty-cosmetics': {
-    primary: 'grocery',
-    subcategories: ['cosmetics', 'beauty'],
-    searchTerms: ['beauty', 'cosmetic', 'makeup']
+    primary: 'wellness',
+    subcategories: ['cosmetics', 'beauty', 'aromatherapy'],
+    searchTerms: ['beauty', 'cosmetic', 'makeup', 'essential', 'oil']
   },
   'health-hygiene': {
-    primary: 'health_supplements',
-    subcategories: ['vitamins', 'supplements', 'probiotics'],
-    searchTerms: ['vitamin', 'supplement', 'health', 'probiotic']
+    primary: 'supplements',
+    subcategories: ['vitamins', 'supplements', 'probiotics', 'protein'],
+    searchTerms: ['vitamin', 'supplement', 'health', 'probiotic', 'omega', 'whey']
   },
   'detergents-cleaning': {
-    primary: 'grocery',
+    primary: 'wellness',
     subcategories: ['cleaning', 'detergent'],
     searchTerms: ['clean', 'detergent', 'wash']
   },
   'kitchen-homeware': {
-    primary: 'grocery',
+    primary: 'fitness_gear',
     subcategories: ['kitchen', 'homeware'],
     searchTerms: ['kitchen', 'home', 'utensil']
   },
   'stationery-games': {
-    primary: 'grocery',
-    subcategories: ['stationery', 'games'],
-    searchTerms: ['stationery', 'game', 'book']
+    primary: 'fitness_gear',
+    subcategories: ['stationery', 'games', 'yoga', 'resistance'],
+    searchTerms: ['stationery', 'game', 'book', 'yoga', 'mat', 'resistance', 'bands']
   },
   'pet-store': {
-    primary: 'grocery',
+    primary: 'wellness',
     subcategories: ['pet-food', 'pet-care'],
     searchTerms: ['pet', 'dog', 'cat', 'animal']
   }
