@@ -12,7 +12,7 @@ const About = () => {
       <div className="container-custom py-8">
         <div className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-health-primary to-health-accent bg-clip-text text-transparent mb-4">
-            About SmartDoc AI
+            About amarhealth
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-6">
             Revolutionizing healthcare through intelligent technology, personalized care, and comprehensive wellness solutions for millions worldwide.
@@ -39,7 +39,7 @@ const About = () => {
             <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Our Story</h2>
             <div className="space-y-4 text-gray-600 dark:text-gray-400">
               <p className="text-lg">
-                SmartDoc AI was born from a personal mission. In 2023, our founder Dr. Amar Singh witnessed his grandmother struggle to access quality healthcare in rural India. Despite having decades of medical knowledge, even he felt overwhelmed navigating the complex healthcare system for his own family.
+                amarhealth was born from a personal mission. In 2023, our founder Dr. Amar Singh witnessed his grandmother struggle to access quality healthcare in rural India. Despite having decades of medical knowledge, even he felt overwhelmed navigating the complex healthcare system for his own family.
               </p>
               <p>
                 This experience sparked a realization: if a doctor found healthcare challenging to navigate, how difficult must it be for millions of others? Dr. Singh envisioned a world where advanced medical knowledge, personalized care, and cutting-edge technology could be accessible to everyone, regardless of location or economic status.
@@ -374,7 +374,7 @@ const About = () => {
           <Award className="h-16 w-16 mx-auto mb-6 text-white/90" />
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Commitment to You</h2>
           <p className="text-white/90 max-w-4xl mx-auto text-lg leading-relaxed mb-8">
-            At SmartDoc AI, we're committed to empowering you with the tools, knowledge, and support you need to live your healthiest life. Whether through our AI-powered health assistant, our network of expert doctors, or our supportive community, we're here to guide you on your health journey every step of the way.
+            At amarhealth, we're committed to empowering you with the tools, knowledge, and support you need to live your healthiest life. Whether through our AI-powered health assistant, our network of expert doctors, or our supportive community, we're here to guide you on your health journey every step of the way.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="flex items-center justify-center space-x-3">

@@ -15,7 +15,7 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
   const { language } = useLanguage();
 
   return (
-    <Card className="health-card overflow-hidden group hover:shadow-lg transition-all duration-300 border border-muted/50">
+    <Card className="health-card overflow-hidden group hover:shadow-xl transition-all duration-500 border border-muted/50 hover-scale animate-fade-in">,
       <div className="relative h-52 w-full overflow-hidden">
         <img 
           src={workout.image} 
@@ -71,8 +71,8 @@ const WorkoutCard = ({ workout }: WorkoutCardProps) => {
         </ul>
       </CardContent>
       
-      <CardFooter className="border-t bg-gray-50/50 dark:bg-gray-800/20 p-4">
-        <Button asChild className="w-full bg-gradient-to-r from-health-primary to-health-primary/90 hover:from-health-dark hover:to-health-dark/90 text-white py-2 px-6 rounded-md transition-all duration-300 flex items-center justify-center gap-2 shadow-sm">
+      <CardFooter className="border-t bg-gradient-to-r from-gray-50/80 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-900/30 p-4">
+        <Button asChild className="w-full bg-gradient-to-r from-health-primary to-health-accent hover:from-health-dark hover:to-health-primary text-white py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover-scale font-semibold">
           <Link to={`/workout/${workout.id}`}>
             <Play className="h-4 w-4" /> {translateText("start_workout", language)}
           </Link>

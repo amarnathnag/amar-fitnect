@@ -16,14 +16,14 @@ const WorkoutTabs = ({ workouts }: WorkoutTabsProps) => {
   
   return (
     <Tabs defaultValue="weight-loss" className="w-full">
-      <div className="flex justify-center mb-8">
-        <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full max-w-4xl bg-muted/50 p-1 rounded-xl">
+      <div className="flex justify-center mb-12">
+        <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full max-w-5xl bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm p-2 rounded-2xl shadow-lg border border-muted/50">
           <TabsTrigger 
             value="weight-loss" 
-            className="flex flex-col items-center gap-2 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-health-primary data-[state=active]:to-health-primary/80 data-[state=active]:text-white transition-all duration-300"
+            className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-health-primary data-[state=active]:to-health-accent data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-muted/80"
           >
-            <Heart className="h-5 w-5" />
-            <span className="text-xs md:text-sm font-medium">{translateText("weight_loss", language)}</span>
+            <Heart className="h-6 w-6" />
+            <span className="text-xs md:text-sm font-semibold">{translateText("weight_loss", language)}</span>
           </TabsTrigger>
           
           <TabsTrigger 
