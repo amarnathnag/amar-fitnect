@@ -4,7 +4,7 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumUpsell from '@/components/premium/PremiumUpsell';
-import PremiumDashboard from '@/components/premium/PremiumDashboard';
+import EnhancedPremiumDashboard from '@/components/premium/EnhancedPremiumDashboard';
 import { Badge } from '@/components/ui/badge';
 import { blogPosts } from '@/data/blogPosts';
 import BlogList from '@/components/blog/BlogList';
@@ -76,7 +76,7 @@ const PremiumAi = () => {
             </section>
           </>
         ) : (
-          <PremiumDashboard />
+          <EnhancedPremiumDashboard />
         )}
       </main>
       

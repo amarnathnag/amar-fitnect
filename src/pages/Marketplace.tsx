@@ -8,7 +8,7 @@ import ProductSearch from '@/components/marketplace/ProductSearch';
 import CartSidebar from '@/components/marketplace/CartSidebar';
 import CategoryHero from '@/components/marketplace/CategoryHero';
 import HealthFocusedHero from '@/components/marketplace/HealthFocusedHero';
-import CategoryGrid from '@/components/marketplace/CategoryGrid';
+import EnhancedCategoryGrid from '@/components/marketplace/EnhancedCategoryGrid';
 import { useProducts } from '@/hooks/useProducts';
 import { categoryMapping } from '@/data/marketplaceCategories';
 import { useCart } from '@/hooks/useCart';
@@ -291,7 +291,7 @@ const Marketplace = () => {
             </TabsContent>
 
             <TabsContent value="categories">
-              <CategoryGrid onCategorySelect={handleCategorySelect} />
+              <EnhancedCategoryGrid onCategorySelect={handleCategorySelect} />
             </TabsContent>
           </Tabs>
         </div>
