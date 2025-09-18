@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Dumbbell, Utensils, FileText, Activity, BarChart2,
-  Calendar, Download, Book, Plus, Save, Play
+  Calendar, Download, Book, Plus, Save, Play, Crown, Shield
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import DietPlanCreator from '@/components/diet/DietPlanCreator';
@@ -95,6 +95,45 @@ const PremiumUnlocked = () => {
       
       <main className="flex-grow">
         <PremiumHeroSection />
+        
+        {/* Premium Header with Navigation */}
+        <div className="py-8 bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-purple-900/20">
+          <div className="container-custom">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-purple-200 dark:border-purple-800 shadow-lg">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
+                    <Crown className="h-6 w-6 text-white" />
+                  </div>
+                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-4 py-1 shadow-lg">
+                    Premium Active
+                  </Badge>
+                </div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  Premium Health Dashboard
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">
+                  Access all premium features and AI-powered health tools
+                </p>
+              </div>
+              <div className="flex gap-3 mt-4 lg:mt-0">
+                <Button 
+                  variant="outline" 
+                  className="gap-2 bg-white/80 backdrop-blur-sm"
+                  onClick={() => navigate('/premium-ai')}
+                >
+                  <Calendar className="h-4 w-4" /> AI Tools
+                </Button>
+                <Button 
+                  className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg"
+                  onClick={() => navigate('/profile')}
+                >
+                  <Shield className="h-4 w-4" /> Account Settings
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <div className="container-custom mb-12">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -185,14 +224,31 @@ const PremiumUnlocked = () => {
                           <CardDescription>Created on {new Date(plan.created_at).toLocaleDateString()}</CardDescription>
                         </CardHeader>
                         <CardFooter className="pt-2">
-                          <div className="flex gap-2 w-full">
-                            <Button variant="outline" size="sm" className="flex-1">
-                              <Download className="mr-2 h-4 w-4" /> Export
-                            </Button>
-                            <Button size="sm" className="flex-1">
-                              View Details
-                            </Button>
-                          </div>
+                           <div className="flex gap-2 w-full">
+                             <Button 
+                               variant="outline" 
+                               size="sm" 
+                               className="flex-1"
+                               onClick={() => {
+                                 const dataStr = JSON.stringify(plan, null, 2);
+                                 const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                                 const exportFileDefaultName = `${plan.name.replace(/\s+/g, '_')}_diet_plan.json`;
+                                 const linkElement = document.createElement('a');
+                                 linkElement.setAttribute('href', dataUri);
+                                 linkElement.setAttribute('download', exportFileDefaultName);
+                                 linkElement.click();
+                               }}
+                             >
+                               <Download className="mr-2 h-4 w-4" /> Export
+                             </Button>
+                             <Button 
+                               size="sm" 
+                               className="flex-1"
+                               onClick={() => navigate(`/diet-plans?plan=${plan.id}`)}
+                             >
+                               View Details
+                             </Button>
+                           </div>
                         </CardFooter>
                       </Card>
                     ))}
@@ -318,9 +374,15 @@ const PremiumUnlocked = () => {
                       A comprehensive look at maintaining hormonal health through diet, exercise, and lifestyle changes.
                     </p>
                   </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">Read Article</Button>
-                  </CardFooter>
+                   <CardFooter>
+                     <Button 
+                       variant="outline" 
+                       className="w-full"
+                       onClick={() => navigate('/blog?category=womens-health')}
+                     >
+                       Read Article
+                     </Button>
+                   </CardFooter>
                 </Card>
                 
                 <Card>
@@ -333,24 +395,36 @@ const PremiumUnlocked = () => {
                       How regular physical activity can transform your mindset and mental health.
                     </p>
                   </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">Read Article</Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <Badge className="w-fit mb-2" variant="secondary">Myth Busting</Badge>
-                    <CardTitle className="text-lg">Sugar and Thyroid: Separating Fact from Fiction</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Scientific research on the actual relationship between sugar consumption and thyroid function.
-                    </p>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">Read Article</Button>
-                  </CardFooter>
+                   <CardFooter>
+                     <Button 
+                       variant="outline" 
+                       className="w-full"
+                       onClick={() => navigate('/blog?category=mental-health')}
+                     >
+                       Read Article
+                     </Button>
+                   </CardFooter>
+                 </Card>
+                 
+                 <Card>
+                   <CardHeader className="pb-2">
+                     <Badge className="w-fit mb-2" variant="secondary">Myth Busting</Badge>
+                     <CardTitle className="text-lg">Sugar and Thyroid: Separating Fact from Fiction</CardTitle>
+                   </CardHeader>
+                   <CardContent>
+                     <p className="text-sm text-gray-600 dark:text-gray-400">
+                       Scientific research on the actual relationship between sugar consumption and thyroid function.
+                     </p>
+                   </CardContent>
+                   <CardFooter>
+                     <Button 
+                       variant="outline" 
+                       className="w-full"
+                       onClick={() => navigate('/blog?category=nutrition')}
+                     >
+                       Read Article
+                     </Button>
+                   </CardFooter>
                 </Card>
               </div>
             </TabsContent>

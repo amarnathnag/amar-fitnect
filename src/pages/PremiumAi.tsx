@@ -37,23 +37,32 @@ const PremiumAi = () => {
           <>
             <PremiumUpsell />
             
-            {/* Temporary Premium Access Button for Demo */}
-            {user && (
-              <section className="py-8 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20">
-                <div className="container-custom text-center">
-                  <Button 
-                    onClick={handleUpgradeToPremium}
-                    className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white px-8 py-3 text-lg"
-                  >
-                    <Crown className="mr-2 h-5 w-5" />
-                    Get Instant Premium Access (Demo)
-                  </Button>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Click to unlock premium features for this session
-                  </p>
-                </div>
-              </section>
-            )}
+             {/* Temporary Premium Access Button for Demo */}
+             {user && (
+               <section className="py-8 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20">
+                 <div className="container-custom text-center space-y-4">
+                   <div className="flex gap-4 justify-center">
+                     <Button 
+                       onClick={handleUpgradeToPremium}
+                       className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white px-8 py-3 text-lg"
+                     >
+                       <Crown className="mr-2 h-5 w-5" />
+                       Get Instant Premium Access (Demo)
+                     </Button>
+                     <Button 
+                       onClick={() => window.location.href = '/premium-unlocked'}
+                       variant="outline"
+                       className="px-8 py-3 text-lg border-amber-500 text-amber-600 hover:bg-amber-50"
+                     >
+                       Premium Dashboard
+                     </Button>
+                   </div>
+                   <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                     Click to unlock premium features for this session
+                   </p>
+                 </div>
+               </section>
+             )}
             
             {/* Premium Content Preview */}
             <section className="py-12 bg-gray-50 dark:bg-gray-800/30">

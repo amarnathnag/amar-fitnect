@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
@@ -15,6 +16,7 @@ import {
 import PremiumToolCard from './PremiumToolCard';
 
 const EnhancedPremiumDashboard = () => {
+  const navigate = useNavigate();
   const [activeHealthScore, setActiveHealthScore] = useState(92);
   const [weeklyGoals, setWeeklyGoals] = useState(75);
 
@@ -31,42 +33,48 @@ const EnhancedPremiumDashboard = () => {
       description: "Get personalized meal plans and nutrition advice powered by advanced AI",
       icon: <Utensils className="h-5 w-5" />,
       badge: "New",
-      gradient: "from-green-500 to-emerald-500"
+      gradient: "from-green-500 to-emerald-500",
+      action: () => navigate('/diet-plans')
     },
     {
       title: "Smart Workout Builder",
       description: "Create adaptive workout routines that evolve with your progress",
       icon: <Dumbbell className="h-5 w-5" />,
       badge: "Popular",
-      gradient: "from-blue-500 to-cyan-500"
+      gradient: "from-blue-500 to-cyan-500",
+      action: () => navigate('/workouts')
     },
     {
       title: "AI Health Assistant",
       description: "24/7 AI companion for health questions and medical guidance",
       icon: <Bot className="h-5 w-5" />,
       badge: "Premium",
-      gradient: "from-purple-500 to-pink-500"
+      gradient: "from-purple-500 to-pink-500",
+      action: () => navigate('/chat')
     },
     {
       title: "Condition Manager Pro",
       description: "Advanced management for chronic conditions with predictive insights",
       icon: <Activity className="h-5 w-5" />,
       badge: "Advanced",
-      gradient: "from-red-500 to-pink-500"
+      gradient: "from-red-500 to-pink-500",
+      action: () => navigate('/disease-management')
     },
     {
       title: "Sleep Optimization AI",
       description: "Analyze sleep patterns and get AI-powered improvement strategies",
       icon: <Moon className="h-5 w-5" />,
       badge: "Smart",
-      gradient: "from-indigo-500 to-purple-500"
+      gradient: "from-indigo-500 to-purple-500",
+      action: () => navigate('/daily-routine')
     },
     {
       title: "Stress & Wellness Tracker",
       description: "Monitor mental health with personalized coping strategies",
       icon: <Heart className="h-5 w-5" />,
       badge: "Wellness",
-      gradient: "from-pink-500 to-rose-500"
+      gradient: "from-pink-500 to-rose-500",
+      action: () => navigate('/womens-health')
     }
   ];
 
@@ -242,10 +250,13 @@ const EnhancedPremiumDashboard = () => {
                         {tool.description}
                       </p>
                       
-                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg">
-                        Launch Tool
-                        <Zap className="h-4 w-4 ml-2" />
-                      </Button>
+                       <Button 
+                         className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg"
+                         onClick={tool.action}
+                       >
+                         Launch Tool
+                         <Zap className="h-4 w-4 ml-2" />
+                       </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -285,12 +296,16 @@ const EnhancedPremiumDashboard = () => {
                         {content.description}
                       </p>
                     </CardContent>
-                    <CardFooter>
-                      <Button variant="outline" className="w-full group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                        Read Article
-                        <Star className="h-4 w-4 ml-2" />
-                      </Button>
-                    </CardFooter>
+                     <CardFooter>
+                       <Button 
+                         variant="outline" 
+                         className="w-full group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors"
+                         onClick={() => navigate('/blog')}
+                       >
+                         Read Article
+                         <Star className="h-4 w-4 ml-2" />
+                       </Button>
+                     </CardFooter>
                   </Card>
                 ))}
               </div>
@@ -324,10 +339,13 @@ const EnhancedPremiumDashboard = () => {
                         <Badge className="bg-green-100 text-green-700">{consultation.price}</Badge>
                       </div>
                       
-                      <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg">
-                        Book Consultation
-                        <Headphones className="h-4 w-4 ml-2" />
-                      </Button>
+                       <Button 
+                         className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg"
+                         onClick={() => navigate('/doctor-consultation')}
+                       >
+                         Book Consultation
+                         <Headphones className="h-4 w-4 ml-2" />
+                       </Button>
                     </CardContent>
                   </Card>
                 ))}
