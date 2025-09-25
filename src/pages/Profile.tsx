@@ -8,6 +8,8 @@ import HealthDataTab from '@/components/profile/HealthDataTab';
 import EnhancedPreferencesTab from '@/components/profile/EnhancedPreferencesTab';
 import EnhancedProgressTab from '@/components/profile/EnhancedProgressTab';
 import OrdersSection from '@/components/profile/OrdersSection';
+import ProfileCompletionWidget from '@/components/profile/ProfileCompletionWidget';
+import EnhancedDailyProgressTracker from '@/components/profile/EnhancedDailyProgressTracker';
 import EnhancedNotificationsSection from '@/components/profile/EnhancedNotificationsSection';
 import UserAppointments from '@/components/doctor/UserAppointments';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -88,6 +90,11 @@ const Profile = () => {
             </p>
           </div>
 
+          {/* Profile Completion Widget */}
+          <div className="mb-8">
+            <ProfileCompletionWidget />
+          </div>
+
           <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
               <TabsTrigger value="personal" className="flex items-center gap-2">
@@ -138,6 +145,7 @@ const Profile = () => {
             </TabsContent>
             
             <TabsContent value="progress" className="space-y-6">
+              <EnhancedDailyProgressTracker />
               <EnhancedProgressTab 
                 profileData={profileData}
                 onSave={handleSaveProfile}

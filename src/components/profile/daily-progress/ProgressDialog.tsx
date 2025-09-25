@@ -26,10 +26,15 @@ interface WellnessData {
 interface ProgressDialogProps {
   onSave: (data: any) => Promise<any>;
   isLoading: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const ProgressDialog = ({ onSave, isLoading }: ProgressDialogProps) => {
+const ProgressDialog = ({ onSave, isLoading, open, onOpenChange }: ProgressDialogProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  const dialogOpen = open !== undefined ? open : isDialogOpen;
+  const setDialogOpen = onOpenChange !== undefined ? onOpenChange : setIsDialogOpen;
   const [currentExercise, setCurrentExercise] = useState<Exercise>({
     name: '',
     duration: 0,
@@ -77,7 +82,7 @@ const ProgressDialog = ({ onSave, isLoading }: ProgressDialogProps) => {
 
     const result = await onSave(progressData);
     if (result) {
-      setIsDialogOpen(false);
+      setDialogOpen(false);
       setExercises([]);
       setWellnessData({
         water_intake: 0,
@@ -90,7 +95,7 @@ const ProgressDialog = ({ onSave, isLoading }: ProgressDialogProps) => {
   };
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button className="w-full">
           <Plus className="h-4 w-4 mr-2" />
@@ -126,7 +131,7 @@ const ProgressDialog = ({ onSave, isLoading }: ProgressDialogProps) => {
             </Button>
             <Button 
               variant="outline" 
-              onClick={() => setIsDialogOpen(false)}
+              onClick={() => setDialogOpen(false)}
             >
               Cancel
             </Button>
