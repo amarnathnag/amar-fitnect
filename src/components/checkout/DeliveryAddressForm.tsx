@@ -46,6 +46,7 @@ const DeliveryAddressForm: React.FC<DeliveryAddressFormProps> = ({
             placeholder="Enter your complete address with house/flat number, street name, landmark"
             required
             rows={3}
+            maxLength={200}
           />
         </div>
         
@@ -58,6 +59,8 @@ const DeliveryAddressForm: React.FC<DeliveryAddressFormProps> = ({
               onChange={handleInputChange('city')}
               placeholder="Enter city"
               required
+              maxLength={50}
+              pattern="[a-zA-Z\s]+"
             />
           </div>
           <div>
@@ -68,6 +71,8 @@ const DeliveryAddressForm: React.FC<DeliveryAddressFormProps> = ({
               onChange={handleInputChange('state')}
               placeholder="Enter state"
               required
+              maxLength={50}
+              pattern="[a-zA-Z\s]+"
             />
           </div>
         </div>

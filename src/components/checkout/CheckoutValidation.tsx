@@ -1,5 +1,6 @@
 
 import { useToast } from '@/hooks/use-toast';
+import { z } from 'zod';
 
 interface DeliveryAddress {
   street: string;
@@ -9,59 +10,71 @@ interface DeliveryAddress {
   phone: string;
 }
 
+// Comprehensive validation schema for delivery addresses
+export const deliveryAddressSchema = z.object({
+  street: z.string()
+    .trim()
+    .min(1, { message: "Street address is required" })
+    .max(200, { message: "Street address must be less than 200 characters" })
+    .regex(/^[a-zA-Z0-9\s,.\-/#]+$/, { 
+      message: "Street address contains invalid characters" 
+    }),
+  city: z.string()
+    .trim()
+    .min(1, { message: "City is required" })
+    .max(50, { message: "City must be less than 50 characters" })
+    .regex(/^[a-zA-Z\s]+$/, { 
+      message: "City should only contain letters and spaces" 
+    }),
+  state: z.string()
+    .trim()
+    .min(1, { message: "State is required" })
+    .max(50, { message: "State must be less than 50 characters" })
+    .regex(/^[a-zA-Z\s]+$/, { 
+      message: "State should only contain letters and spaces" 
+    }),
+  pincode: z.string()
+    .trim()
+    .regex(/^\d{6}$/, { 
+      message: "Please enter a valid 6-digit pincode" 
+    }),
+  phone: z.string()
+    .trim()
+    .regex(/^\d{10}$/, { 
+      message: "Please enter a valid 10-digit phone number" 
+    })
+});
+
+// Sanitize input to prevent injection
+export const sanitizeInput = (input: string, maxLength: number = 200): string => {
+  return input
+    .trim()
+    .slice(0, maxLength)
+    .replace(/[<>]/g, ''); // Remove potential HTML tags
+};
+
 export const useCheckoutValidation = () => {
   const { toast } = useToast();
 
   const validateAddress = (deliveryAddress: DeliveryAddress) => {
-    console.log('🔍 Validating delivery address:', deliveryAddress);
+    console.log('🔍 Validating delivery address with zod schema');
     
-    // Check required fields
-    const requiredFields = [
-      { field: 'street', label: 'Street Address', value: deliveryAddress.street },
-      { field: 'city', label: 'City', value: deliveryAddress.city },
-      { field: 'state', label: 'State', value: deliveryAddress.state },
-      { field: 'pincode', label: 'Pincode', value: deliveryAddress.pincode },
-      { field: 'phone', label: 'Phone Number', value: deliveryAddress.phone }
-    ];
-
-    for (const { field, label, value } of requiredFields) {
-      if (!value || !value.toString().trim()) {
-        console.log(`❌ Missing field: ${field}`);
+    try {
+      deliveryAddressSchema.parse(deliveryAddress);
+      console.log('✅ Address validation passed');
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        console.log(`❌ Validation error: ${firstError.message}`);
         toast({
-          title: "Missing Information ⚠️",
-          description: `Please enter ${label}`,
+          title: "Invalid Information ⚠️",
+          description: firstError.message,
           variant: "destructive",
         });
-        return false;
       }
-    }
-
-    // Validate pincode format (6 digits)
-    const pincodeRegex = /^\d{6}$/;
-    if (!pincodeRegex.test(deliveryAddress.pincode.trim())) {
-      console.log('❌ Invalid pincode format');
-      toast({
-        title: "Invalid Pincode",
-        description: "Please enter a valid 6-digit pincode",
-        variant: "destructive",
-      });
       return false;
     }
-
-    // Validate phone format (10 digits)
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(deliveryAddress.phone.trim())) {
-      console.log('❌ Invalid phone format');
-      toast({
-        title: "Invalid Phone Number",
-        description: "Please enter a valid 10-digit phone number",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    console.log('✅ Address validation passed');
-    return true;
   };
 
   const validateCart = (cart: any[]) => {
