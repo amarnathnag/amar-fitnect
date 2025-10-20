@@ -12,15 +12,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 
 export const signupSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }).max(50, { message: "Name is too long" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string()
-    .min(12, { message: "Password must be at least 12 characters" })
-    .regex(/(?=.*[a-z])/, { message: "Include at least one lowercase letter" })
-    .regex(/(?=.*[A-Z])/, { message: "Include at least one uppercase letter" })
-    .regex(/(?=.*\d)/, { message: "Include at least one number" })
-    .regex(/(?=.*[^A-Za-z0-9])/, { message: "Include at least one special character" }),
-  confirmPassword: z.string().min(12, { message: "Confirm password must be at least 12 characters" }),
+    .min(8, { message: "Password must be at least 8 characters" })
+    .max(100, { message: "Password is too long" }),
+  confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -204,6 +201,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, setError }) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
+                <p className="text-xs text-muted-foreground mb-1">Minimum 8 characters</p>
                 <div className="relative">
                   <FormControl>
                     <Input 
