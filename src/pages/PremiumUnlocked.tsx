@@ -11,17 +11,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Dumbbell, Utensils, FileText, Activity, BarChart2,
-  Calendar, Download, Book, Plus, Save, Play, Crown, Shield
+  Calendar, Download, Book, Plus, Save, Play, Crown, Shield, TrendingUp, Award
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import DietPlanCreator from '@/components/diet/DietPlanCreator';
 import { useDietPlans } from '@/hooks/useDietPlans';
+import { useDailyProgress } from '@/hooks/useDailyProgress';
 import PremiumHeroSection from '@/components/premium/PremiumHeroSection';
+import { workouts } from '@/data/workouts';
+import { blogPosts } from '@/data/blogPosts';
+import { useToast } from '@/hooks/use-toast';
 
 const PremiumUnlocked = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profileData } = useAuth();
   const { dietPlans } = useDietPlans();
+  const { progressData, saveDailyProgress } = useDailyProgress();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'workouts');
   
@@ -29,64 +35,106 @@ const PremiumUnlocked = () => {
   const [currentWeight, setCurrentWeight] = useState('');
   const [workoutCount, setWorkoutCount] = useState('');
   
-  const workoutPrograms = [
-    {
-      id: 1,
-      title: "Full Body Fat Burn Program",
-      description: "Complete 3-week plan for maximum calorie burn and toning",
-      difficulty: "Intermediate",
-      duration: "3 weeks",
-      sessions: 15,
-      exercises: [
-        "Jumping Jacks - 3 sets of 30 seconds",
-        "Push-ups - 3 sets of 12 reps",
-        "Squats - 3 sets of 15 reps",
-        "Burpees - 3 sets of 8 reps",
-        "Plank - 3 sets of 45 seconds"
-      ]
-    },
-    {
-      id: 2,
-      title: "Muscle Gain Intensity Level 2",
-      description: "Progressive overload routine for visible muscle development",
-      difficulty: "Advanced",
-      duration: "4 weeks",
-      sessions: 20,
-      exercises: [
-        "Deadlifts - 4 sets of 8 reps",
-        "Bench Press - 4 sets of 10 reps",
-        "Pull-ups - 4 sets of 6 reps",
-        "Shoulder Press - 3 sets of 12 reps",
-        "Barbell Rows - 4 sets of 10 reps"
-      ]
-    },
-    {
-      id: 3,
-      title: "PCOS & Thyroid-Friendly Workout",
-      description: "Adaptive exercises designed for hormonal health conditions",
-      difficulty: "Beginner",
-      duration: "6 weeks",
-      sessions: 18,
-      exercises: [
-        "Walking - 30 minutes daily",
-        "Yoga Flow - 20 minutes",
-        "Light Weight Training - 3 sets of 12 reps",
-        "Swimming - 25 minutes",
-        "Stretching - 15 minutes"
-      ]
+  // Get premium workouts (first 15+)
+  const premiumWorkouts = workouts.slice(0, 18);
+  
+  // Get premium blog posts
+  const premiumBlogs = blogPosts.filter(post => post.isPremium).slice(0, 50);
+  
+  // Calculate progress stats
+  const calculateProgressStats = () => {
+    const thisMonth = new Date().getMonth();
+    const thisYear = new Date().getFullYear();
+    
+    const monthlyProgress = progressData.filter(p => {
+      const date = new Date(p.date);
+      return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+    });
+    
+    const totalWorkouts = monthlyProgress.reduce((sum, p) => {
+      const exercises = Array.isArray(p.exercises) ? p.exercises : [];
+      return sum + exercises.length;
+    }, 0);
+    
+    const currentStreak = calculateStreak();
+    const weightProgress = calculateWeightChange(monthlyProgress);
+    
+    return { totalWorkouts, currentStreak, weightProgress };
+  };
+  
+  const calculateStreak = () => {
+    if (progressData.length === 0) return 0;
+    
+    const sortedData = [...progressData].sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    
+    let streak = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let i = 0; i < sortedData.length; i++) {
+      const progressDate = new Date(sortedData[i].date);
+      progressDate.setHours(0, 0, 0, 0);
+      
+      const daysDiff = Math.floor((today.getTime() - progressDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysDiff === i) {
+        streak++;
+      } else {
+        break;
+      }
     }
-  ];
+    
+    return streak;
+  };
+  
+  const calculateWeightChange = (monthlyProgress: any[]) => {
+    if (monthlyProgress.length < 2) return 0;
+    
+    const sortedProgress = [...monthlyProgress].sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    
+    const firstWeight = sortedProgress[0]?.weight || profileData?.weight || 0;
+    const lastWeight = sortedProgress[sortedProgress.length - 1]?.weight || firstWeight;
+    
+    return (Number(lastWeight) - Number(firstWeight)).toFixed(1);
+  };
+  
+  const stats = calculateProgressStats();
 
-  const handleUpdateProgress = () => {
+  const handleUpdateProgress = async () => {
     if (currentWeight && workoutCount) {
-      console.log('Updating progress:', { weight: currentWeight, workouts: workoutCount });
-      alert('Progress updated successfully!');
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        await saveDailyProgress({
+          date: today,
+          weight: Number(currentWeight),
+          exercises: Array(Number(workoutCount)).fill({ name: 'Workout', duration: '30 min' }),
+          water_intake: 0,
+          sleep_hours: 0
+        });
+        
+        toast({
+          title: "Progress Updated! ✅",
+          description: "Your fitness data has been saved successfully.",
+        });
+        
+        setCurrentWeight('');
+        setWorkoutCount('');
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update progress. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
-  const handleStartWorkout = (workoutId: number) => {
-    console.log('Starting workout:', workoutId);
-    navigate('/workouts');
+  const handleStartWorkout = (workoutId: string) => {
+    navigate(`/workout-detail/${workoutId}`);
   };
   
   return (
@@ -155,20 +203,25 @@ const PremiumUnlocked = () => {
             {/* Workouts Tab */}
             <TabsContent value="workouts" className="mt-0">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">Premium Workout Programs</h3>
+                <div>
+                  <h3 className="text-2xl font-bold">Premium Workout Programs</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">{premiumWorkouts.length}+ Programs Available</p>
+                </div>
                 <Button className="bg-health-primary hover:bg-health-dark" onClick={() => navigate('/workouts')}>
-                  <Plus className="mr-2 h-4 w-4" /> Explore All Workouts
+                  <Plus className="mr-2 h-4 w-4" /> View All Programs
                 </Button>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {workoutPrograms.map((workout) => (
-                  <Card key={workout.id} className="overflow-hidden border-2 hover:border-health-primary transition-all duration-300">
+                {premiumWorkouts.map((workout) => (
+                  <Card key={workout.id} className="overflow-hidden border-2 hover:border-health-primary transition-all duration-300 hover:shadow-lg">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <CardTitle className="text-lg">{workout.title}</CardTitle>
-                        <Badge variant="outline">{workout.difficulty}</Badge>
+                        <Badge variant="outline" className="bg-health-primary/10 text-health-primary border-health-primary">
+                          {workout.level}
+                        </Badge>
                       </div>
-                      <CardDescription>{workout.description}</CardDescription>
+                      <CardDescription className="line-clamp-2">{workout.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="pb-2">
                       <div className="grid grid-cols-2 gap-2 text-sm mb-4">
@@ -177,14 +230,16 @@ const PremiumUnlocked = () => {
                           <p className="font-medium">{workout.duration}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500 dark:text-gray-400">Sessions</p>
-                          <p className="font-medium">{workout.sessions}</p>
+                          <p className="text-gray-500 dark:text-gray-400">Calories</p>
+                          <p className="font-medium">{workout.calories}</p>
                         </div>
                       </div>
                       <div className="space-y-1">
                         <p className="text-sm font-medium">Sample Exercises:</p>
                         {workout.exercises.slice(0, 3).map((exercise, index) => (
-                          <p key={index} className="text-xs text-gray-600 dark:text-gray-400">• {exercise}</p>
+                          <p key={index} className="text-xs text-gray-600 dark:text-gray-400">
+                            • {exercise.name} - {exercise.sets} sets
+                          </p>
                         ))}
                       </div>
                     </CardContent>
@@ -194,7 +249,7 @@ const PremiumUnlocked = () => {
                         onClick={() => handleStartWorkout(workout.id)}
                       >
                         <Play className="mr-2 h-4 w-4" />
-                        Start Program
+                        Start Workout
                       </Button>
                     </CardFooter>
                   </Card>
@@ -205,14 +260,29 @@ const PremiumUnlocked = () => {
             {/* Diet Tab */}
             <TabsContent value="diet" className="mt-0">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">Custom Diet Plan Creator</h3>
+                <div>
+                  <h3 className="text-2xl font-bold">Custom Diet Plan Creator</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">Create and save personalized meal plans - Save unlimited plans</p>
+                </div>
+                <Button variant="outline" onClick={() => navigate('/diet-plans')}>
+                  <Utensils className="mr-2 h-4 w-4" /> All Diet Plans
+                </Button>
               </div>
               
               <div className="space-y-6">
-                <DietPlanCreator />
+                <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
+                  <CardContent className="p-6">
+                    <DietPlanCreator />
+                  </CardContent>
+                </Card>
 
                 <div>
-                  <h4 className="text-lg font-semibold mb-4">Your Saved Diet Plans ({dietPlans.length})</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold">Your Saved Diet Plans ({dietPlans.length})</h4>
+                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                      Unlimited Storage
+                    </Badge>
+                  </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     {dietPlans.map((plan) => (
                       <Card key={plan.id}>
@@ -268,47 +338,67 @@ const PremiumUnlocked = () => {
             {/* Progress Tracker Tab */}
             <TabsContent value="tracker" className="mt-0">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">Progress Tracking Dashboard</h3>
+                <div>
+                  <h3 className="text-2xl font-bold">Progress Tracking Dashboard</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">Track your fitness journey with detailed analytics</p>
+                </div>
+                <Button variant="outline" onClick={() => navigate('/profile?tab=progress')}>
+                  <BarChart2 className="mr-2 h-4 w-4" /> View Full Report
+                </Button>
               </div>
               
               <div className="space-y-6">
                 <div className="grid md:grid-cols-3 gap-6">
-                  <Card className="border-2">
-                    <CardHeader className="text-center">
+                  <Card className="border-2 hover:border-health-primary transition-all">
+                    <CardHeader className="text-center pb-3">
                       <CardTitle className="flex items-center justify-center text-lg">
                         <Activity className="mr-2 h-5 w-5 text-health-primary" />
                         Workouts Completed
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="text-center">
-                      <div className="text-3xl font-bold text-health-primary mb-2">12</div>
+                      <div className="text-4xl font-bold text-health-primary mb-2">{stats.totalWorkouts}</div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">This month</p>
+                      <div className="mt-3 flex items-center justify-center gap-1">
+                        <TrendingUp className="h-4 w-4 text-green-500" />
+                        <span className="text-xs text-green-600">+15% from last month</span>
+                      </div>
                     </CardContent>
                   </Card>
                   
-                  <Card className="border-2">
-                    <CardHeader className="text-center">
+                  <Card className="border-2 hover:border-health-primary transition-all">
+                    <CardHeader className="text-center pb-3">
                       <CardTitle className="flex items-center justify-center text-lg">
                         <Calendar className="mr-2 h-5 w-5 text-health-primary" />
                         Current Streak
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="text-center">
-                      <div className="text-3xl font-bold text-health-primary mb-2">7</div>
+                      <div className="text-4xl font-bold text-health-primary mb-2">{stats.currentStreak}</div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Days active</p>
+                      <div className="mt-3 flex items-center justify-center gap-1">
+                        <Award className="h-4 w-4 text-yellow-500" />
+                        <span className="text-xs text-gray-600">Keep it up!</span>
+                      </div>
                     </CardContent>
                   </Card>
                   
-                  <Card className="border-2">
-                    <CardHeader className="text-center">
+                  <Card className="border-2 hover:border-health-primary transition-all">
+                    <CardHeader className="text-center pb-3">
                       <CardTitle className="flex items-center justify-center text-lg">
                         <BarChart2 className="mr-2 h-5 w-5 text-health-primary" />
                         Weight Progress
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="text-center">
-                      <div className="text-3xl font-bold text-health-primary mb-2">-2.5kg</div>
+                      <div className="text-4xl font-bold text-health-primary mb-2">
+                        {Number(stats.weightProgress) > 0 ? '+' : ''}{stats.weightProgress}kg
+                      </div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Last 30 days</p>
+                      <div className="mt-3 flex items-center justify-center gap-1">
+                        <TrendingUp className="h-4 w-4 text-blue-500" />
+                        <span className="text-xs text-gray-600">Track progress daily</span>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
@@ -357,76 +447,57 @@ const PremiumUnlocked = () => {
             {/* Blog Articles Tab */}
             <TabsContent value="blogs" className="mt-0">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">Premium Health Articles</h3>
+                <div>
+                  <h3 className="text-2xl font-bold">Premium Health Articles</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">{premiumBlogs.length}+ Expert Articles Available</p>
+                </div>
                 <Button variant="outline" onClick={() => navigate('/blog')}>
                   <Book className="mr-2 h-4 w-4" /> Browse All Articles
                 </Button>
               </div>
               
               <div className="grid md:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <Badge className="w-fit mb-2">Expert Article</Badge>
-                    <CardTitle className="text-lg">Hormonal Balance for Women: The Complete Guide</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      A comprehensive look at maintaining hormonal health through diet, exercise, and lifestyle changes.
-                    </p>
-                  </CardContent>
-                   <CardFooter>
-                     <Button 
-                       variant="outline" 
-                       className="w-full"
-                       onClick={() => navigate('/blog?category=womens-health')}
-                     >
-                       Read Article
-                     </Button>
-                   </CardFooter>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <Badge className="w-fit mb-2" variant="outline">Nutrition</Badge>
-                    <CardTitle className="text-lg">Building Mental Resilience Through Exercise</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      How regular physical activity can transform your mindset and mental health.
-                    </p>
-                  </CardContent>
-                   <CardFooter>
-                     <Button 
-                       variant="outline" 
-                       className="w-full"
-                       onClick={() => navigate('/blog?category=mental-health')}
-                     >
-                       Read Article
-                     </Button>
-                   </CardFooter>
-                 </Card>
-                 
-                 <Card>
-                   <CardHeader className="pb-2">
-                     <Badge className="w-fit mb-2" variant="secondary">Myth Busting</Badge>
-                     <CardTitle className="text-lg">Sugar and Thyroid: Separating Fact from Fiction</CardTitle>
-                   </CardHeader>
-                   <CardContent>
-                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                       Scientific research on the actual relationship between sugar consumption and thyroid function.
-                     </p>
-                   </CardContent>
-                   <CardFooter>
-                     <Button 
-                       variant="outline" 
-                       className="w-full"
-                       onClick={() => navigate('/blog?category=nutrition')}
-                     >
-                       Read Article
-                     </Button>
-                   </CardFooter>
-                </Card>
+                {premiumBlogs.slice(0, 9).map((article) => (
+                  <Card key={article.id} className="hover:shadow-lg transition-all">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge className="w-fit bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                          {article.category}
+                        </Badge>
+                        <span className="text-xs text-gray-500">{article.readTime}</span>
+                      </div>
+                      <CardTitle className="text-lg line-clamp-2">{article.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
+                        {article.excerpt}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">{article.date}</p>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => navigate(`/blog/${article.id}`)}
+                      >
+                        Read Article
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
               </div>
+              
+              {premiumBlogs.length === 0 && (
+                <Card className="col-span-full">
+                  <CardContent className="text-center py-12">
+                    <Book className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-xl font-medium mb-2">No Premium Articles Yet</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Premium health articles will be available soon!
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
           </Tabs>
         </div>
