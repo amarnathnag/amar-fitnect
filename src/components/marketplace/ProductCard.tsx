@@ -85,11 +85,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   return (
     <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] h-full flex flex-col">
       <CardContent className="p-4 flex-grow" onClick={handleCardClick}>
-        <div className="aspect-square mb-4 overflow-hidden rounded-lg bg-gray-100">
+        <div className="aspect-square mb-4 overflow-hidden rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
           <img 
-            src={product.image_urls?.[0] || '/placeholder.svg'}
+            src={product.image_urls?.[0] || 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400'}
             alt={product.name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+            className="w-full h-full object-cover hover:scale-110 transition-all duration-300"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400';
+            }}
           />
         </div>
         

@@ -130,11 +130,14 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({ product, onAd
       )}
 
       <CardContent className="p-4 flex-grow" onClick={handleCardClick}>
-        <div className="aspect-square mb-4 overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-gray-100 group-hover:to-gray-200 transition-all duration-300">
+        <div className="aspect-square mb-4 overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 group-hover:from-gray-100 group-hover:to-gray-200 dark:group-hover:from-gray-600 dark:group-hover:to-gray-700 transition-all duration-300">
           <img 
-            src={product.image_urls?.[0] || '/placeholder.svg'}
+            src={product.image_urls?.[0] || 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400'}
             alt={product.name}
             className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400';
+            }}
           />
         </div>
         
