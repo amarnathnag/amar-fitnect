@@ -7,10 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Plus, TrendingUp, AlertCircle, Heart, Save, Moon, Droplets, ThermometerSun, Bell, Target, Activity } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, TrendingUp, AlertCircle, Heart, Save, Moon, Droplets, ThermometerSun, Bell, Target, Activity, Sparkles, Brain, Info } from 'lucide-react';
+import { Calendar } from "@/components/ui/calendar";
+import { Progress } from "@/components/ui/progress";
 import { usePeriodTracking } from '@/hooks/usePeriodTracking';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { format, addDays, differenceInDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
 
 const PeriodTrackingTab = () => {
   const navigate = useNavigate();
@@ -26,6 +29,8 @@ const PeriodTrackingTab = () => {
   const [flowIntensity, setFlowIntensity] = useState('medium');
   const [waterIntake, setWaterIntake] = useState(8);
   const [sleepHours, setSleepHours] = useState(8);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [showCalendar, setShowCalendar] = useState(true);
 
   // Update form when periodData changes
   useEffect(() => {
@@ -101,23 +106,206 @@ const PeriodTrackingTab = () => {
     return daysDiff + 1;
   };
 
+  const getCyclePhase = () => {
+    const cycleDay = getCurrentCycleDay();
+    if (!cycleDay || !periodLength) return 'Unknown';
+    
+    const periodLengthNum = parseInt(periodLength);
+    const cycleLengthNum = parseInt(cycleLength);
+    
+    if (cycleDay <= periodLengthNum) return 'Menstrual';
+    if (cycleDay <= cycleLengthNum / 2 - 3) return 'Follicular';
+    if (cycleDay <= cycleLengthNum / 2 + 3) return 'Ovulation';
+    return 'Luteal';
+  };
+
+  const getPhaseColor = (phase: string) => {
+    switch(phase) {
+      case 'Menstrual': return 'bg-red-500';
+      case 'Follicular': return 'bg-green-500';
+      case 'Ovulation': return 'bg-purple-500';
+      case 'Luteal': return 'bg-blue-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getPhaseEmoji = (phase: string) => {
+    switch(phase) {
+      case 'Menstrual': return '🩸';
+      case 'Follicular': return '🌱';
+      case 'Ovulation': return '🌸';
+      case 'Luteal': return '🌙';
+      default: return '📅';
+    }
+  };
+
+  const isPeriodDay = (date: Date) => {
+    if (!lastPeriodDate || !periodLength) return false;
+    const lastDate = new Date(lastPeriodDate);
+    const periodLengthNum = parseInt(periodLength);
+    const daysSinceLastPeriod = differenceInDays(date, lastDate);
+    return daysSinceLastPeriod >= 0 && daysSinceLastPeriod < periodLengthNum;
+  };
+
+  const isOvulationDay = (date: Date) => {
+    if (!lastPeriodDate || !cycleLength) return false;
+    const lastDate = new Date(lastPeriodDate);
+    const ovulationDay = Math.floor(parseInt(cycleLength) / 2);
+    const expectedOvulation = addDays(lastDate, ovulationDay);
+    return isSameDay(date, expectedOvulation);
+  };
+
+  const isPredictedPeriod = (date: Date) => {
+    if (!lastPeriodDate || !cycleLength || !periodLength) return false;
+    const lastDate = new Date(lastPeriodDate);
+    const nextPeriodStart = addDays(lastDate, parseInt(cycleLength));
+    const periodLengthNum = parseInt(periodLength);
+    const daysDiff = differenceInDays(date, nextPeriodStart);
+    return daysDiff >= 0 && daysDiff < periodLengthNum;
+  };
+
+  const getDaysUntilNext = () => {
+    if (!lastPeriodDate || !cycleLength) return null;
+    const cycleDay = getCurrentCycleDay();
+    if (!cycleDay) return null;
+    return Math.max(0, parseInt(cycleLength) - cycleDay);
+  };
+
+  const getCycleProgress = () => {
+    const cycleDay = getCurrentCycleDay();
+    if (!cycleDay || !cycleLength) return 0;
+    return (cycleDay / parseInt(cycleLength)) * 100;
+  };
+
+  const currentPhase = getCyclePhase();
+  const daysUntilNext = getDaysUntilNext();
+
   return (
     <div className="space-y-6">
+      {/* Cycle Overview Card */}
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card className="bg-gradient-to-br from-pink-50 to-rose-100 dark:from-pink-950/30 dark:to-rose-950/30 border-pink-200 dark:border-pink-800">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Current Phase</p>
+                <p className="text-2xl font-bold text-pink-600 dark:text-pink-400 flex items-center gap-2">
+                  {getPhaseEmoji(currentPhase)} {currentPhase}
+                </p>
+              </div>
+              <div className={`w-12 h-12 rounded-full ${getPhaseColor(currentPhase)}`}></div>
+            </div>
+            <Progress value={getCycleProgress()} className="mt-4" />
+            <p className="text-xs text-muted-foreground mt-2">
+              Day {getCurrentCycleDay() || 0} of {cycleLength}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-950/30 dark:to-violet-950/30 border-purple-200 dark:border-purple-800">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Next Period In</p>
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                  {daysUntilNext !== null ? daysUntilNext : '--'}
+                </p>
+                <p className="text-xs text-muted-foreground">days</p>
+              </div>
+              <CalendarIcon className="h-12 w-12 text-purple-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-950/30 dark:to-cyan-950/30 border-blue-200 dark:border-blue-800">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Wellness Score</p>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                  {Math.round(((waterIntake / 8) + (sleepHours / 8) + (moodRating / 10)) / 3 * 100)}%
+                </p>
+                <p className="text-xs text-muted-foreground">health tracking</p>
+              </div>
+              <Heart className="h-12 w-12 text-blue-400" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Calendar View */}
+      {showCalendar && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5 text-primary" />
+              Cycle Calendar View
+            </CardTitle>
+            <CardDescription>
+              Track your period, ovulation, and fertility windows
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="rounded-md border"
+                modifiers={{
+                  period: (date) => isPeriodDay(date),
+                  ovulation: (date) => isOvulationDay(date),
+                  predicted: (date) => isPredictedPeriod(date),
+                }}
+                modifiersStyles={{
+                  period: { backgroundColor: 'hsl(var(--destructive) / 0.3)', fontWeight: 'bold' },
+                  ovulation: { backgroundColor: 'hsl(var(--primary) / 0.3)', fontWeight: 'bold' },
+                  predicted: { backgroundColor: 'hsl(var(--muted) / 0.5)', border: '2px dashed hsl(var(--destructive))' },
+                }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-4 mt-4 justify-center text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-destructive/30"></div>
+                <span>Period Days</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-primary/30"></div>
+                <span>Ovulation</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-muted/50 border-2 border-dashed border-destructive"></div>
+                <span>Predicted Period</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Enhanced Period Tracker */}
-      <Card className="border-2 border-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-900/20 dark:via-purple-900/20 dark:to-indigo-900/20">
+      <Card className="border-2 border-primary/20 bg-gradient-to-br from-pink-50/50 via-purple-50/50 to-indigo-50/50 dark:from-pink-950/20 dark:via-purple-950/20 dark:to-indigo-950/20">
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-600">
-              <Calendar className="h-6 w-6 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg">
+                <Sparkles className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  🌸 Smart Period Tracker
+                </CardTitle>
+                <CardDescription className="text-sm font-medium">
+                  Your personalized cycle companion with AI insights ✨
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                🌸 Smart Period Tracker
-              </CardTitle>
-              <CardDescription className="text-sm font-medium">
-                Your personalized cycle companion with AI insights ✨
-              </CardDescription>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCalendar(!showCalendar)}
+            >
+              {showCalendar ? 'Hide' : 'Show'} Calendar
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -265,7 +453,7 @@ const PeriodTrackingTab = () => {
           </div>
 
           <Button 
-            className="w-full bg-pink-500 hover:bg-pink-600"
+            className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white shadow-lg"
             onClick={handleSaveData}
           >
             <Save className="mr-2 h-4 w-4" />
@@ -276,46 +464,57 @@ const PeriodTrackingTab = () => {
 
       {/* Enhanced Cycle Insights */}
       <div className="grid md:grid-cols-2 gap-6">
-        <Card>
+        <Card className="border-2 border-primary/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-500" />
-              Cycle Predictions
+              <Brain className="h-5 w-5 text-primary" />
+              AI Cycle Predictions
             </CardTitle>
+            <CardDescription>Smart insights based on your data</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <span className="text-sm font-medium">Next Period Expected</span>
-                <span className="text-green-600 font-bold">
-                  {calculateNextPeriod() || 'Enter cycle data'}
-                </span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-200 dark:border-green-800">
+                <div>
+                  <span className="text-sm font-medium text-muted-foreground">Next Period Expected</span>
+                  <p className="text-lg font-bold text-green-700 dark:text-green-400">
+                    {calculateNextPeriod() || 'Enter cycle data'}
+                  </p>
+                </div>
+                <CalendarIcon className="h-8 w-8 text-green-500" />
               </div>
-              <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <span className="text-sm font-medium">Ovulation Window</span>
-                <span className="text-blue-600 font-bold">
-                  {calculateOvulationWindow() || 'Enter cycle data'}
-                </span>
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800">
+                <div>
+                  <span className="text-sm font-medium text-muted-foreground">Ovulation Window</span>
+                  <p className="text-lg font-bold text-blue-700 dark:text-blue-400">
+                    {calculateOvulationWindow() || 'Enter cycle data'}
+                  </p>
+                </div>
+                <Heart className="h-8 w-8 text-blue-500" />
               </div>
-              <div className="flex justify-between items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <span className="text-sm font-medium">Current Cycle Day</span>
-                <span className="text-purple-600 font-bold">
-                  {getCurrentCycleDay() ? `Day ${getCurrentCycleDay()}` : 'N/A'}
-                </span>
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 rounded-xl border border-purple-200 dark:border-purple-800">
+                <div>
+                  <span className="text-sm font-medium text-muted-foreground">Current Cycle Day</span>
+                  <p className="text-lg font-bold text-purple-700 dark:text-purple-400">
+                    {getCurrentCycleDay() ? `Day ${getCurrentCycleDay()}` : 'N/A'}
+                  </p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-purple-500" />
               </div>
-              <div className="flex justify-between items-center p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
-                <span className="text-sm font-medium">Days Until Next Period</span>
-                <span className="text-pink-600 font-bold">
-                  {lastPeriodDate && cycleLength ? 
-                    Math.max(0, parseInt(cycleLength) - (getCurrentCycleDay() || 0)) : 'N/A'
-                  }
-                </span>
+              <div className="flex justify-between items-center p-4 bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 rounded-xl border border-pink-200 dark:border-pink-800">
+                <div>
+                  <span className="text-sm font-medium text-muted-foreground">Days Until Next Period</span>
+                  <p className="text-lg font-bold text-pink-700 dark:text-pink-400">
+                    {daysUntilNext !== null ? daysUntilNext : 'N/A'}
+                  </p>
+                </div>
+                <AlertCircle className="h-8 w-8 text-pink-500" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-2 border-primary/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Heart className="h-5 w-5 text-red-500" />
@@ -363,51 +562,64 @@ const PeriodTrackingTab = () => {
       </div>
 
       {/* Fertility & Health Insights */}
-      <Card>
+      <Card className="border-2 border-primary/20 bg-gradient-to-br from-background via-primary/5 to-background">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-orange-500" />
-            Fertility & Health Insights
+            <Info className="h-5 w-5 text-primary" />
+            Fertility & Health Education
           </CardTitle>
           <CardDescription>
             Understanding your cycle for better health management
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="space-y-3">
-              <h4 className="font-medium text-green-600">Fertile Window</h4>
-              <div className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
-                <p>• Most fertile: 2-3 days before ovulation</p>
-                <p>• Ovulation typically occurs mid-cycle</p>
-                <p>• Fertile window lasts about 6 days</p>
-                <p>• Track basal body temperature for accuracy</p>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800">
+              <div className="flex items-center gap-2">
+                <Heart className="h-5 w-5 text-green-600" />
+                <h4 className="font-semibold text-green-700 dark:text-green-400">Fertile Window</h4>
+              </div>
+              <div className="text-sm space-y-2 text-muted-foreground">
+                <p>✨ Most fertile: 2-3 days before ovulation</p>
+                <p>🌸 Ovulation typically occurs mid-cycle</p>
+                <p>📅 Fertile window lasts about 6 days</p>
+                <p>🌡️ Track basal body temperature for accuracy</p>
               </div>
             </div>
-            <div className="space-y-3">
-              <h4 className="font-medium text-blue-600">Cycle Phases</h4>
-              <div className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
-                <p>• Menstrual phase: Days 1-5</p>
-                <p>• Follicular phase: Days 1-13</p>
-                <p>• Ovulation: Around day 14</p>
-                <p>• Luteal phase: Days 15-28</p>
+            <div className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-blue-600" />
+                <h4 className="font-semibold text-blue-700 dark:text-blue-400">Cycle Phases</h4>
+              </div>
+              <div className="text-sm space-y-2 text-muted-foreground">
+                <p>🩸 Menstrual phase: Days 1-5</p>
+                <p>🌱 Follicular phase: Days 1-13</p>
+                <p>🌸 Ovulation: Around day 14</p>
+                <p>🌙 Luteal phase: Days 15-28</p>
               </div>
             </div>
-            <div className="space-y-3">
-              <h4 className="font-medium text-purple-600">When to See a Doctor</h4>
-              <div className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
-                <p>• Cycles shorter than 21 days</p>
-                <p>• Cycles longer than 35 days</p>
-                <p>• Severe pain affecting daily life</p>
-                <p>• Irregular bleeding patterns</p>
+            <div className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 border border-purple-200 dark:border-purple-800">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-purple-600" />
+                <h4 className="font-semibold text-purple-700 dark:text-purple-400">When to See a Doctor</h4>
+              </div>
+              <div className="text-sm space-y-2 text-muted-foreground">
+                <p>⚠️ Cycles shorter than 21 days</p>
+                <p>⚠️ Cycles longer than 35 days</p>
+                <p>🚨 Severe pain affecting daily life</p>
+                <p>📊 Irregular bleeding patterns</p>
               </div>
             </div>
           </div>
         </CardContent>
-        <CardFooter>
-          <Button variant="outline" className="w-full" onClick={() => navigate('/doctor-consultation')}>
+        <CardFooter className="border-t pt-6">
+          <Button 
+            variant="outline" 
+            className="w-full border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all" 
+            onClick={() => navigate('/doctor-consultation')}
+          >
             <Plus className="mr-2 h-4 w-4" />
-            Consult Gynecologist
+            Consult with Gynecologist
           </Button>
         </CardFooter>
       </Card>
