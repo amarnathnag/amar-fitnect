@@ -18,17 +18,18 @@ import { format, addDays, differenceInDays, startOfMonth, endOfMonth, eachDayOfI
 const PeriodTrackingTab = () => {
   const navigate = useNavigate();
   const { periodData, savePeriodData } = usePeriodTracking();
-  const { updateProfile } = useAuth();
+  const { updateProfile, user } = useAuth();
   const { toast } = useToast();
+  
   const [lastPeriodDate, setLastPeriodDate] = useState(periodData?.last_period_date || '');
   const [cycleLength, setCycleLength] = useState(periodData?.cycle_length?.toString() || '28');
   const [periodLength, setPeriodLength] = useState(periodData?.period_length?.toString() || '5');
   const [symptoms, setSymptoms] = useState<string[]>(periodData?.symptoms || []);
   const [notes, setNotes] = useState(periodData?.notes || '');
-  const [moodRating, setMoodRating] = useState(5);
-  const [flowIntensity, setFlowIntensity] = useState('medium');
-  const [waterIntake, setWaterIntake] = useState(8);
-  const [sleepHours, setSleepHours] = useState(8);
+  const [moodRating, setMoodRating] = useState(periodData?.mood_rating || 5);
+  const [flowIntensity, setFlowIntensity] = useState(periodData?.flow_intensity || 'medium');
+  const [waterIntake, setWaterIntake] = useState(periodData?.water_intake || 8);
+  const [sleepHours, setSleepHours] = useState(periodData?.sleep_hours || 8);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [showCalendar, setShowCalendar] = useState(true);
 
@@ -62,6 +63,16 @@ const PeriodTrackingTab = () => {
   };
 
   const handleSaveData = async () => {
+    // Check if user is female before saving period data
+    if (user?.gender !== 'female') {
+      toast({
+        title: "❌ Not Available",
+        description: "Period tracking is only available for female users.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const data = {
       last_period_date: lastPeriodDate || undefined,
       cycle_length: cycleLength ? parseInt(cycleLength) : undefined,
