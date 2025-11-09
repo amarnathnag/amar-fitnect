@@ -40,6 +40,10 @@ const PeriodTrackingTab = () => {
       setPeriodLength(periodData.period_length?.toString() || '5');
       setSymptoms(periodData.symptoms || []);
       setNotes(periodData.notes || '');
+      setMoodRating(periodData.mood_rating || 5);
+      setFlowIntensity(periodData.flow_intensity || 'medium');
+      setWaterIntake(periodData.water_intake || 8);
+      setSleepHours(periodData.sleep_hours || 8);
     }
   }, [periodData]);
 
@@ -59,28 +63,24 @@ const PeriodTrackingTab = () => {
 
   const handleSaveData = async () => {
     const data = {
-      last_period_date: lastPeriodDate || null,
-      cycle_length: cycleLength ? parseInt(cycleLength) : null,
-      period_length: periodLength ? parseInt(periodLength) : null,
-      symptoms: symptoms.length > 0 ? symptoms : null,
-      notes: notes || null,
+      last_period_date: lastPeriodDate || undefined,
+      cycle_length: cycleLength ? parseInt(cycleLength) : undefined,
+      period_length: periodLength ? parseInt(periodLength) : undefined,
+      symptoms: symptoms.length > 0 ? symptoms : undefined,
+      notes: notes || undefined,
       mood_rating: moodRating,
       flow_intensity: flowIntensity,
       water_intake: waterIntake,
-      sleep_hours: sleepHours
+      sleep_hours: sleepHours,
+      updated_at: new Date().toISOString()
     };
 
-    // Save both to period tracking and profile
+    // Save to period tracking (which updates the profile)
     const result = await savePeriodData(data);
     if (result) {
-      // Also update profile with period data
-      await updateProfile({
-        period_tracking: data
-      });
-      
       toast({
         title: "✨ Period Data Saved!",
-        description: "Your cycle insights have been updated successfully.",
+        description: "Your cycle insights have been updated in your profile.",
       });
     }
   };

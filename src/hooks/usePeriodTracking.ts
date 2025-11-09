@@ -9,6 +9,10 @@ export interface PeriodTrackingData {
   period_length?: number;
   symptoms?: string[];
   notes?: string;
+  mood_rating?: number;
+  flow_intensity?: string;
+  water_intake?: number;
+  sleep_hours?: number;
   updated_at?: string;
 }
 
