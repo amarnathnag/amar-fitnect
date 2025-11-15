@@ -44,6 +44,8 @@ import Subscription from "./pages/Subscription";
 import PremiumAi from "./pages/PremiumAi";
 import PremiumPayment from "./pages/PremiumPayment";
 import PremiumUnlocked from "./pages/PremiumUnlocked";
+import FitnessDashboard from "./pages/FitnessDashboard";
+import MensHealth from "./pages/MensHealth";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -94,6 +96,8 @@ function App() {
                 <Route path="/premium-ai" element={<PremiumAi />} />
                 <Route path="/premium-payment" element={<PremiumPayment />} />
                 <Route path="/premium-unlocked" element={<PremiumUnlocked />} />
+                <Route path="/fitness-dashboard" element={<ProtectedRoute><FitnessDashboard /></ProtectedRoute>} />
+                <Route path="/mens-health" element={<MensHealth />} />
                 <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

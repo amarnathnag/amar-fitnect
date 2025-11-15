@@ -42,6 +42,19 @@ export const featuresData: FeatureItem[] = [
     genderSpecific: 'female',
   },
   {
+    title: "Men's Health",
+    href: "/mens-health",
+    description: "Workout tracking, muscle building, and health optimization for men.",
+    icon: Dumbbell,
+    genderSpecific: 'male',
+  },
+  {
+    title: "Fitness Dashboard",
+    href: "/fitness-dashboard",
+    description: "Unified dashboard for exercise stats, nutrition, and progress.",
+    icon: ActivitySquare,
+  },
+  {
     title: "Daily Routine",
     href: "/daily-routine",
     description: "Create healthy daily habits for optimal wellbeing.",

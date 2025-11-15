@@ -1180,18 +1180,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      calculate_age: {
-        Args: { birth_date: string }
-        Returns: number
-      }
+      calculate_age: { Args: { birth_date: string }; Returns: number }
       calculate_auto_health_score: {
         Args: { ingredients_list: Json }
         Returns: number
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_role: { Args: never; Returns: string }
       get_doctor_details: {
         Args: { doctor_id: string }
         Returns: {
@@ -1255,7 +1249,7 @@ export type Database = {
         }[]
       }
       get_public_gym_info: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           description: string
@@ -1270,10 +1264,7 @@ export type Database = {
           updated_at: string
         }[]
       }
-      get_user_email: {
-        Args: { user_uuid: string }
-        Returns: string
-      }
+      get_user_email: { Args: { user_uuid: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1281,10 +1272,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin_user: { Args: never; Returns: boolean }
       user_has_appointment_with_doctor: {
         Args: { doctor_id: string }
         Returns: boolean
