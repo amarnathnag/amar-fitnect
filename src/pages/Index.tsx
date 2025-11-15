@@ -11,6 +11,7 @@ import HeroSection from '@/components/home/HeroSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import PremiumFeaturesSection from '@/components/home/PremiumFeaturesSection';
 import CTASection from '@/components/home/CTASection';
+import NewFeaturesCTA from '@/components/home/NewFeaturesCTA';
 
 const Index = () => {
   const { user } = useAuth();
@@ -30,6 +31,9 @@ const Index = () => {
 
         {/* Features Section */}
         <FeaturesSection />
+
+        {/* New Features CTA */}
+        <NewFeaturesCTA />
 
         {/* Gender-Specific Content - Only show for female users */}
         <GenderSpecificContent />
