@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import NavBar from '@/components/NavBar';
@@ -12,6 +11,7 @@ import FeaturesSection from '@/components/home/FeaturesSection';
 import PremiumFeaturesSection from '@/components/home/PremiumFeaturesSection';
 import CTASection from '@/components/home/CTASection';
 import NewFeaturesCTA from '@/components/home/NewFeaturesCTA';
+import WelcomeTour from '@/components/home/WelcomeTour';
 
 const Index = () => {
   const { user } = useAuth();
@@ -52,6 +52,9 @@ const Index = () => {
       </main>
 
       <Footer />
+      
+      {/* Welcome Tour for first-time users */}
+      <WelcomeTour />
     </div>
   );
 };
