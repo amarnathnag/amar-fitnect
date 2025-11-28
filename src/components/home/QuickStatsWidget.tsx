@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Droplets, Flame, Dumbbell, TrendingUp, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import AchievementBadges from './AchievementBadges';
 
 interface DailyProgress {
   exercises: any[];
@@ -153,6 +154,19 @@ const QuickStatsWidget: React.FC = () => {
                 <p className="text-xs text-muted-foreground">day{streak !== 1 ? 's' : ''} strong</p>
               </div>
             </div>
+
+            {/* Achievement Badges */}
+            {streak > 0 && (
+              <div className="mt-4 p-4 bg-background/60 rounded-xl border border-border/50">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">Achievements</p>
+                    <p className="text-xs text-muted-foreground">Unlock badges with your streak</p>
+                  </div>
+                  <AchievementBadges currentStreak={streak} />
+                </div>
+              </div>
+            )}
 
             {!todayProgress && (
               <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20 flex items-center justify-between">
