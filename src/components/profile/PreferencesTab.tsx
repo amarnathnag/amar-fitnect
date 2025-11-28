@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save } from 'lucide-react';
+import { Save, RotateCcw } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface PreferencesTabProps {
   userData: {
@@ -21,6 +24,22 @@ interface PreferencesTabProps {
 }
 
 const PreferencesTab: React.FC<PreferencesTabProps> = ({ userData, handlePreferencesChange, saveChanges }) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleResetTour = () => {
+    if (user) {
+      localStorage.removeItem(`welcome_tour_seen_${user.id}`);
+      toast({
+        title: "Tour Reset",
+        description: "The welcome tour will show again when you visit the homepage.",
+      });
+      // Navigate to home to trigger the tour
+      navigate('/');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -103,6 +122,20 @@ const PreferencesTab: React.FC<PreferencesTabProps> = ({ userData, handlePrefere
         <Button onClick={saveChanges}>
           <Save className="mr-2 h-4 w-4" /> Save Preferences
         </Button>
+      </div>
+
+      {/* App Settings Section */}
+      <div className="border-t pt-6 mt-6">
+        <h3 className="text-lg font-semibold mb-4">App Settings</h3>
+        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+          <div>
+            <p className="font-medium">Welcome Tour</p>
+            <p className="text-sm text-muted-foreground">Replay the feature walkthrough</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleResetTour}>
+            <RotateCcw className="mr-2 h-4 w-4" /> Replay Tour
+          </Button>
+        </div>
       </div>
     </div>
   );
