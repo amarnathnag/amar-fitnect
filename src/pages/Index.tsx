@@ -12,6 +12,7 @@ import PremiumFeaturesSection from '@/components/home/PremiumFeaturesSection';
 import CTASection from '@/components/home/CTASection';
 import NewFeaturesCTA from '@/components/home/NewFeaturesCTA';
 import WelcomeTour from '@/components/home/WelcomeTour';
+import QuickStatsWidget from '@/components/home/QuickStatsWidget';
 
 const Index = () => {
   const { user } = useAuth();
@@ -28,6 +29,9 @@ const Index = () => {
         ) : (
           <HeroSection />
         )}
+
+        {/* Quick Stats for logged-in users */}
+        <QuickStatsWidget />
 
         {/* Features Section */}
         <FeaturesSection />
