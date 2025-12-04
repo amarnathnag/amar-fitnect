@@ -4,10 +4,11 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Activity, TrendingUp, Dumbbell, Apple, Target, Calendar } from 'lucide-react';
+import { Activity, TrendingUp, Dumbbell, Apple, Target, Calendar, BarChart3 } from 'lucide-react';
 import { useDailyProgress } from '@/hooks/useDailyProgress';
 import DailyProgressSummary from '@/components/profile/daily-progress/DailyProgressSummary';
 import ProgressDialog from '@/components/profile/daily-progress/ProgressDialog';
+import ProgressCharts from '@/components/dashboard/ProgressCharts';
 import { Progress } from '@/components/ui/progress';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
@@ -62,8 +63,9 @@ const FitnessDashboard = () => {
 
         <div className="container-custom py-12">
           <Tabs defaultValue="overview" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+            <TabsList className="grid w-full grid-cols-4 lg:w-[700px]">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="trends">Trends</TabsTrigger>
               <TabsTrigger value="exercise">Exercise Stats</TabsTrigger>
               <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
             </TabsList>
@@ -162,6 +164,15 @@ const FitnessDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Trends Tab - Weekly/Monthly Charts */}
+            <TabsContent value="trends" className="space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <BarChart3 className="h-6 w-6 text-primary" />
+                <h2 className="text-2xl font-bold">Progress Trends</h2>
+              </div>
+              <ProgressCharts progressData={progressData} />
             </TabsContent>
 
             {/* Exercise Stats Tab */}
