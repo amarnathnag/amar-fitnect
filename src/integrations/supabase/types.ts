@@ -157,6 +157,13 @@ export type Database = {
             referencedRelation: "doctors"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "appointments_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "public_doctors"
+            referencedColumns: ["id"]
+          },
         ]
       }
       blogs: {
@@ -582,6 +589,13 @@ export type Database = {
             referencedRelation: "gyms"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "gym_media_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "public_gyms"
+            referencedColumns: ["id"]
+          },
         ]
       }
       gym_reviews: {
@@ -615,6 +629,13 @@ export type Database = {
             columns: ["gym_id"]
             isOneToOne: false
             referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gym_reviews_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "public_gyms"
             referencedColumns: ["id"]
           },
         ]
@@ -772,6 +793,13 @@ export type Database = {
             columns: ["gym_id"]
             isOneToOne: false
             referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_postings_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "public_gyms"
             referencedColumns: ["id"]
           },
         ]
@@ -1177,7 +1205,102 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_doctors: {
+        Row: {
+          available_days: string[] | null
+          bio: string | null
+          created_at: string | null
+          experience: string | null
+          id: string | null
+          image_url: string | null
+          languages: string[] | null
+          location: string | null
+          name: string | null
+          next_available: string | null
+          price: number | null
+          rating: number | null
+          review_count: number | null
+          specialty: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          available_days?: string[] | null
+          bio?: string | null
+          created_at?: string | null
+          experience?: string | null
+          id?: string | null
+          image_url?: string | null
+          languages?: string[] | null
+          location?: string | null
+          name?: string | null
+          next_available?: string | null
+          price?: number | null
+          rating?: number | null
+          review_count?: number | null
+          specialty?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          available_days?: string[] | null
+          bio?: string | null
+          created_at?: string | null
+          experience?: string | null
+          id?: string | null
+          image_url?: string | null
+          languages?: string[] | null
+          location?: string | null
+          name?: string | null
+          next_available?: string | null
+          price?: number | null
+          rating?: number | null
+          review_count?: number | null
+          specialty?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      public_gyms: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          facilities: Json | null
+          id: string | null
+          is_approved: boolean | null
+          is_premium: boolean | null
+          location: string | null
+          location_pincode: string | null
+          name: string | null
+          opening_hours: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          facilities?: Json | null
+          id?: string | null
+          is_approved?: boolean | null
+          is_premium?: boolean | null
+          location?: string | null
+          location_pincode?: string | null
+          name?: string | null
+          opening_hours?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          facilities?: Json | null
+          id?: string | null
+          is_approved?: boolean | null
+          is_premium?: boolean | null
+          location?: string | null
+          location_pincode?: string | null
+          name?: string | null
+          opening_hours?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_age: { Args: { birth_date: string }; Returns: number }
