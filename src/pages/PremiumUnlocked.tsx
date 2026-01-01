@@ -134,7 +134,7 @@ const PremiumUnlocked = () => {
   };
 
   const handleStartWorkout = (workoutId: string) => {
-    navigate(`/workout-detail/${workoutId}`);
+    navigate(`/workout/${workoutId}`);
   };
   
   return (
