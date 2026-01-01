@@ -14,6 +14,7 @@ import HealthBundles from '@/components/marketplace/HealthBundles';
 import { useProducts } from '@/hooks/useProducts';
 import { categoryMapping } from '@/data/marketplaceCategories';
 import { useCart } from '@/hooks/useCart';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShoppingCart, Filter, Grid3X3, Sparkles, Database, Heart } from 'lucide-react';
@@ -62,7 +63,8 @@ const Marketplace = () => {
   }, [category, search, sortBy, minHealthScore, maxHealthScore, isOrganic, isVegetarian, isVegan]);
   
   const { products, loading, categories } = useProducts(productOptions);
-  const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart();
+  const { cart, addToCart, removeFromCart, updateQuantity, cartTotal, cartCount, refetch } = useCart();
+  const { toast } = useToast();
 
   const showDataAlert = !loading && products.length === 0 && !search && !category;
   const hasHealthFilters = minHealthScore > 0 || maxHealthScore < 10 || isOrganic || isVegan || isVegetarian;
@@ -112,25 +114,38 @@ const Marketplace = () => {
   };
 
   const handleAddBundle = (bundle: any) => {
-    // Add each product from the bundle to cart
-    bundle.products.forEach((product: any, index: number) => {
-      const bundleProduct = {
-        id: `${bundle.id}-${index}`,
-        name: product.name,
-        brand: 'Premium Bundle',
-        price: Math.round(product.originalPrice * (1 - bundle.discountPercent / 100)),
-        health_score: 9,
-        image_urls: [],
-        health_impact_summary: `Part of ${bundle.name}`,
-        is_organic: false,
-        is_vegetarian: true,
-        is_vegan: false,
+    // Add bundle as a single item to cart (stored in localStorage for bundle items)
+    const bundleCartItem = {
+      id: `bundle-${bundle.id}-${Date.now()}`,
+      product: {
+        id: `bundle-${bundle.id}-${Date.now()}`,
+        name: bundle.name,
+        brand: 'Premium Health Bundle',
+        price: bundle.discountedPrice,
+        image_urls: ['/placeholder.svg'],
         stock_quantity: 100,
-        category: 'supplements',
-        subcategory: 'bundle',
-      };
-      addToCart(bundleProduct);
+        health_score: 95,
+        health_impact_summary: bundle.description,
+        is_bundle: true,
+        bundle_products: bundle.products,
+        original_price: bundle.originalTotal,
+        discount_percent: bundle.discountPercent,
+      },
+      quantity: 1
+    };
+
+    // Add to localStorage cart directly for bundles
+    const existingCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+    existingCart.push(bundleCartItem);
+    localStorage.setItem('guestCart', JSON.stringify(existingCart));
+    
+    toast({
+      title: "Bundle Added! 🎉",
+      description: `${bundle.name} added with ${bundle.discountPercent}% discount!`,
     });
+    
+    // Refetch cart to show updated items
+    refetch();
   };
 
   const currentFilters = {
