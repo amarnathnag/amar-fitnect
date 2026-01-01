@@ -9,6 +9,7 @@ import CartSidebar from '@/components/marketplace/CartSidebar';
 import CategoryHero from '@/components/marketplace/CategoryHero';
 import HealthFocusedHero from '@/components/marketplace/HealthFocusedHero';
 import EnhancedCategoryGrid from '@/components/marketplace/EnhancedCategoryGrid';
+import RecommendedForYou from '@/components/marketplace/RecommendedForYou';
 import { useProducts } from '@/hooks/useProducts';
 import { categoryMapping } from '@/data/marketplaceCategories';
 import { useCart } from '@/hooks/useCart';
@@ -290,7 +291,10 @@ const Marketplace = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="categories">
+            <TabsContent value="categories" className="space-y-8">
+              {/* Recommended For You - Premium Section */}
+              <RecommendedForYou onAddToCart={handleAddToCart} />
+              
               <EnhancedCategoryGrid onCategorySelect={handleCategorySelect} />
             </TabsContent>
           </Tabs>
