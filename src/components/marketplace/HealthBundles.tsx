@@ -152,6 +152,9 @@ interface HealthBundlesProps {
   onAddBundle: (bundle: HealthBundle) => void;
 }
 
+// Export bundle type for use in other components
+export type { HealthBundle };
+
 const HealthBundles: React.FC<HealthBundlesProps> = ({ onAddBundle }) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -162,12 +165,9 @@ const HealthBundles: React.FC<HealthBundlesProps> = ({ onAddBundle }) => {
   const handleAddBundle = (bundle: HealthBundle) => {
     setAddingBundle(bundle.id);
     
+    // Use setTimeout to show loading state
     setTimeout(() => {
       onAddBundle(bundle);
-      toast({
-        title: "Bundle Added! 🎉",
-        description: `${bundle.name} has been added to your cart with ${bundle.discountPercent}% discount!`,
-      });
       setAddingBundle(null);
     }, 500);
   };
