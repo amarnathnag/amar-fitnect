@@ -1203,6 +1203,51 @@ export type Database = {
         }
         Relationships: []
       }
+      workout_completions: {
+        Row: {
+          calories_burned: number
+          completed_at: string
+          created_at: string
+          duration_minutes: number
+          exercises_completed: number
+          id: string
+          notes: string | null
+          rating: number | null
+          total_exercises: number
+          user_id: string
+          workout_id: string
+          workout_title: string
+        }
+        Insert: {
+          calories_burned: number
+          completed_at?: string
+          created_at?: string
+          duration_minutes: number
+          exercises_completed: number
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          total_exercises: number
+          user_id: string
+          workout_id: string
+          workout_title: string
+        }
+        Update: {
+          calories_burned?: number
+          completed_at?: string
+          created_at?: string
+          duration_minutes?: number
+          exercises_completed?: number
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          total_exercises?: number
+          user_id?: string
+          workout_id?: string
+          workout_title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_doctors: {
