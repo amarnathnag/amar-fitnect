@@ -10,6 +10,7 @@ import CategoryHero from '@/components/marketplace/CategoryHero';
 import HealthFocusedHero from '@/components/marketplace/HealthFocusedHero';
 import EnhancedCategoryGrid from '@/components/marketplace/EnhancedCategoryGrid';
 import RecommendedForYou from '@/components/marketplace/RecommendedForYou';
+import HealthBundles from '@/components/marketplace/HealthBundles';
 import { useProducts } from '@/hooks/useProducts';
 import { categoryMapping } from '@/data/marketplaceCategories';
 import { useCart } from '@/hooks/useCart';
@@ -108,6 +109,28 @@ const Marketplace = () => {
     }
     
     addToCart(productToAdd);
+  };
+
+  const handleAddBundle = (bundle: any) => {
+    // Add each product from the bundle to cart
+    bundle.products.forEach((product: any, index: number) => {
+      const bundleProduct = {
+        id: `${bundle.id}-${index}`,
+        name: product.name,
+        brand: 'Premium Bundle',
+        price: Math.round(product.originalPrice * (1 - bundle.discountPercent / 100)),
+        health_score: 9,
+        image_urls: [],
+        health_impact_summary: `Part of ${bundle.name}`,
+        is_organic: false,
+        is_vegetarian: true,
+        is_vegan: false,
+        stock_quantity: 100,
+        category: 'supplements',
+        subcategory: 'bundle',
+      };
+      addToCart(bundleProduct);
+    });
   };
 
   const currentFilters = {
@@ -294,6 +317,9 @@ const Marketplace = () => {
             <TabsContent value="categories" className="space-y-8">
               {/* Recommended For You - Premium Section */}
               <RecommendedForYou onAddToCart={handleAddToCart} />
+              
+              {/* Health Bundles - Premium Section */}
+              <HealthBundles onAddBundle={handleAddBundle} />
               
               <EnhancedCategoryGrid onCategorySelect={handleCategorySelect} />
             </TabsContent>
