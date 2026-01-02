@@ -4,14 +4,15 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Activity, TrendingUp, Dumbbell, Apple, Target, Calendar, BarChart3 } from 'lucide-react';
+import { Activity, TrendingUp, Dumbbell, Apple, Target, Calendar, BarChart3, Trophy } from 'lucide-react';
 import { useDailyProgress } from '@/hooks/useDailyProgress';
 import DailyProgressSummary from '@/components/profile/daily-progress/DailyProgressSummary';
 import ProgressDialog from '@/components/profile/daily-progress/ProgressDialog';
 import ProgressCharts from '@/components/dashboard/ProgressCharts';
 import { Progress } from '@/components/ui/progress';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-
+import WorkoutCalendar from '@/components/workouts/WorkoutCalendar';
+import Leaderboard from '@/components/workouts/Leaderboard';
 const FitnessDashboard = () => {
   const { user, profileData } = useAuth();
   const { progressData, saveDailyProgress, isLoading } = useDailyProgress();
@@ -63,10 +64,18 @@ const FitnessDashboard = () => {
 
         <div className="container-custom py-12">
           <Tabs defaultValue="overview" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-4 lg:w-[700px]">
+            <TabsList className="grid w-full grid-cols-6 lg:w-[900px]">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="planner" className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Planner</span>
+              </TabsTrigger>
+              <TabsTrigger value="leaderboard" className="flex items-center gap-1">
+                <Trophy className="h-4 w-4" />
+                <span className="hidden sm:inline">Leaderboard</span>
+              </TabsTrigger>
               <TabsTrigger value="trends">Trends</TabsTrigger>
-              <TabsTrigger value="exercise">Exercise Stats</TabsTrigger>
+              <TabsTrigger value="exercise">Exercise</TabsTrigger>
               <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
             </TabsList>
 
@@ -164,6 +173,24 @@ const FitnessDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Planner Tab */}
+            <TabsContent value="planner" className="space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar className="h-6 w-6 text-primary" />
+                <h2 className="text-2xl font-bold">Workout Planner</h2>
+              </div>
+              <WorkoutCalendar />
+            </TabsContent>
+
+            {/* Leaderboard Tab */}
+            <TabsContent value="leaderboard" className="space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Trophy className="h-6 w-6 text-yellow-500" />
+                <h2 className="text-2xl font-bold">Leaderboard</h2>
+              </div>
+              <Leaderboard />
             </TabsContent>
 
             {/* Trends Tab - Weekly/Monthly Charts */}
