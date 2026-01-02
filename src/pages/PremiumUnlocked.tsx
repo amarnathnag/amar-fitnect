@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Dumbbell, Utensils, FileText, Activity, BarChart2,
-  Calendar, Download, Book, Plus, Save, Play, Crown, Shield, TrendingUp, Award
+  Calendar, Download, Book, Plus, Save, Play, Crown, Shield, TrendingUp, Award, Trophy
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import DietPlanCreator from '@/components/diet/DietPlanCreator';
@@ -21,7 +21,7 @@ import PremiumHeroSection from '@/components/premium/PremiumHeroSection';
 import { workouts } from '@/data/workouts';
 import { blogPosts } from '@/data/blogPosts';
 import { useToast } from '@/hooks/use-toast';
-
+import WorkoutChallenges from '@/components/premium/WorkoutChallenges';
 const PremiumUnlocked = () => {
   const navigate = useNavigate();
   const { user, profileData } = useAuth();
@@ -185,9 +185,12 @@ const PremiumUnlocked = () => {
         
         <div className="container-custom mb-12">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full max-w-4xl mx-auto grid grid-cols-4 mb-8">
+            <TabsList className="w-full max-w-5xl mx-auto grid grid-cols-5 mb-8">
               <TabsTrigger value="workouts" className="text-center py-3">
                 <Dumbbell className="h-4 w-4 mr-2" /> Workouts
+              </TabsTrigger>
+              <TabsTrigger value="challenges" className="text-center py-3">
+                <Trophy className="h-4 w-4 mr-2" /> Challenges
               </TabsTrigger>
               <TabsTrigger value="diet" className="text-center py-3">
                 <Utensils className="h-4 w-4 mr-2" /> Diet Plans
@@ -255,6 +258,15 @@ const PremiumUnlocked = () => {
                   </Card>
                 ))}
               </div>
+            </TabsContent>
+
+            {/* Challenges Tab */}
+            <TabsContent value="challenges" className="mt-0">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold">Workout Challenges & Achievements</h3>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Complete challenges, earn XP, and unlock exclusive badges</p>
+              </div>
+              <WorkoutChallenges />
             </TabsContent>
             
             {/* Diet Tab */}
