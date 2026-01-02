@@ -1078,6 +1078,51 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_workouts: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          reminder_enabled: boolean | null
+          reminder_sent: boolean | null
+          scheduled_date: string
+          scheduled_time: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          workout_id: string
+          workout_title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reminder_enabled?: boolean | null
+          reminder_sent?: boolean | null
+          scheduled_date: string
+          scheduled_time?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          workout_id: string
+          workout_title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reminder_enabled?: boolean | null
+          reminder_sent?: boolean | null
+          scheduled_date?: string
+          scheduled_time?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          workout_id?: string
+          workout_title?: string
+        }
+        Relationships: []
+      }
       shopping_cart: {
         Row: {
           created_at: string | null
@@ -1200,6 +1245,48 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_xp: {
+        Row: {
+          current_streak: number | null
+          display_name: string | null
+          id: string
+          longest_streak: number | null
+          monthly_xp: number | null
+          show_on_leaderboard: boolean | null
+          total_workouts: number | null
+          total_xp: number | null
+          updated_at: string
+          user_id: string
+          weekly_xp: number | null
+        }
+        Insert: {
+          current_streak?: number | null
+          display_name?: string | null
+          id?: string
+          longest_streak?: number | null
+          monthly_xp?: number | null
+          show_on_leaderboard?: boolean | null
+          total_workouts?: number | null
+          total_xp?: number | null
+          updated_at?: string
+          user_id: string
+          weekly_xp?: number | null
+        }
+        Update: {
+          current_streak?: number | null
+          display_name?: string | null
+          id?: string
+          longest_streak?: number | null
+          monthly_xp?: number | null
+          show_on_leaderboard?: boolean | null
+          total_workouts?: number | null
+          total_xp?: number | null
+          updated_at?: string
+          user_id?: string
+          weekly_xp?: number | null
         }
         Relationships: []
       }
