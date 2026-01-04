@@ -11,9 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Trophy, Flame, Target, Zap, Star, Crown, Medal,
   Calendar, Dumbbell, Award, TrendingUp, CheckCircle,
-  Clock, Sparkles, Gift, Shield
+  Clock, Sparkles, Gift, Shield, Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import SocialShareButtons from '@/components/social/SocialShareButtons';
 
 interface Challenge {
   id: string;
@@ -474,9 +475,18 @@ const WorkoutChallenges: React.FC = () => {
           )}
           
           {achievement.unlocked && (
-            <div className="flex items-center gap-1 text-green-600">
-              <CheckCircle className="h-4 w-4" />
-              <span className="text-sm font-medium">+{achievement.xpReward} XP Earned</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-green-600">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">+{achievement.xpReward} XP Earned</span>
+              </div>
+              <SocialShareButtons
+                shareData={{
+                  title: `🏆 ${achievement.name} Unlocked!`,
+                  text: `I just earned the "${achievement.name}" achievement - ${achievement.description}! ${achievement.rarity.toUpperCase()} badge unlocked! 💪`,
+                  hashtags: ['FitnessAchievement', 'WorkoutGoals', 'FitLife']
+                }}
+              />
             </div>
           )}
         </div>
@@ -687,13 +697,23 @@ const WorkoutChallenges: React.FC = () => {
                   </Badge>
                 </div>
 
-                <Button 
-                  onClick={() => setShowCelebration(false)} 
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                >
-                  <Trophy className="h-4 w-4 mr-2" />
-                  Awesome!
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => setShowCelebration(false)} 
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  >
+                    <Trophy className="h-4 w-4 mr-2" />
+                    Awesome!
+                  </Button>
+                  <SocialShareButtons
+                    variant="button"
+                    shareData={{
+                      title: `🏆 ${celebratedAchievement.name} Unlocked!`,
+                      text: `Just unlocked the "${celebratedAchievement.name}" achievement - ${celebratedAchievement.description}! ${celebratedAchievement.rarity.toUpperCase()} badge earned with +${celebratedAchievement.xpReward} XP! 💪🔥`,
+                      hashtags: ['FitnessGoals', 'AchievementUnlocked', 'WorkoutMotivation']
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
