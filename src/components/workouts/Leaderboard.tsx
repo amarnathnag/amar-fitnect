@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trophy, Medal, Crown, Flame, Zap, Target, User, Eye, EyeOff, Edit2 } from 'lucide-react';
+import { Trophy, Medal, Crown, Flame, Zap, Target, User, Eye, EyeOff, Edit2, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useLeaderboard, LeaderboardEntry } from '@/hooks/useLeaderboard';
 import { useAuth } from '@/contexts/AuthContext';
+import SocialShareButtons from '@/components/social/SocialShareButtons';
 
 type LeaderboardType = 'total_xp' | 'weekly_xp' | 'monthly_xp' | 'total_workouts' | 'current_streak';
 
@@ -178,26 +179,38 @@ const Leaderboard = () => {
           </CardHeader>
           <CardContent>
             {userEntry ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-background rounded-lg">
-                  <Zap className="h-5 w-5 mx-auto mb-1 text-yellow-500" />
-                  <p className="text-2xl font-bold">{userEntry.total_xp?.toLocaleString() || 0}</p>
-                  <p className="text-xs text-muted-foreground">Total XP</p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-background rounded-lg">
+                    <Zap className="h-5 w-5 mx-auto mb-1 text-yellow-500" />
+                    <p className="text-2xl font-bold">{userEntry.total_xp?.toLocaleString() || 0}</p>
+                    <p className="text-xs text-muted-foreground">Total XP</p>
+                  </div>
+                  <div className="text-center p-3 bg-background rounded-lg">
+                    <Trophy className="h-5 w-5 mx-auto mb-1 text-primary" />
+                    <p className="text-2xl font-bold">{userEntry.total_workouts || 0}</p>
+                    <p className="text-xs text-muted-foreground">Workouts</p>
+                  </div>
+                  <div className="text-center p-3 bg-background rounded-lg">
+                    <Flame className="h-5 w-5 mx-auto mb-1 text-orange-500" />
+                    <p className="text-2xl font-bold">{userEntry.current_streak || 0}</p>
+                    <p className="text-xs text-muted-foreground">Current Streak</p>
+                  </div>
+                  <div className="text-center p-3 bg-background rounded-lg">
+                    <Medal className="h-5 w-5 mx-auto mb-1 text-amber-600" />
+                    <p className="text-2xl font-bold">{userEntry.longest_streak || 0}</p>
+                    <p className="text-xs text-muted-foreground">Best Streak</p>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-background rounded-lg">
-                  <Trophy className="h-5 w-5 mx-auto mb-1 text-primary" />
-                  <p className="text-2xl font-bold">{userEntry.total_workouts || 0}</p>
-                  <p className="text-xs text-muted-foreground">Workouts</p>
-                </div>
-                <div className="text-center p-3 bg-background rounded-lg">
-                  <Flame className="h-5 w-5 mx-auto mb-1 text-orange-500" />
-                  <p className="text-2xl font-bold">{userEntry.current_streak || 0}</p>
-                  <p className="text-xs text-muted-foreground">Current Streak</p>
-                </div>
-                <div className="text-center p-3 bg-background rounded-lg">
-                  <Medal className="h-5 w-5 mx-auto mb-1 text-amber-600" />
-                  <p className="text-2xl font-bold">{userEntry.longest_streak || 0}</p>
-                  <p className="text-xs text-muted-foreground">Best Streak</p>
+                <div className="flex justify-center">
+                  <SocialShareButtons
+                    variant="button"
+                    shareData={{
+                      title: '🏆 My Fitness Stats!',
+                      text: `Check out my fitness journey! 💪\n\n⚡ ${userEntry.total_xp?.toLocaleString() || 0} Total XP\n🏋️ ${userEntry.total_workouts || 0} Workouts Completed\n🔥 ${userEntry.current_streak || 0} Day Streak\n🏅 ${userEntry.longest_streak || 0} Best Streak\n\nJoin me on my fitness journey!`,
+                      hashtags: ['FitnessStats', 'WorkoutStreak', 'HealthyLifestyle']
+                    }}
+                  />
                 </div>
               </div>
             ) : (
