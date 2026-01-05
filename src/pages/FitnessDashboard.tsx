@@ -4,7 +4,7 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Activity, TrendingUp, Dumbbell, Apple, Target, Calendar, BarChart3, Trophy } from 'lucide-react';
+import { Activity, TrendingUp, Dumbbell, Apple, Target, Calendar, BarChart3, Trophy, FileText } from 'lucide-react';
 import { useDailyProgress } from '@/hooks/useDailyProgress';
 import DailyProgressSummary from '@/components/profile/daily-progress/DailyProgressSummary';
 import ProgressDialog from '@/components/profile/daily-progress/ProgressDialog';
@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import WorkoutCalendar from '@/components/workouts/WorkoutCalendar';
 import Leaderboard from '@/components/workouts/Leaderboard';
+import { WeeklySummary } from '@/components/dashboard/WeeklySummary';
 const FitnessDashboard = () => {
   const { user, profileData } = useAuth();
   const { progressData, saveDailyProgress, isLoading } = useDailyProgress();
@@ -64,8 +65,12 @@ const FitnessDashboard = () => {
 
         <div className="container-custom py-12">
           <Tabs defaultValue="overview" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-6 lg:w-[900px]">
+            <TabsList className="grid w-full grid-cols-7 lg:w-[1000px]">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="summary" className="flex items-center gap-1">
+                <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline">Summary</span>
+              </TabsTrigger>
               <TabsTrigger value="planner" className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
                 <span className="hidden sm:inline">Planner</span>
@@ -173,6 +178,18 @@ const FitnessDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Weekly Summary Tab */}
+            <TabsContent value="summary" className="space-y-6">
+              <WeeklySummary 
+                weeklyProgress={last7Days.map(day => ({
+                  date: day.date,
+                  exercises: day.exercises || [],
+                  water_intake: day.water_intake || 0,
+                  sleep_hours: day.sleep_hours || 0
+                }))}
+              />
             </TabsContent>
 
             {/* Planner Tab */}
