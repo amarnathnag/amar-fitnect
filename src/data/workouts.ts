@@ -480,5 +480,149 @@ export const workouts: WorkoutPlan[] = [
       targetedMuscles: ["Core", "Balance", "Flexibility", "Focus"],
       healthBenefits: ["Body awareness", "Flexibility", "Concentration skills", "Emotional regulation"]
     }
-  }
+  },
+
+  // Yoga
+  {
+    id: 'power-yoga',
+    title: 'Power Yoga Flow',
+    description: 'A dynamic yoga session combining strength, flexibility and balance for a full-body workout.',
+    level: 'Intermediate',
+    duration: '45 min',
+    calories: 280,
+    category: 'yoga',
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
+    exercises: [
+      { name: 'Sun Salutation A', sets: 5, reps: '1 flow' },
+      { name: 'Warrior I & II', sets: 3, reps: '30 sec each side' },
+      { name: 'Chair Pose', sets: 3, reps: '30 sec hold' },
+      { name: 'Crow Pose', sets: 3, reps: '15 sec hold' },
+      { name: 'Pigeon Pose', sets: 1, reps: '2 min each side' },
+    ],
+    detailedInstructions: {
+      steps: ['Flow through Sun Salutations to warm up', 'Hold Warrior poses for strength', 'Practice balance with Crow Pose', 'Deep stretch with Pigeon Pose', 'End with Savasana for 5 min'],
+      targetedMuscles: ['Core', 'Legs', 'Arms', 'Hip flexors', 'Back'],
+      healthBenefits: ['Improved flexibility', 'Stress relief', 'Better balance', 'Mind-body connection']
+    }
+  },
+
+  // Swimming
+  {
+    id: 'swim-endurance',
+    title: 'Swim Endurance Training',
+    description: 'Build cardiovascular endurance with structured swim sets for all levels.',
+    level: 'Intermediate',
+    duration: '40 min',
+    calories: 400,
+    category: 'swimming',
+    image: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
+    exercises: [
+      { name: 'Freestyle Warm-up', sets: 1, reps: '200m' },
+      { name: 'Backstroke Drills', sets: 4, reps: '50m' },
+      { name: 'Freestyle Intervals', sets: 6, reps: '100m', duration: '30 sec rest' },
+      { name: 'Breaststroke Cool-down', sets: 1, reps: '200m' },
+      { name: 'Kickboard Sets', sets: 4, reps: '50m' },
+    ],
+    detailedInstructions: {
+      steps: ['Warm up with easy freestyle', 'Focus on backstroke technique', 'Push pace on freestyle intervals', 'Use kickboard for leg strength', 'Cool down with easy breaststroke'],
+      targetedMuscles: ['Full body', 'Shoulders', 'Core', 'Legs', 'Cardiovascular system'],
+      healthBenefits: ['Zero-impact cardio', 'Full body toning', 'Lung capacity improvement', 'Joint-friendly exercise']
+    }
+  },
+
+  // Cycling
+  {
+    id: 'hiit-cycling',
+    title: 'HIIT Cycling Sprint',
+    description: 'High-intensity cycling intervals to boost endurance and burn calories fast.',
+    level: 'Advanced',
+    duration: '35 min',
+    calories: 450,
+    category: 'cycling',
+    image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
+    exercises: [
+      { name: 'Easy Spin Warm-up', sets: 1, reps: '5 min' },
+      { name: 'Sprint Intervals', sets: 8, reps: '30 sec sprint', duration: '90 sec recovery' },
+      { name: 'Hill Climb Simulation', sets: 4, reps: '2 min heavy resistance' },
+      { name: 'Standing Pedal Bursts', sets: 4, reps: '45 sec' },
+      { name: 'Cool-down Spin', sets: 1, reps: '5 min' },
+    ],
+    detailedInstructions: {
+      steps: ['Warm up with light resistance', 'Sprint all-out for 30 seconds', 'Simulate hill climbs with high resistance', 'Stand and pedal for power bursts', 'Cool down gradually'],
+      targetedMuscles: ['Quadriceps', 'Hamstrings', 'Calves', 'Glutes', 'Core'],
+      healthBenefits: ['Massive calorie burn', 'Improved leg power', 'Cardiovascular fitness', 'Low joint impact']
+    }
+  },
+
+  // Dancing
+  {
+    id: 'dance-cardio',
+    title: 'Dance Cardio Party',
+    description: 'Fun dance-based workout combining Zumba, hip-hop, and Bollywood moves for a calorie-torching party.',
+    level: 'Beginner',
+    duration: '30 min',
+    calories: 350,
+    category: 'dancing',
+    image: 'https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
+    exercises: [
+      { name: 'Warm-up Grooves', sets: 1, reps: '3 min' },
+      { name: 'Salsa Steps', sets: 3, reps: '2 min' },
+      { name: 'Hip-hop Combos', sets: 3, reps: '2 min' },
+      { name: 'Bollywood Moves', sets: 3, reps: '2 min' },
+      { name: 'Free Dance Cool-down', sets: 1, reps: '3 min' },
+    ],
+    detailedInstructions: {
+      steps: ['Start with simple side steps and arm movements', 'Learn basic salsa footwork', 'Follow hip-hop combo sequences', 'Try Bollywood-inspired choreography', 'Cool down with slow freestyle movement'],
+      targetedMuscles: ['Full body', 'Core', 'Legs', 'Arms', 'Cardiovascular system'],
+      healthBenefits: ['Joyful exercise experience', 'Coordination improvement', 'Stress relief', 'Social engagement']
+    }
+  },
+
+  // Martial Arts
+  {
+    id: 'kickboxing-basics',
+    title: 'Kickboxing Fundamentals',
+    description: 'Learn basic kickboxing combos for self-defense, fitness, and mental toughness.',
+    level: 'Intermediate',
+    duration: '40 min',
+    calories: 500,
+    category: 'martial-arts',
+    image: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
+    exercises: [
+      { name: 'Shadow Boxing', sets: 3, reps: '2 min' },
+      { name: 'Jab-Cross-Hook Combo', sets: 4, reps: '1 min' },
+      { name: 'Front Kicks', sets: 3, reps: '15 each leg' },
+      { name: 'Roundhouse Kicks', sets: 3, reps: '12 each leg' },
+      { name: 'Plank Punch-outs', sets: 3, reps: '30 sec' },
+    ],
+    detailedInstructions: {
+      steps: ['Warm up with shadow boxing', 'Practice jab-cross-hook combinations', 'Execute front kicks with proper form', 'Add roundhouse kicks', 'Finish with core work in plank position'],
+      targetedMuscles: ['Arms', 'Shoulders', 'Core', 'Legs', 'Glutes'],
+      healthBenefits: ['Self-defense skills', 'Explosive power', 'Stress release', 'Full body conditioning']
+    }
+  },
+
+  // Stretching
+  {
+    id: 'deep-stretch',
+    title: 'Deep Stretch Recovery',
+    description: 'A comprehensive stretching session to improve flexibility and aid muscle recovery.',
+    level: 'Beginner',
+    duration: '25 min',
+    calories: 100,
+    category: 'stretching',
+    image: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60',
+    exercises: [
+      { name: 'Hamstring Stretch', sets: 2, reps: '45 sec each leg' },
+      { name: 'Hip Flexor Stretch', sets: 2, reps: '45 sec each side' },
+      { name: 'Chest Opener Stretch', sets: 2, reps: '30 sec' },
+      { name: 'Spinal Twist', sets: 2, reps: '45 sec each side' },
+      { name: 'Figure-4 Stretch', sets: 2, reps: '45 sec each side' },
+    ],
+    detailedInstructions: {
+      steps: ['Begin with deep breathing to relax', 'Hold each stretch gently without bouncing', 'Focus on breathing into tight areas', 'Never stretch to the point of pain', 'End with full-body relaxation'],
+      targetedMuscles: ['Hamstrings', 'Hip flexors', 'Chest', 'Spine', 'Glutes'],
+      healthBenefits: ['Improved flexibility', 'Faster recovery', 'Reduced injury risk', 'Better posture']
+    }
+  },
 ];

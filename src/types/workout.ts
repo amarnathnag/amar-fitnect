@@ -19,7 +19,7 @@ export interface WorkoutPlan {
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   duration: string;
   calories: number;
-  category: 'weight-loss' | 'muscle-gain' | 'maintenance' | 'beginner-full-body' | 'pcos-friendly' | 'fat-loss' | 'senior-friendly' | 'kids-fitness';
+  category: 'weight-loss' | 'muscle-gain' | 'maintenance' | 'beginner-full-body' | 'pcos-friendly' | 'fat-loss' | 'senior-friendly' | 'kids-fitness' | 'yoga' | 'swimming' | 'cycling' | 'dancing' | 'martial-arts' | 'stretching';
   image: string;
   exercises: WorkoutExercise[];
   detailedInstructions?: WorkoutInstructions;
