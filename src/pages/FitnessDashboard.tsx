@@ -4,19 +4,24 @@ import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Activity, TrendingUp, Dumbbell, Apple, Target, Calendar, BarChart3, Trophy, FileText } from 'lucide-react';
+import { Activity, TrendingUp, Dumbbell, Apple, Target, Calendar, BarChart3, Trophy, FileText, Gamepad2, Bell } from 'lucide-react';
 import { useDailyProgress } from '@/hooks/useDailyProgress';
 import DailyProgressSummary from '@/components/profile/daily-progress/DailyProgressSummary';
 import ProgressDialog from '@/components/profile/daily-progress/ProgressDialog';
 import ProgressCharts from '@/components/dashboard/ProgressCharts';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import WorkoutCalendar from '@/components/workouts/WorkoutCalendar';
 import Leaderboard from '@/components/workouts/Leaderboard';
 import { WeeklySummary } from '@/components/dashboard/WeeklySummary';
+import FitnessGames from '@/components/games/FitnessGames';
+import { useWorkoutNotifications } from '@/hooks/useWorkoutNotifications';
+
 const FitnessDashboard = () => {
   const { user, profileData } = useAuth();
   const { progressData, saveDailyProgress, isLoading } = useDailyProgress();
+  const { requestPermission, permissionStatus } = useWorkoutNotifications();
 
   // Calculate stats from progress data
   const last7Days = progressData.slice(-7);
@@ -53,9 +58,20 @@ const FitnessDashboard = () => {
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-primary to-secondary text-primary-foreground py-16">
           <div className="container-custom">
-            <div className="flex items-center gap-4 mb-4">
-              <Activity className="h-12 w-12" />
-              <h1 className="text-4xl md:text-5xl font-bold">Fitness Dashboard</h1>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <Activity className="h-12 w-12" />
+                <h1 className="text-4xl md:text-5xl font-bold">Fitness Dashboard</h1>
+              </div>
+              <Button
+                variant={permissionStatus === 'granted' ? 'secondary' : 'outline'}
+                size="sm"
+                onClick={requestPermission}
+                className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+              >
+                <Bell className="h-4 w-4" />
+                {permissionStatus === 'granted' ? 'Notifications On' : 'Enable Reminders'}
+              </Button>
             </div>
             <p className="text-lg md:text-xl opacity-90 max-w-2xl">
               Track your exercise, nutrition, and progress all in one place
@@ -65,7 +81,7 @@ const FitnessDashboard = () => {
 
         <div className="container-custom py-12">
           <Tabs defaultValue="overview" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-7 lg:w-[1000px]">
+            <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 lg:w-[1100px]">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="summary" className="flex items-center gap-1">
                 <FileText className="h-4 w-4" />
@@ -77,7 +93,11 @@ const FitnessDashboard = () => {
               </TabsTrigger>
               <TabsTrigger value="leaderboard" className="flex items-center gap-1">
                 <Trophy className="h-4 w-4" />
-                <span className="hidden sm:inline">Leaderboard</span>
+                <span className="hidden sm:inline">Board</span>
+              </TabsTrigger>
+              <TabsTrigger value="games" className="flex items-center gap-1">
+                <Gamepad2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Games</span>
               </TabsTrigger>
               <TabsTrigger value="trends">Trends</TabsTrigger>
               <TabsTrigger value="exercise">Exercise</TabsTrigger>
@@ -208,6 +228,11 @@ const FitnessDashboard = () => {
                 <h2 className="text-2xl font-bold">Leaderboard</h2>
               </div>
               <Leaderboard />
+            </TabsContent>
+
+            {/* Games Tab */}
+            <TabsContent value="games" className="space-y-6">
+              <FitnessGames />
             </TabsContent>
 
             {/* Trends Tab - Weekly/Monthly Charts */}
