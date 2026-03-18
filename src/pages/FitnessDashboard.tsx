@@ -58,24 +58,32 @@ const FitnessDashboard = () => {
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-primary to-secondary text-primary-foreground py-16">
           <div className="container-custom">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-4">
-                <Activity className="h-12 w-12" />
-                <h1 className="text-4xl md:text-5xl font-bold">Fitness Dashboard</h1>
+                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-2xl">
+                  <Activity className="h-10 w-10" />
+                </div>
+                <div>
+                  <h1 className="text-3xl md:text-5xl font-black">Fitness Dashboard</h1>
+                  <p className="text-sm md:text-lg opacity-80 mt-1">
+                    Track your exercise, nutrition, and progress all in one place
+                  </p>
+                </div>
               </div>
               <Button
                 variant={permissionStatus === 'granted' ? 'secondary' : 'outline'}
-                size="sm"
+                size="lg"
                 onClick={requestPermission}
-                className="gap-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                className={`gap-2 rounded-xl shadow-lg transition-all ${
+                  permissionStatus === 'granted'
+                    ? 'bg-white/30 text-white border-white/40 hover:bg-white/40'
+                    : 'bg-white/20 text-white border-white/30 hover:bg-white/30 animate-pulse hover:animate-none'
+                }`}
               >
-                <Bell className="h-4 w-4" />
-                {permissionStatus === 'granted' ? 'Notifications On' : 'Enable Reminders'}
+                <Bell className={`h-5 w-5 ${permissionStatus === 'granted' ? '' : 'animate-bounce'}`} />
+                {permissionStatus === 'granted' ? '✅ Reminders On' : '🔔 Enable Reminders'}
               </Button>
             </div>
-            <p className="text-lg md:text-xl opacity-90 max-w-2xl">
-              Track your exercise, nutrition, and progress all in one place
-            </p>
           </div>
         </section>
 
