@@ -21,13 +21,9 @@ export type Doctor = {
 };
 
 export const fetchDoctors = async (specialty?: string) => {
-  let query = supabase.from("doctors").select("*");
-  
-  if (specialty && specialty !== "all") {
-    query = query.eq("specialty", specialty);
-  }
-  
-  const { data, error } = await query;
+  const { data, error } = await supabase.rpc('get_doctors_public', {
+    specialty_filter: specialty && specialty !== "all" ? specialty : null
+  });
   
   if (error) {
     console.error("Error fetching doctors:", error);
@@ -38,18 +34,20 @@ export const fetchDoctors = async (specialty?: string) => {
 };
 
 export const fetchDoctorById = async (doctorId: string) => {
-  const { data, error } = await supabase
-    .from("doctors")
-    .select("*")
-    .eq("id", doctorId)
-    .single();
+  const { data, error } = await supabase.rpc('get_doctor_details', {
+    doctor_id: doctorId
+  });
     
   if (error) {
     console.error("Error fetching doctor:", error);
     throw error;
   }
   
-  return data as Doctor;
+  if (!data || data.length === 0) {
+    throw new Error("Doctor not found");
+  }
+  
+  return data[0] as Doctor;
 };
 
 export const createDoctor = async (doctor: Omit<Doctor, 'id' | 'created_at' | 'updated_at'>) => {
