@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
