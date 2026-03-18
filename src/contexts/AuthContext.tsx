@@ -1,7 +1,8 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Session } from '@supabase/supabase-js';
+import { Session } from '@supabase/supabase-js';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContextType, ProfileData } from '@/types/auth';
 
@@ -22,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
@@ -269,6 +271,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           title: "Login successful",
           description: "Welcome back!",
         });
+        // Navigation will be handled by Auth.tsx useEffect watching user state
         return { success: true, data };
       }
 
@@ -387,6 +390,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "See you next time!",
       });
       
+      navigate('/');
     } catch (error: any) {
       console.error('Logout error:', error);
       setUser(null);
