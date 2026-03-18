@@ -271,6 +271,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           title: "Login successful",
           description: "Welcome back!",
         });
+        // Navigation will be handled by Auth.tsx useEffect watching user state
         return { success: true, data };
       }
 
