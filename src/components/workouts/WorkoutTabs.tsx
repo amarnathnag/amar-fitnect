@@ -1,15 +1,32 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dumbbell, Heart, Star, Users, Weight, Flame, Bike, Music, Swords, StretchHorizontal } from 'lucide-react';
+import { Dumbbell, Heart, Star, Users, Weight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translateText } from '@/utils/translations';
 import { WorkoutPlan } from "@/types/workout";
 import WorkoutCategoryContent from "./WorkoutCategoryContent";
 import SeniorsKidsWorkouts from "./SeniorsKidsWorkouts";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface WorkoutTabsProps {
   workouts: WorkoutPlan[];
 }
+
+const CATEGORIES = [
+  { value: 'weight-loss', icon: <Heart className="h-5 w-5" />, labelKey: 'weight_loss' },
+  { value: 'muscle-gain', icon: <Dumbbell className="h-5 w-5" />, label: 'Muscle' },
+  { value: 'maintenance', icon: <Weight className="h-5 w-5" />, labelKey: 'maintenance' },
+  { value: 'beginner-full-body', icon: <Star className="h-5 w-5" />, label: 'Beginner' },
+  { value: 'pcos-friendly', icon: <Heart className="h-5 w-5" />, label: 'PCOS' },
+  { value: 'yoga', icon: <span className="text-lg">🧘</span>, label: 'Yoga' },
+  { value: 'swimming', icon: <span className="text-lg">🏊</span>, label: 'Swim' },
+  { value: 'cycling', icon: <span className="text-lg">🚴</span>, label: 'Cycling' },
+  { value: 'dancing', icon: <span className="text-lg">💃</span>, label: 'Dance' },
+  { value: 'martial-arts', icon: <span className="text-lg">🥊</span>, label: 'Martial' },
+  { value: 'stretching', icon: <span className="text-lg">🤸</span>, label: 'Stretch' },
+  { value: 'senior-kids', icon: <Users className="h-5 w-5" />, label: 'More' },
+];
+
+const triggerClass = "flex flex-col items-center gap-1 py-3 px-3 min-w-[70px] rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300 shrink-0";
 
 const WorkoutTabs = ({ workouts }: WorkoutTabsProps) => {
   const { language } = useLanguage();
@@ -17,91 +34,26 @@ const WorkoutTabs = ({ workouts }: WorkoutTabsProps) => {
   return (
     <Tabs defaultValue="weight-loss" className="w-full">
       <div className="flex justify-center mb-12">
-        <TabsList className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-12 w-full max-w-6xl bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm p-2 rounded-2xl shadow-lg border border-muted/50">
-          <TabsTrigger value="weight-loss" className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300">
-            <Heart className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-semibold">{translateText("weight_loss", language)}</span>
-          </TabsTrigger>
-          <TabsTrigger value="muscle-gain" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <Dumbbell className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">{translateText("muscle_gain", language)}</span>
-          </TabsTrigger>
-          <TabsTrigger value="maintenance" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <Weight className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">{translateText("maintenance", language)}</span>
-          </TabsTrigger>
-          <TabsTrigger value="beginner-full-body" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <Star className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">Beginner</span>
-          </TabsTrigger>
-          <TabsTrigger value="pcos-friendly" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <Heart className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">PCOS</span>
-          </TabsTrigger>
-          <TabsTrigger value="yoga" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <span className="text-lg">🧘</span>
-            <span className="text-[10px] md:text-xs font-medium">Yoga</span>
-          </TabsTrigger>
-          <TabsTrigger value="swimming" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <span className="text-lg">🏊</span>
-            <span className="text-[10px] md:text-xs font-medium">Swim</span>
-          </TabsTrigger>
-          <TabsTrigger value="cycling" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <Bike className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">Cycling</span>
-          </TabsTrigger>
-          <TabsTrigger value="dancing" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <Music className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">Dance</span>
-          </TabsTrigger>
-          <TabsTrigger value="martial-arts" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <Swords className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">Martial</span>
-          </TabsTrigger>
-          <TabsTrigger value="stretching" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <StretchHorizontal className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">Stretch</span>
-          </TabsTrigger>
-          <TabsTrigger value="senior-kids" className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground transition-all duration-300">
-            <Users className="h-5 w-5" />
-            <span className="text-[10px] md:text-xs font-medium">More</span>
-          </TabsTrigger>
-        </TabsList>
+        <ScrollArea className="w-full max-w-6xl">
+          <TabsList className="inline-flex w-max gap-1 bg-gradient-to-r from-muted/80 to-muted/60 backdrop-blur-sm p-2 rounded-2xl shadow-lg border border-muted/50">
+            {CATEGORIES.map(cat => (
+              <TabsTrigger key={cat.value} value={cat.value} className={triggerClass}>
+                {cat.icon}
+                <span className="text-[10px] md:text-xs font-semibold whitespace-nowrap">
+                  {cat.labelKey ? translateText(cat.labelKey as any, language) : cat.label}
+                </span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
 
-      <TabsContent value="weight-loss" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="weight-loss" />
-      </TabsContent>
-      <TabsContent value="muscle-gain" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="muscle-gain" />
-      </TabsContent>
-      <TabsContent value="maintenance" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="maintenance" />
-      </TabsContent>
-      <TabsContent value="beginner-full-body" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="beginner-full-body" />
-      </TabsContent>
-      <TabsContent value="pcos-friendly" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="pcos-friendly" />
-      </TabsContent>
-      <TabsContent value="yoga" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="yoga" />
-      </TabsContent>
-      <TabsContent value="swimming" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="swimming" />
-      </TabsContent>
-      <TabsContent value="cycling" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="cycling" />
-      </TabsContent>
-      <TabsContent value="dancing" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="dancing" />
-      </TabsContent>
-      <TabsContent value="martial-arts" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="martial-arts" />
-      </TabsContent>
-      <TabsContent value="stretching" className="animate-fade-in">
-        <WorkoutCategoryContent workouts={workouts} category="stretching" />
-      </TabsContent>
+      {CATEGORIES.filter(c => c.value !== 'senior-kids').map(cat => (
+        <TabsContent key={cat.value} value={cat.value} className="animate-fade-in">
+          <WorkoutCategoryContent workouts={workouts} category={cat.value} />
+        </TabsContent>
+      ))}
       <TabsContent value="senior-kids" className="animate-fade-in">
         <SeniorsKidsWorkouts workouts={workouts} />
       </TabsContent>
