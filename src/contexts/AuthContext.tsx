@@ -390,6 +390,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "See you next time!",
       });
       
+      navigate('/');
     } catch (error: any) {
       console.error('Logout error:', error);
       setUser(null);
