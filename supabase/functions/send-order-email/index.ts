@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -8,7 +7,7 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 interface OrderEmailRequest {
@@ -25,44 +24,81 @@ interface OrderEmailRequest {
   status: string;
 }
 
+const escapeHtml = (str: string): string => {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Auth check
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const { orderId, userEmail, userName, orderTotal, orderItems, deliveryAddress, status }: OrderEmailRequest = await req.json();
+
+    // Sanitize all user-provided strings
+    const safeUserName = escapeHtml(userName || '');
+    const safeOrderId = escapeHtml((orderId || '').slice(0, 8));
+    const safeTotal = Number(orderTotal).toFixed(2);
 
     let subject = "";
     let htmlContent = "";
 
     if (status === "confirmed") {
-      subject = `Order Confirmed - #${orderId.slice(0, 8)}`;
+      subject = `Order Confirmed - #${safeOrderId}`;
       htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #2563eb;">Order Confirmed!</h1>
-          <p>Dear ${userName},</p>
+          <p>Dear ${safeUserName},</p>
           <p>Your order has been confirmed and is being processed.</p>
           
           <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3>Order Details</h3>
-            <p><strong>Order ID:</strong> #${orderId.slice(0, 8)}</p>
-            <p><strong>Total Amount:</strong> ₹${orderTotal.toFixed(2)}</p>
+            <p><strong>Order ID:</strong> #${safeOrderId}</p>
+            <p><strong>Total Amount:</strong> ₹${safeTotal}</p>
             
             <h4>Items:</h4>
             <ul>
-              ${orderItems.map(item => `
-                <li>${item.name} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toFixed(2)}</li>
+              ${(orderItems || []).map(item => `
+                <li>${escapeHtml(item.name)} - Qty: ${Number(item.quantity)} - ₹${(Number(item.price) * Number(item.quantity)).toFixed(2)}</li>
               `).join('')}
             </ul>
             
             <h4>Delivery Address:</h4>
             <p>
-              ${deliveryAddress.street}<br>
-              ${deliveryAddress.city}, ${deliveryAddress.state}<br>
-              Pincode: ${deliveryAddress.pincode}<br>
-              Phone: ${deliveryAddress.phone}
+              ${escapeHtml(deliveryAddress?.street || '')}<br>
+              ${escapeHtml(deliveryAddress?.city || '')}, ${escapeHtml(deliveryAddress?.state || '')}<br>
+              Pincode: ${escapeHtml(deliveryAddress?.pincode || '')}<br>
+              Phone: ${escapeHtml(deliveryAddress?.phone || '')}
             </p>
           </div>
           
@@ -76,15 +112,15 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `;
     } else if (status === "shipped") {
-      subject = `Order Shipped - #${orderId.slice(0, 8)}`;
+      subject = `Order Shipped - #${safeOrderId}`;
       htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #059669;">Order Shipped!</h1>
-          <p>Dear ${userName},</p>
-          <p>Great news! Your order #${orderId.slice(0, 8)} has been shipped and is on its way to you.</p>
+          <p>Dear ${safeUserName},</p>
+          <p>Great news! Your order #${safeOrderId} has been shipped and is on its way to you.</p>
           
           <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Total Amount:</strong> ₹${orderTotal.toFixed(2)}</p>
+            <p><strong>Total Amount:</strong> ₹${safeTotal}</p>
             <p>Expected delivery in 3-5 business days.</p>
           </div>
           
@@ -104,19 +140,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+      headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("Error in send-order-email function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      JSON.stringify({ error: 'An unexpected error occurred' }),
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 };

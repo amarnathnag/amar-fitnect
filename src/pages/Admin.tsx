@@ -36,12 +36,13 @@ const Admin = () => {
 
     try {
       const { data, error } = await supabase
-        .from('admin_users')
-        .select('email')
-        .eq('email', user.email)
-        .single();
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         throw error;
       }
 
