@@ -13,18 +13,25 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 const Auth = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [error, setError] = useState<string | null>(null);
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isProfileComplete } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Check if user is already authenticated
+  // Redirect authenticated users
   useEffect(() => {
     if (user && !isLoading) {
-      console.log('User already authenticated, redirecting...');
-      const from = location.state?.from?.pathname || '/';
-      navigate(from, { replace: true });
+      console.log('User authenticated, redirecting. Profile complete:', isProfileComplete);
+      const from = location.state?.from?.pathname;
+      
+      if (!isProfileComplete) {
+        navigate('/profile-setup', { replace: true });
+      } else if (from && from !== '/auth') {
+        navigate(from, { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     }
-  }, [user, isLoading, navigate, location]);
+  }, [user, isLoading, isProfileComplete, navigate, location]);
   
   if (isLoading) {
     return (
@@ -49,13 +56,13 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-muted/30">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+            <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground">
               Your Health Journey Starts Here
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-muted-foreground">
               Sign in or create an account to access personalized health services
             </p>
           </div>
