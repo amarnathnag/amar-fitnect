@@ -31,8 +31,8 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="container-custom mx-auto px-4 py-3">
+      <nav className="bg-background/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-border supports-[backdrop-filter]:bg-background/80">
+        <div className="container-custom mx-auto px-3 sm:px-4 py-2 sm:py-3">
           <div className="flex justify-between items-center">
             {/* Back + Logo */}
             <div className="flex items-center gap-2">
