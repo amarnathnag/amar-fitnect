@@ -6,28 +6,28 @@ import { ArrowRight, Crown, ShoppingBag } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative bg-gradient-to-r from-health-light to-blue-50 dark:from-health-dark/30 dark:to-blue-900/30 py-20 md:py-32">
+    <section className="relative bg-gradient-to-r from-health-light to-blue-50 dark:from-health-dark/30 dark:to-blue-900/30 py-12 sm:py-20 md:py-32">
       <div className="container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          <div className="animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-center">
+          <div className="animate-fade-in-up text-center md:text-left">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4">
               Your Personalized <span className="text-health-primary">Diet & Fitness</span> Companion
             </h1>
-            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8">
+            <p className="text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-6 sm:mb-8">
               Get science-backed meal plans, workouts & daily routines tailored specifically for you and your health goals.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Button className="btn-primary" asChild>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 w-full sm:w-auto items-stretch sm:items-center justify-center md:justify-start">
+              <Button className="btn-primary w-full sm:w-auto min-h-[44px]" asChild>
                 <Link to="/bmi-calculator">
                   Start Your Journey <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button variant="outline" className="btn-outline" asChild>
+              <Button variant="outline" className="btn-outline w-full sm:w-auto min-h-[44px]" asChild>
                 <Link to="/diet-plans">
                   Explore Diet Plans
                 </Link>
               </Button>
-              <Button variant="outline" className="btn-outline" asChild>
+              <Button variant="outline" className="btn-outline w-full sm:w-auto min-h-[44px]" asChild>
                 <Link to="/marketplace">
                   <ShoppingBag className="mr-2 h-4 w-4" />
                   Health Marketplace
@@ -36,15 +36,16 @@ const HeroSection = () => {
             </div>
             
             {/* Premium Badge */}
-            <div className="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/10 dark:to-amber-900/5 px-4 py-2 rounded-full border border-amber-200 dark:border-amber-800/30">
-              <Crown className="h-5 w-5 text-amber-500" />
-              <span className="text-amber-800 dark:text-amber-300 font-medium">
-                <Link to="/subscription" className="hover:underline">
-                  New Premium Features Available
-                </Link>
+            <Link
+              to="/subscription"
+              className="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/10 dark:to-amber-900/5 px-4 py-2 rounded-full border border-amber-200 dark:border-amber-800/30 max-w-full"
+            >
+              <Crown className="h-5 w-5 text-amber-500 shrink-0" />
+              <span className="text-amber-800 dark:text-amber-300 font-medium text-sm sm:text-base truncate">
+                New Premium Features Available
               </span>
-              <ArrowRight className="h-4 w-4 text-amber-500" />
-            </div>
+              <ArrowRight className="h-4 w-4 text-amber-500 shrink-0" />
+            </Link>
           </div>
           <div className="hidden md:block relative">
             <div className="aspect-square bg-white dark:bg-card rounded-lg p-2 shadow-xl relative overflow-hidden">
