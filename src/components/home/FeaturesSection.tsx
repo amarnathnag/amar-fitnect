@@ -4,13 +4,13 @@ import { Link } from 'react-router-dom';
 import { Utensils, Dumbbell, ShoppingBag, Calendar } from 'lucide-react';
 
 const FeatureCard = ({ icon, title, description, link }: { icon: React.ReactNode, title: string, description: string, link: string }) => (
-  <Link to={link} className="group">
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow group-hover:border-health-primary/30">
-      <div className="mb-4">
+  <Link to={link} className="group block h-full">
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md active:scale-[0.98] transition-all group-hover:border-health-primary/30 h-full">
+      <div className="mb-3 sm:mb-4">
         {icon}
       </div>
-      <h3 className="font-semibold mb-2 group-hover:text-health-primary transition-colors">{title}</h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+      <h3 className="font-semibold text-base sm:text-lg mb-1 sm:mb-2 group-hover:text-health-primary transition-colors">{title}</h3>
+      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{description}</p>
     </div>
   </Link>
 );
