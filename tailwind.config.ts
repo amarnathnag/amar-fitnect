@@ -72,7 +72,26 @@ export default {
 					dark: '#1B5E20',       // Dark green
 					warning: '#FFC107',    // Warning/caution color
 					danger: '#F44336',     // Danger/alert color
+				},
+				// Clinical MVP palette (scoped to .mvp)
+				clinical: {
+					surface: 'hsl(var(--clinical-surface))',
+					teal: 'hsl(var(--clinical-teal))',
+					'teal-deep': 'hsl(var(--clinical-teal-deep))',
+					'teal-soft': 'hsl(var(--clinical-teal-soft))',
+					'teal-ink': 'hsl(var(--clinical-teal-ink))',
+					blue: 'hsl(var(--clinical-blue))',
+					'blue-soft': 'hsl(var(--clinical-blue-soft))',
+					amber: 'hsl(var(--clinical-amber))',
+					'amber-soft': 'hsl(var(--clinical-amber-soft))',
+					danger: 'hsl(var(--clinical-danger))',
+					'danger-soft': 'hsl(var(--clinical-danger-soft))',
+					success: 'hsl(var(--clinical-success))',
+					'success-soft': 'hsl(var(--clinical-success-soft))',
+					neutral: 'hsl(var(--clinical-neutral))',
+					'neutral-soft': 'hsl(var(--clinical-neutral-soft))',
 				}
+
 			},
 			fontFamily: {
 				poppins: ['Poppins', 'sans-serif'],
