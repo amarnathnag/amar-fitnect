@@ -129,6 +129,49 @@
   }
 }
 
+/* AmarHealth clinical MVP scope — calm, document-like clinical palette */
+@layer base {
+  .mvp {
+    --background: 40 20% 98%;
+    --foreground: 30 8% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 30 8% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 8% 15%;
+    --primary: 180 82% 24%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 40 14% 95%;
+    --secondary-foreground: 30 8% 20%;
+    --muted: 40 14% 95%;
+    --muted-foreground: 35 6% 45%;
+    --accent: 160 53% 92%;
+    --accent-foreground: 168 65% 24%;
+    --destructive: 0 57% 41%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 38 12% 88%;
+    --input: 38 12% 88%;
+    --ring: 180 82% 24%;
+    --radius: 0.75rem;
+
+    --clinical-surface: 40 16% 96%;
+    --clinical-teal: 180 82% 24%;
+    --clinical-teal-deep: 180 83% 18%;
+    --clinical-teal-soft: 160 53% 92%;
+    --clinical-teal-ink: 168 65% 24%;
+    --clinical-blue: 210 74% 37%;
+    --clinical-blue-soft: 210 65% 94%;
+    --clinical-amber: 34 78% 41%;
+    --clinical-amber-soft: 38 70% 92%;
+    --clinical-danger: 0 57% 41%;
+    --clinical-danger-soft: 0 65% 95%;
+    --clinical-success: 85 63% 37%;
+    --clinical-success-soft: 85 45% 93%;
+    --clinical-neutral: 45 5% 36%;
+    --clinical-neutral-soft: 45 14% 93%;
+  }
+}
+
+
 @layer utilities {
   .safe-top {
     padding-top: env(safe-area-inset-top);
